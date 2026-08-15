@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dennis Nguyen — Data Analyst Portfolio</title>
+<style>
+:root{
+  --bg-primary:#f4f6f8;
+  --bg-card:#ffffff;
+  --bg-header:#132043;
+  --text-primary:#1c2536;
+  --text-secondary:#64748b;
+  --text-on-dark:#ffffff;
+  --accent:#2f6fed;
+  --radius:10px;
+  --gap:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.55;}
+.container{max-width:980px;margin:0 auto;padding:var(--gap);}
+header.hero{background:linear-gradient(135deg,var(--bg-header),#1f3160);color:var(--text-on-dark);padding:48px 40px;border-radius:var(--radius);margin-bottom:32px;}
+header.hero h1{font-size:30px;font-weight:700;margin-bottom:8px;}
+header.hero .role{font-size:15px;color:#a9c0ff;margin-bottom:16px;font-weight:500;}
+header.hero p{font-size:14.5px;color:rgba(255,255,255,0.82);max-width:640px;margin-bottom:20px;}
+.links{display:flex;gap:12px;flex-wrap:wrap;}
+.links a{color:var(--text-on-dark);background:rgba(255,255,255,0.12);padding:8px 16px;border-radius:20px;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,0.18);transition:background .15s;}
+.links a:hover{background:rgba(255,255,255,0.22);}
+.section-title{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-secondary);margin:36px 0 16px;font-weight:600;}
+.skills-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;}
+.skill-pill{background:var(--bg-card);border:1px solid #e2e8f0;padding:7px 14px;border-radius:20px;font-size:13px;color:var(--text-primary);box-shadow:0 1px 2px rgba(0,0,0,.04);}
+.projects{display:grid;grid-template-columns:1fr;gap:18px;}
+.project-card{background:var(--bg-card);border-radius:var(--radius);padding:26px 28px;box-shadow:0 1px 3px rgba(0,0,0,.07);border-left:4px solid var(--accent);}
+.project-card h3{font-size:18px;font-weight:700;margin-bottom:6px;}
+.project-card .tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px;}
+.project-card .tag{font-size:11px;background:#eef4ff;color:#1d4fbf;padding:3px 9px;border-radius:12px;font-weight:600;letter-spacing:.2px;}
+.project-card p.desc{font-size:14px;color:var(--text-secondary);margin-bottom:8px;}
+.project-card .findings{font-size:13.5px;color:var(--text-primary);background:#f8fafc;border-radius:8px;padding:12px 14px;margin:12px 0 16px;border:1px solid #eef1f5;}
+.project-card .cta{display:flex;gap:10px;flex-wrap:wrap;}
+.project-card .cta a{font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px;text-decoration:none;}
+.cta .primary{background:var(--accent);color:#fff;}
+.cta .primary:hover{background:#2159c9;}
+.cta .secondary{background:#eef2f7;color:var(--text-primary);}
+.cta .secondary:hover{background:#e2e8f0;}
+.roadmap{background:var(--bg-card);border-radius:var(--radius);padding:22px 26px;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+.roadmap ul{margin-left:18px;margin-top:8px;}
+.roadmap li{font-size:13.5px;color:var(--text-secondary);margin-bottom:6px;}
+footer{text-align:center;font-size:12px;color:var(--text-secondary);padding:36px 0 12px;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <h1>Dennis Nguyen</h1>
+    <div class="role">Quality Microbiology Lab Technician → Data Analyst</div>
+    <p>I turn quality, lab, and manufacturing data into decisions — bringing real GMP/QC domain expertise from medtech (Edwards Lifesciences) to data analysis. Below are projects built end-to-end: real data, real tooling, real findings.</p>
+    <div class="links">
+      <a href="https://github.com/TheRealMenace10040" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="mailto:dennishungnguyen@gmail.com">Email</a>
+    </div>
+  </header>
+
+  <div class="section-title">Core Tools</div>
+  <div class="skills-row">
+    <span class="skill-pill">Excel / Google Sheets</span>
+    <span class="skill-pill">SQL</span>
+    <span class="skill-pill">Power BI</span>
+    <span class="skill-pill">Python</span>
+    <span class="skill-pill">Statistical Process Control</span>
+    <span class="skill-pill">Root Cause Analysis</span>
+  </div>
+
+  <div class="section-title">Projects</div>
+  <div class="projects">
+
+    <div class="project-card">
+      <h3>Cardiovascular Medical Device Recalls</h3>
+      <div class="tags">
+        <span class="tag">openFDA API</span>
+        <span class="tag">Python</span>
+        <span class="tag">Chart.js</span>
+        <span class="tag">Root Cause Analysis</span>
+      </div>
+      <p class="desc">Pulled live FDA recall data for cardiovascular medical devices and recoded 15 raw root-cause categories into four analyst-defined buckets — the same triage work used in a CAPA program.</p>
+      <div class="findings"><b>Key finding:</b> Manufacturing/Process issues (37.3%) edge out Design issues (32.8%) as the top recall driver — the opposite of the common assumption that recalls are mostly design flaws.</div>
+      <div class="cta">
+        <a class="primary" href="https://therealmenace10040.github.io/cardiovascular-device-recall-dashboard/" target="_blank" rel="noopener">View Live Dashboard →</a>
+        <a class="secondary" href="https://github.com/TheRealMenace10040/cardiovascular-device-recall-dashboard" target="_blank" rel="noopener">View Code + Case Study</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">In the Pipeline</div>
+  <div class="roadmap">
+    <p style="font-size:13.5px;color:var(--text-secondary);">More projects landing here as they're built — each one leans on real quality/lab domain experience:</p>
+    <ul>
+      <li>Deviation &amp; CAPA tracking dashboard (aging, repeat root causes, close-out trends)</li>
+      <li>Statistical Process Control charts for lab test results (X-bar/R, out-of-control flagging)</li>
+      <li>Out-of-Spec (OOS) investigation tracker</li>
+      <li>Environmental monitoring trend dashboard</li>
+    </ul>
+  </div>
+
+  <footer>Built &amp; maintained by Dennis Nguyen · Updated Aug 2026</footer>
+</div>
+</body>
+</html>
