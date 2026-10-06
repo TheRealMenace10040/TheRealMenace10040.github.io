@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dennis Nguyen, Data Analyst Portfolio</title>
-<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report and an interactive cleanroom EM dashboard.">
+<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report, an interactive cleanroom EM dashboard and a SQL analysis of Chicago food inspections.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -106,7 +106,7 @@ ol.next li { margin-bottom: 4px; }
     <div class="who">
       <span class="lbl">Data analyst portfolio</span>
       <h1>Dennis Nguyen</h1>
-      <p>I work in quality control microbiology at a medical device manufacturer, and I'm moving into data analysis. These projects use the kind of data I already handle at work: recalls, environmental monitoring results, lab supply orders. Each one has its code and a short write-up.</p>
+      <p>I work in quality control microbiology at a medical device manufacturer, and I'm moving into data analysis. These projects use the kind of data I already handle at work (recalls, environmental monitoring results, lab supply orders) plus a large public dataset on food safety. Each one has its code and a short write-up.</p>
     </div>
     <dl>
       <div><dt class="lbl">Current role</dt><dd>QC Microbiology Lab Technician, Edwards Lifesciences</dd></div>
@@ -178,6 +178,20 @@ ol.next li { margin-bottom: 4px; }
         </div>
       </div>
     </article>
+    <article class="proj">
+      <div class="id">P-05</div>
+      <div class="body">
+        <h3>Chicago food inspections: what makes an inspection fail?</h3>
+        <span class="data">City of Chicago public data, 120,670 inspections, pulled Oct 2026</span>
+        <p>I cleaned eight years of the city's food inspection records in Python and answered three questions in SQL: which violations predict a fail, whether re-inspections pass, and which neighborhoods and facility types fail most. The dashboard has a facility-type filter, a neighborhood map and the queries themselves.</p>
+        <p class="finding"><span class="lbl">Finding</span>Pests show up in 47% of failed inspections. When they're cited, 64% of inspections fail, against 14% without them. 84% of failed businesses pass their re-inspection, but their next routine inspection still fails 31% of the time, against 19% after a clean pass.</p>
+        <span class="stack">SQL (DuckDB: CTEs, window functions, GROUPING SETS), Python, JavaScript, Chart.js</span>
+        <div class="go">
+          <a href="https://therealmenace10040.github.io/projects/chicago-food-inspections/">Open the dashboard</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/chicago-food-inspections">Code and write-up</a>
+        </div>
+      </div>
+    </article>
   </section>
 
   <section>
@@ -187,9 +201,9 @@ ol.next li { margin-bottom: 4px; }
       <tbody>
         <tr><td>Excel / Google Sheets</td><td>P-02, P-03, and daily lab work</td></tr>
         <tr><td>VBA</td><td>P-02, P-03</td></tr>
-        <tr><td>SQL</td><td>P-03</td></tr>
-        <tr><td>Python</td><td>P-01, P-02, P-03</td></tr>
-        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04</td></tr>
+        <tr><td>SQL</td><td>P-03, P-05</td></tr>
+        <tr><td>Python</td><td>P-01, P-02, P-03, P-05</td></tr>
+        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05</td></tr>
       </tbody>
     </table>
     <p class="methods"><b>Methods:</b> statistical process control, root cause analysis, Pareto analysis, CAPA trending, EM alert and action limit trending. <b>Also:</b> Power BI.</p>

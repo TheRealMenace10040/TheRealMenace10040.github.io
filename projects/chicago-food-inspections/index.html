@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chicago Food Inspections, Dennis Nguyen</title>
+<meta name="description" content="SQL analysis of 120,000+ City of Chicago food inspections: which violations predict a failed inspection, whether re-inspections pass, and which neighborhoods and facility types fail most.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a GMP controlled report. Document control block, numbered sections, ruled tables, square corners, ink on paper. */
+:root{
+  --ground:#e4e7e4; --paper:#ffffff; --tint:#f3f5f3;
+  --ink:#121518; --rule:#121518; --hair:#cfd4d0; --muted:#596166;
+  --pen:#1d3d73;
+  --pass:#2b6e48; --alert:#9a6a00; --action:#b02a20;
+  --pass-bg:#e5efe8; --alert-bg:#f6ecd2; --action-bg:#f6dedb;
+  --hatch:#d9ddda;
+  --q0:#dce6f2; --q1:#aec3e0; --q2:#7c9ecb; --q3:#4c76b0; --q4:#1d3d73;
+  --f-head:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6;
+  --pass:#6cc392; --alert:#e2b34a; --action:#f07a6e;
+  --pass-bg:#16291f; --alert-bg:#2e2512; --action-bg:#361a17;
+  --hatch:#262b30;
+  --q0:#22324a; --q1:#2f4c78; --q2:#46699f; --q3:#6f93c8; --q4:#a9c4ec;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6;
+  --pass:#6cc392; --alert:#e2b34a; --action:#f07a6e;
+  --pass-bg:#16291f; --alert-bg:#2e2512; --action-bg:#361a17;
+  --hatch:#262b30;
+  --q0:#22324a; --q1:#2f4c78; --q2:#46699f; --q3:#6f93c8; --q4:#a9c4ec;
+  color-scheme:dark;}
+
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;background:var(--ground);color:var(--ink);font:14px/1.5 var(--f-body)}
+[hidden]{display:none!important}
+a{color:var(--pen);text-underline-offset:3px}
+.back{display:inline-block;margin-bottom:12px;font:500 13px var(--f-body)}
+.sheet{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+.doc{background:var(--paper);border:1px solid var(--rule);display:grid}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font:600 10px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--f-head);margin:0;text-wrap:balance}
+h1{font-size:clamp(24px,3.4vw,34px);font-weight:700;line-height:1.05}
+h2{font-size:19px;font-weight:600;display:flex;gap:12px;align-items:baseline}
+h2 .no{font:500 13px var(--f-mono);color:var(--muted)}
+.sub{color:var(--muted);font-size:12.5px;margin:3px 0 0;max-width:86ch}
+section.sec{border-top:1px solid var(--rule);padding:18px 20px;min-width:0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 20px;flex-wrap:wrap;margin-bottom:14px}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+
+/* document control block */
+.ctrl{display:grid;grid-template-columns:minmax(0,1fr) auto}
+.ctrl .title{padding:20px;display:grid;gap:10px;align-content:start}
+.ctrl .title p{margin:0;max-width:70ch;font-size:13.5px}
+.ctrl .meta{display:grid;grid-template-columns:repeat(2,minmax(130px,auto));border-left:1px solid var(--rule)}
+.ctrl .meta div{padding:9px 14px;border-bottom:1px solid var(--hair);border-left:1px solid var(--hair);display:grid;gap:3px}
+.ctrl .meta div:nth-child(odd){border-left:0}
+.ctrl .meta div:nth-last-child(-n+2){border-bottom:0}
+.ctrl .meta b{font:500 13px var(--f-mono);font-variant-numeric:tabular-nums}
+.stamp{justify-self:start;font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--pen);border:1.5px solid var(--pen);padding:3px 8px;transform:rotate(-1.5deg)}
+@media (max-width:760px){.ctrl{grid-template-columns:1fr}.ctrl .meta{border-left:0;border-top:1px solid var(--rule)}}
+
+/* summary strip */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.summary > div{padding:14px 20px;border-left:1px solid var(--hair);display:grid;gap:4px;align-content:start}
+.summary > div:first-child{border-left:0}
+.summary .v{font:500 30px/1.05 var(--f-mono);font-variant-numeric:tabular-nums}
+.summary .v small{font-size:13px;color:var(--muted);margin-left:4px}
+.summary .s{font-size:12px;color:var(--muted)}
+@media (max-width:820px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.summary > div:nth-child(3){border-left:0}.summary > div:nth-child(n+3){border-top:1px solid var(--hair)}}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-end;padding:14px 20px;background:var(--tint);border-top:1px solid var(--rule)}
+.field{display:grid;gap:5px;min-width:0}
+select{font:13px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:6px 9px;min-width:260px;max-width:100%}
+.seg{display:inline-flex;border:1px solid var(--rule);flex-wrap:wrap}
+.seg button{font:500 12px var(--f-body);color:var(--ink);background:var(--paper);border:0;border-left:1px solid var(--rule);padding:6px 11px;cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.crumb{font-size:12px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+
+/* findings */
+ol.find{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+ol.find li{padding:12px 16px 12px 0;border-bottom:1px solid var(--hair);display:grid;grid-template-columns:34px minmax(0,1fr);gap:0 6px}
+ol.find li:nth-child(even){padding-left:16px;border-left:1px solid var(--hair)}
+ol.find .n{font:500 12px var(--f-mono);color:var(--muted);padding-top:2px}
+ol.find b{font-weight:600}
+@media (max-width:820px){ol.find{grid-template-columns:1fr}ol.find li:nth-child(even){padding-left:0;border-left:0}}
+
+/* paired panels */
+.pair{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);border-top:1px solid var(--rule)}
+.pair.even{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.pair > section{border-top:0}
+.pair > section + section{border-left:1px solid var(--rule)}
+@media (max-width:980px){.pair,.pair.even{grid-template-columns:minmax(0,1fr)}.pair > section + section{border-left:0;border-top:1px solid var(--rule)}}
+.chartbox{position:relative;height:260px}
+.chartbox.sm{height:120px;margin-top:10px}
+
+/* ruled tables */
+.scroll{overflow-x:auto}
+table.rt{width:100%;border-collapse:collapse;font-size:12.5px}
+.rt th{font:600 10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 8px 6px;border-bottom:1px solid var(--rule);white-space:nowrap}
+.rt th.r,.rt td.r{text-align:right}
+.rt td{padding:6px 8px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rt td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rt td.no{font:500 11.5px var(--f-mono);color:var(--muted);width:1%}
+.rt td.desc{min-width:220px}
+.rt td.barcell{width:30%;min-width:150px}
+.rt tr:hover td{background:var(--tint)}
+.bar{position:relative;height:12px;background:var(--tint)}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.bar i.hi{background:var(--pen)}
+.bar .base{position:absolute;top:-3px;bottom:-3px;width:0;border-left:1.5px dashed var(--action)}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--muted);margin-top:10px}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;display:inline-block;flex:none}
+.ln{width:18px;border-top:2px solid}
+.ln.d{border-top-style:dashed}
+.note{font-size:11.5px;color:var(--muted);margin:10px 0 0;max-width:90ch}
+
+/* outcome stack */
+.stack{display:flex;height:34px;gap:2px;margin:6px 0 12px}
+.stack div{min-width:2px}
+.o1{background:var(--pass)} .o2{background:var(--q2)} .o3{background:var(--action)} .o4{background:var(--alert)} .o5{background:var(--hatch)}
+
+/* histogram */
+.hist{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));align-items:end;gap:2px;height:110px;border-bottom:1px solid var(--rule)}
+.hist div{background:var(--ink);min-height:1px;position:relative}
+.hist div:hover{background:var(--pen)}
+.hist-ax{display:flex;justify-content:space-between;font:11px var(--f-mono);color:var(--muted);margin-top:4px}
+
+/* map */
+.mapwrap{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:760px){.mapwrap{grid-template-columns:1fr}}
+svg.map{width:100%;height:auto;display:block;max-height:560px}
+svg.map path{stroke:var(--paper);stroke-width:1;cursor:pointer}
+svg.map path:hover,svg.map path.sel{stroke:var(--ink);stroke-width:2}
+svg.map path.na{fill:url(#hatch)}
+.legend-q{display:flex;gap:2px;margin-top:8px}
+.legend-q span{flex:1;height:10px}
+.legend-ax{display:flex;justify-content:space-between;font:10.5px var(--f-mono);color:var(--muted);margin-top:3px}
+
+/* facility matrix */
+table.mx{border-collapse:collapse;width:100%;min-width:720px;font-size:12.5px}
+.mx th{font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;padding:0 4px 6px;border-bottom:1px solid var(--rule)}
+.mx th.rh{text-align:left}
+.mx td{padding:2px;border-bottom:1px solid var(--hair)}
+.mx td.rl{white-space:nowrap;padding:5px 14px 5px 0;font-weight:600;width:1%}
+.mx td.rl small{display:block;font:400 11px var(--f-mono);color:var(--muted)}
+.cell{height:28px;display:grid;place-items:center;font:500 11.5px var(--f-mono);font-variant-numeric:tabular-nums}
+.cell.na{color:var(--muted);background:repeating-linear-gradient(135deg,var(--hatch) 0 1px,transparent 1px 6px)}
+.cell.d{color:#fff}
+:root[data-theme="dark"] .cell.d{color:#0c0e10}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cell.d{color:#0c0e10}}
+
+/* sql */
+pre.sql{margin:0;background:var(--tint);border:1px solid var(--hair);padding:12px 14px;overflow-x:auto;font:12px/1.55 var(--f-mono);color:var(--ink)}
+pre.sql .c{color:var(--muted)}
+pre.sql .k{color:var(--pen);font-weight:600}
+details{border-top:1px solid var(--hair);padding:10px 0}
+details:first-of-type{border-top:0;padding-top:0}
+summary{cursor:pointer;font-weight:600;font-size:13.5px;margin-bottom:8px}
+summary span{font:400 12px var(--f-body);color:var(--muted);margin-left:8px}
+
+/* tooltip */
+.tip{position:fixed;pointer-events:none;z-index:10;background:var(--paper);border:1px solid var(--rule);padding:7px 10px;font-size:12px;max-width:280px;box-shadow:2px 2px 0 var(--hair)}
+.tip b{display:block;font-weight:600;margin-bottom:2px}
+.tip .mono{font-size:11.5px}
+
+.notes{font-size:12px;color:var(--muted);line-height:1.65;max-width:95ch;margin:0;padding-left:18px}
+.notes li{margin-bottom:4px}
+.notes b{color:var(--ink)}
+.pagefoot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:11px var(--f-mono);color:var(--muted);padding:10px 20px;border-top:1px solid var(--rule)}
+.loading{padding:40px 20px;color:var(--muted)}
+@media (max-width:540px){.rt td.barcell{min-width:90px;width:auto}.rt td.desc{min-width:150px}.rt th,.rt td{padding-inline:5px}select{width:100%;min-width:0}.field{flex:1 1 100%}section.sec{padding:16px}}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<a class="back" href="/">Back to portfolio</a>
+<div class="doc">
+
+  <div class="ctrl">
+    <div class="title">
+      <span class="lbl">City of Chicago food inspections · Independent analysis of public data</span>
+      <h1>What Makes a Chicago Food Inspection Fail?</h1>
+      <p>Every inspection the Chicago Department of Public Health has run since the city adopted the FDA Food Code in July 2018, cleaned in Python and analysed in SQL (DuckDB). Three questions: which violations predict a fail, whether re-inspections pass, and which neighborhoods and facility types fail most.</p>
+      <span class="stamp">Real public data · not an official city report</span>
+    </div>
+    <div class="meta">
+      <div><span class="lbl">Document no.</span><b>FI-AR-005</b></div>
+      <div><span class="lbl">Source</span><b><a href="https://data.cityofchicago.org/Health-Human-Services/Food-Inspections/4ijn-s7e5">data.cityofchicago.org</a></b></div>
+      <div><span class="lbl">Review period</span><b id="mPeriod">Jul 2018 to Oct 2026</b></div>
+      <div><span class="lbl">Data pulled</span><b id="mBuilt">6 Oct 2026</b></div>
+      <div><span class="lbl">Inspections in view</span><b id="mCount">0</b></div>
+      <div><span class="lbl">Businesses</span><b id="mBiz">0</b></div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="filters">
+    <div class="field">
+      <label class="lbl" for="fGroup">Facility type</label>
+      <select id="fGroup"></select>
+    </div>
+    <span class="crumb" id="crumb"></span>
+  </div>
+
+  <div id="app"><p class="loading">Loading inspection data…</p></div>
+
+  <div class="pagefoot"><span>FI-AR-005 · Dennis Nguyen</span><span>Source: City of Chicago Data Portal, Food Inspections (4ijn-s7e5)</span></div>
+</div>
+</div>
+
+<template id="tpl">
+  <section class="sec">
+    <div class="sec-head"><div><h2><span class="no">1</span>Key findings</h2><p class="sub">All facility types. These don't change with the filter.</p></div></div>
+    <ol class="find" id="findings"></ol>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div><h2><span class="no">2</span>Fail rate by month</h2><p class="sub">Share of scored inspections (Pass, Pass w/ Conditions, Fail) that failed. Hover for the month's numbers.</p></div>
+    </div>
+    <div class="chartbox"><canvas id="trend" aria-label="Monthly fail rate line chart"></canvas></div>
+    <div class="key"><span><i class="ln" style="border-color:var(--pen)"></i>Monthly fail rate</span><span><i class="ln d" style="border-color:var(--muted)"></i>Average for the whole period</span></div>
+    <div class="chartbox sm"><canvas id="volume" aria-label="Monthly inspection count bar chart"></canvas></div>
+    <p class="note">Bottom: inspections per month. The dip in spring 2020 is the COVID-19 shutdown.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div><h2><span class="no">3</span>Which violations predict a failed inspection?</h2>
+      <p class="sub">For each violation: how often an inspection fails when it's cited, against the fail rate when it isn't (red dashed line). <b>Lift</b> is the ratio of the two. Violations cited fewer than 200 times in the current view are left out.</p></div>
+      <div class="field"><span class="lbl">Rank by</span>
+        <div class="seg" id="vSort">
+          <button aria-pressed="true" data-k="lift">Lift</button>
+          <button aria-pressed="false" data-k="share_of_fails">Share of all fails</button>
+          <button aria-pressed="false" data-k="cited_share">How often cited</button>
+        </div>
+      </div>
+    </div>
+    <div class="scroll">
+      <table class="rt" id="vTable">
+        <thead><tr><th>No.</th><th>Violation</th><th class="r">Cited in</th><th>Fail rate when cited</th><th class="r">Lift</th><th class="r">Share of fails</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">The city lists each item as the standard being checked ("insects, rodents and animals not present"). An item shows up in the data only when the business didn't meet it. So no. 59 "previous priority foundation violation corrected" really means the problem from last time was still there.</p>
+  </section>
+
+  <div class="pair even">
+    <section class="sec">
+      <h2><span class="no">4</span>Severity decides the result</h2>
+      <p class="sub">Inspectors tag serious violations as Priority (P) or Priority Foundation (PF) in their comments. Fail rate by the mix of tags found.</p>
+      <div class="scroll"><table class="rt" id="sevTable" style="margin-top:14px">
+        <thead><tr><th>Violations found</th><th class="r">Inspections</th><th>Fail rate</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+    <section class="sec">
+      <h2><span class="no">5</span>Does one routine inspection predict the next?</h2>
+      <p class="sub">Routine (canvass) inspections only, re-inspections removed. Fail rate of a business's next routine inspection, by how its previous one went.</p>
+      <div class="scroll"><table class="rt" id="nextTable" style="margin-top:14px">
+        <thead><tr><th>Previous routine result</th><th class="r">Inspections</th><th>Next one fails</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+  </div>
+
+  <div class="pair">
+    <section class="sec">
+      <h2><span class="no">6</span>Do re-inspections pass?</h2>
+      <p class="sub">What happened at the same business's next visit after a fail. Fails from the last 120 days of data are left out so every fail has the same window.</p>
+      <div class="stack" id="reStack"></div>
+      <div class="scroll"><table class="rt" id="reTable">
+        <thead><tr><th>Next visit</th><th class="r">Fails</th><th class="r">Share</th><th class="r">Median days</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+    <section class="sec">
+      <h2><span class="no">7</span>Days from a fail to the re-inspection</h2>
+      <p class="sub">All facility types, re-inspected within 120 days. One bar per week.</p>
+      <div class="hist" id="hist" style="margin-top:18px"></div>
+      <div class="hist-ax"><span>Week 1</span><span>Week 9</span><span>Week 18</span></div>
+      <p class="note" id="histNote"></p>
+    </section>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div><h2><span class="no">8</span>Fail rate by neighborhood</h2>
+      <p class="sub">Chicago's 77 community areas, first visits only (re-inspections removed, since they pass more often). Each inspection is placed by point-in-polygon on its latitude and longitude. Hover or tap an area.</p></div>
+    </div>
+    <div class="mapwrap">
+      <div>
+        <svg class="map" id="map" role="img" aria-label="Map of Chicago community areas shaded by fail rate"></svg>
+        <div class="legend-q" id="legQ"></div>
+        <div class="legend-ax" id="legAx"></div>
+        <div class="key"><span><i class="sw" style="background:repeating-linear-gradient(135deg,var(--hatch) 0 1px,transparent 1px 4px);border:1px solid var(--hair)"></i>Fewer than 100 inspections</span></div>
+      </div>
+      <div class="scroll">
+        <table class="rt" id="areaTable">
+          <thead><tr><th class="r">Rank</th><th>Community area</th><th class="r">Inspections</th><th>Fail rate</th><th class="r">From complaints</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="note">Highest 8 and lowest 8 of the areas with at least 100 inspections. A neighborhood's rate also reflects which businesses are there and how many complaints come in, so this shows where fails happen, not why.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div><h2><span class="no">9</span>Fail rate by facility type and inspection purpose</h2>
+      <p class="sub">Darker means a higher fail rate. Cells with fewer than 30 inspections are hatched. The filter above doesn't apply here: this table is the comparison.</p></div>
+    </div>
+    <div class="scroll"><table class="mx" id="mx"></table></div>
+  </section>
+
+  <section class="sec">
+    <h2 style="margin-bottom:12px"><span class="no">10</span>The SQL behind it</h2>
+    <details open>
+      <summary>Re-inspection outcomes<span>LEAD() window function over each business's visits</span></summary>
+<pre class="sql"><span class="k">WITH</span> visits <span class="k">AS</span> (
+    <span class="k">SELECT</span> license_no, facility_group, inspection_date, result, code_version,
+           <span class="k">LEAD</span>(inspection_date) <span class="k">OVER</span> w <span class="k">AS</span> next_date,
+           <span class="k">LEAD</span>(result)          <span class="k">OVER</span> w <span class="k">AS</span> next_result
+    <span class="k">FROM</span> inspections
+    <span class="k">WHERE</span> license_no <span class="k">IS NOT NULL</span>
+    <span class="k">WINDOW</span> w <span class="k">AS</span> (<span class="k">PARTITION BY</span> license_no <span class="k">ORDER BY</span> inspection_date, inspection_id)
+),
+fails <span class="k">AS</span> (
+    <span class="k">SELECT</span> *, date_diff('day', inspection_date, next_date) <span class="k">AS</span> days_to_next
+    <span class="k">FROM</span> visits
+    <span class="k">WHERE</span> result = 'Fail' <span class="k">AND</span> code_version = 2018
+      <span class="k">AND</span> inspection_date &lt;= (<span class="k">SELECT MAX</span>(inspection_date) <span class="k">FROM</span> inspections) - <span class="k">INTERVAL</span> 120 <span class="k">DAY</span>
+)
+<span class="k">SELECT</span> <span class="k">COALESCE</span>(facility_group, 'All') <span class="k">AS</span> facility_group,
+       <span class="k">CASE</span> <span class="k">WHEN</span> days_to_next <span class="k">IS NULL OR</span> days_to_next &gt; 120 <span class="k">THEN</span> 'No follow-up within 120 days'
+            <span class="k">WHEN</span> next_result = 'Pass'               <span class="k">THEN</span> 'Passed'
+            <span class="k">WHEN</span> next_result = 'Pass w/ Conditions' <span class="k">THEN</span> 'Passed with conditions'
+            <span class="k">WHEN</span> next_result = 'Fail'               <span class="k">THEN</span> 'Failed again'
+            <span class="k">ELSE</span> 'Closed, not ready or no entry' <span class="k">END</span> <span class="k">AS</span> outcome,
+       <span class="k">COUNT</span>(*) <span class="k">AS</span> fails,
+       <span class="k">COUNT</span>(*) / <span class="k">SUM</span>(<span class="k">COUNT</span>(*)) <span class="k">OVER</span> (<span class="k">PARTITION BY</span> <span class="k">COALESCE</span>(facility_group, 'All')) <span class="k">AS</span> share,
+       <span class="k">MEDIAN</span>(days_to_next) <span class="k">FILTER</span> (<span class="k">WHERE</span> days_to_next &lt;= 120) <span class="k">AS</span> median_days
+<span class="k">FROM</span> fails
+<span class="k">GROUP BY GROUPING SETS</span> ((facility_group, outcome), (outcome));   <span class="c">-- every facility group plus an 'All' row in one pass</span></pre>
+    </details>
+    <details>
+      <summary>Violation lift<span>CTEs, a join back to group totals, and GROUPING SETS</span></summary>
+<pre class="sql"><span class="k">WITH</span> cited <span class="k">AS</span> (                       <span class="c">-- one row per inspection x violation number</span>
+    <span class="k">SELECT DISTINCT</span> inspection_id, violation_no <span class="k">FROM</span> violations <span class="k">WHERE</span> code_version = 2018
+),
+group_totals <span class="k">AS</span> (
+    <span class="k">SELECT</span> <span class="k">COALESCE</span>(facility_group, 'All') <span class="k">AS</span> facility_group, <span class="k">COUNT</span>(*) <span class="k">AS</span> n_all, <span class="k">SUM</span>(is_fail::<span class="k">INT</span>) <span class="k">AS</span> fails_all
+    <span class="k">FROM</span> scored <span class="k">GROUP BY GROUPING SETS</span> ((facility_group), ())
+),
+per_violation <span class="k">AS</span> (
+    <span class="k">SELECT</span> <span class="k">COALESCE</span>(s.facility_group, 'All') <span class="k">AS</span> facility_group, c.violation_no,
+           <span class="k">COUNT</span>(*) <span class="k">AS</span> n_cited, <span class="k">SUM</span>(s.is_fail::<span class="k">INT</span>) <span class="k">AS</span> fails_cited
+    <span class="k">FROM</span> cited c <span class="k">JOIN</span> scored s <span class="k">USING</span> (inspection_id)
+    <span class="k">GROUP BY GROUPING SETS</span> ((s.facility_group, c.violation_no), (c.violation_no))
+)
+<span class="k">SELECT</span> p.facility_group, p.violation_no, p.n_cited,
+       p.fails_cited / p.n_cited                                        <span class="k">AS</span> fail_rate_cited,
+       (g.fails_all - p.fails_cited) / (g.n_all - p.n_cited)            <span class="k">AS</span> fail_rate_not_cited,
+       (p.fails_cited / p.n_cited) / ((g.fails_all - p.fails_cited) / (g.n_all - p.n_cited)) <span class="k">AS</span> lift,
+       p.fails_cited / g.fails_all                                      <span class="k">AS</span> share_of_fails
+<span class="k">FROM</span> per_violation p <span class="k">JOIN</span> group_totals g <span class="k">USING</span> (facility_group)
+<span class="k">ORDER BY</span> facility_group, lift <span class="k">DESC</span>;</pre>
+    </details>
+    <details>
+      <summary>Cleaning: removing duplicate inspections<span>QUALIFY with ROW_NUMBER()</span></summary>
+<pre class="sql"><span class="c">-- 225 groups of rows repeat the same license, date, type, result and violations</span>
+<span class="c">-- under different inspection IDs. Keep the first ID of each.</span>
+<span class="k">SELECT</span> *
+<span class="k">FROM</span> typed
+<span class="k">QUALIFY ROW_NUMBER</span>() <span class="k">OVER</span> (
+    <span class="k">PARTITION BY</span> license_no, business_name, inspection_date, inspection_type_raw, result, violations_text
+    <span class="k">ORDER BY</span> inspection_id
+) = 1;</pre>
+    </details>
+    <p class="note">Full scripts: <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/blob/main/projects/chicago-food-inspections/sql/01_clean.sql">01_clean.sql</a>, <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/blob/main/projects/chicago-food-inspections/sql/02_analysis.sql">02_analysis.sql</a> and the Python <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/blob/main/projects/chicago-food-inspections/src/build.py">build script</a>.</p>
+  </section>
+
+  <section class="sec">
+    <h2 style="margin-bottom:10px"><span class="no">11</span>Method and limits</h2>
+    <ul class="notes">
+      <li><b>Scope.</b> Inspections from 1 Jul 2018, when Chicago adopted the FDA Food Code and renumbered every violation. Older inspections use a different checklist, so they are kept in the database but left out of the analysis.</li>
+      <li><b>Fail rate</b> is Fail divided by Pass + Pass w/ Conditions + Fail. Visits marked Out of Business, No Entry or Not Ready are not inspections and are left out.</li>
+      <li><b>Cleaning.</b> 225 duplicate rows removed. 472 free-text facility types grouped into 11. Inspection types grouped by purpose (canvass, license, complaint, suspected food poisoning) with re-inspections flagged. Violations split out of a single text field into one row each.</li>
+      <li><b>Severity tags</b> (P and PF) are read from the inspector's free-text comment, so an inspector who forgot to type the tag will make a violation look like a core one.</li>
+      <li><b>Neighborhoods</b> come from point-in-polygon on the city's community area boundaries. About 1% of inspections have no coordinates and are left off the map.</li>
+      <li><b>Correlation, not cause.</b> Lift shows which violations travel with a fail. Inspectors decide the result, and the city's rules say certain violations fail an inspection on their own, so some lift is by design.</li>
+    </ul>
+  </section>
+</template>
+
+<div class="tip" id="tip" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(async function(){
+  const $ = s => document.querySelector(s);
+  const pct = (x, d=1) => (x*100).toFixed(d) + '%';
+  const num = x => Number(x).toLocaleString('en-US');
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const title = s => s.toLowerCase().replace(/(^|[\s/(&-])([a-z])/g, (m,a,b) => a + b.toUpperCase()).replace(/\bRte\b/,'RTE').replace(/\bHaccp\b/,'HACCP');
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fmtDate = s => { const [y,m,d] = s.split('-'); return `${+d} ${MON[m-1]} ${y}`; };
+
+  let D;
+  try {
+    D = await (await fetch('data/dashboard.json')).json();
+  } catch (e) {
+    $('#app').innerHTML = '<p class="loading">Could not load data/dashboard.json. If you opened this file directly, run a local server (python -m http.server) from this folder.</p>';
+    return;
+  }
+  $('#app').replaceWith($('#tpl').content.cloneNode(true));
+
+  const tip = $('#tip');
+  function showTip(e, html){ tip.innerHTML = html; tip.hidden = false; moveTip(e); }
+  function moveTip(e){
+    const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8);
+    const y = e.clientY + 14 + tip.offsetHeight > innerHeight ? e.clientY - tip.offsetHeight - 10 : e.clientY + 14;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  const hideTip = () => tip.hidden = true;
+
+  const by = (rows, g) => rows.filter(r => r.facility_group === g);
+  const kAll = by(D.kpis, 'All')[0];
+  $('#mBuilt').textContent = fmtDate(D.built);
+  $('#mPeriod').textContent = `${MON[+kAll.first_date.slice(5,7)-1]} ${kAll.first_date.slice(0,4)} to ${MON[+kAll.last_date.slice(5,7)-1]} ${kAll.last_date.slice(0,4)}`;
+
+  // facility filter
+  const groups = D.kpis.filter(k => k.facility_group !== 'All' && k.facility_group !== 'Unknown');
+  $('#fGroup').innerHTML = `<option value="All">All facility types (${num(kAll.inspections)})</option>` +
+    groups.map(k => `<option value="${esc(k.facility_group)}">${esc(k.facility_group)} (${num(k.inspections)})</option>`).join('');
+  let G = 'All', vSort = 'lift';
+
+  // ---------- findings (static, All) ----------
+  (function findings(){
+    const v = by(D.violations, 'All');
+    const pest = v.find(r => r.violation_no === 38);
+    const hw = v.find(r => r.violation_no === 10);
+    const prev = v.find(r => r.violation_no === 59);
+    const sev = by(D.severity, 'All');
+    const none = sev.find(r => r.severity_mix.startsWith('0'));
+    const both = sev.find(r => r.severity_mix.startsWith('3'));
+    const re = by(D.reinspection, 'All');
+    const passed = re.filter(r => /^[12]/.test(r.outcome)).reduce((a,r) => a + r.share, 0);
+    const again = re.find(r => r.outcome.startsWith('3'));
+    const nx = by(D.next_canvass, 'All');
+    const nf = nx.find(r => r.previous_result === 'Fail'), np = nx.find(r => r.previous_result === 'Pass');
+    const ar = by(D.areas, 'All').filter(r => r.fail_rank);
+    const top = ar[0], low = ar[ar.length-1];
+    const fac = D.kpis.filter(k => !['All','Unknown','Other'].includes(k.facility_group)).sort((a,b) => b.fail_rate - a.fail_rate);
+    const items = [
+      `<b>Pests are the biggest single signal.</b> Insects, rodents or animals were cited in ${pct(pest.cited_share,0)} of inspections, and ${pct(pest.fail_rate_cited,0)} of those failed, against ${pct(pest.fail_rate_not_cited,0)} without them (${pest.lift}× lift). They show up in ${pct(pest.share_of_fails,0)} of all fails.`,
+      `<b>Not fixing last time's problem is worse.</b> When a priority foundation violation from the last visit was still there, ${pct(prev.fail_rate_cited,0)} of inspections failed.`,
+      `<b>Severity tags almost decide the result.</b> With only core violations, or none, ${pct(none.fail_rate)} failed. With both priority and priority foundation violations, ${pct(both.fail_rate,0)} did.`,
+      `<b>Handwashing sinks are the most common serious problem.</b> Cited in ${pct(hw.cited_share,0)} of inspections and present in ${pct(hw.share_of_fails,0)} of fails.`,
+      `<b>Re-inspections usually pass.</b> ${pct(passed,0)} of failed businesses passed at their next visit (median ${re[0].median_days} days later). ${pct(again.share,0)} failed again.`,
+      `<b>But a fail still predicts the next routine inspection.</b> After a failed routine inspection, the next one fails ${pct(nf.fail_rate,0)} of the time, against ${pct(np.fail_rate,0)} after a clean pass.`,
+      `<b>Location matters.</b> ${top.community_area} has the highest fail rate (${pct(top.fail_rate,0)}) and ${low.community_area} the lowest (${pct(low.fail_rate,0)}), of areas with at least 100 inspections.`,
+      `<b>Bars and taverns fail most.</b> ${fac[0].facility_group} fail ${pct(fac[0].fail_rate,0)} of the time, ${fac.at(-1).facility_group.toLowerCase()} the least (${pct(fac.at(-1).fail_rate,0)}). Restaurants sit at ${pct(D.kpis.find(k=>k.facility_group==='Restaurant').fail_rate,0)}.`
+    ];
+    $('#findings').innerHTML = items.map((t,i) => `<li><span class="n">F-${String(i+1).padStart(2,'0')}</span><span>${t}</span></li>`).join('');
+  })();
+
+  // ---------- charts ----------
+  Chart.defaults.font.family = css('--f-mono').split(',')[0].replace(/"/g,'');
+  Chart.defaults.font.size = 11;
+  const tipOpts = {
+    backgroundColor: css('--paper'), titleColor: css('--ink'), bodyColor: css('--ink'),
+    borderColor: css('--rule'), borderWidth: 1, cornerRadius: 0, displayColors: false, padding: 8
+  };
+  const monthLabel = m => `${MON[+m.slice(5)-1]} ${m.slice(0,4)}`;
+  const trend = new Chart($('#trend'), {
+    type: 'line',
+    data: { labels: [], datasets: [
+      { data: [], borderColor: css('--pen'), borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: css('--pen'), tension: 0 },
+      { data: [], borderColor: css('--muted'), borderWidth: 1.5, borderDash: [5,4], pointRadius: 0, pointHoverRadius: 0 }
+    ]},
+    options: {
+      maintainAspectRatio: false, animation: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: css('--muted'), maxRotation: 0, autoSkip: true, callback(v){ const l = this.getLabelForValue(v); return l.startsWith('Jan') ? l.slice(4) : null; } }, border: { color: css('--rule') } },
+        y: { min: 0, grid: { color: css('--hair') }, ticks: { color: css('--muted'), callback: v => Math.round(v*100) + '%' }, border: { display: false } }
+      },
+      plugins: { legend: { display: false }, tooltip: { ...tipOpts, filter: i => i.datasetIndex === 0,
+        callbacks: { title: i => i[0].label, label: i => { const r = trendRows[i.dataIndex]; return [`Fail rate ${pct(r.fail_rate)}`, `${num(r.inspections)} inspections`]; } } } }
+    }
+  });
+  const volume = new Chart($('#volume'), {
+    type: 'bar',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: css('--muted'), hoverBackgroundColor: css('--ink'), barPercentage: 1, categoryPercentage: .85 }] },
+    options: {
+      maintainAspectRatio: false, animation: false,
+      scales: { x: { display: false }, y: { grid: { color: css('--hair') }, ticks: { color: css('--muted'), maxTicksLimit: 3, callback: v => num(v) }, border: { display: false } } },
+      plugins: { legend: { display: false }, tooltip: { ...tipOpts, callbacks: { label: i => `${num(i.raw)} inspections` } } }
+    }
+  });
+  let trendRows = [];
+
+  // ---------- map ----------
+  const M = D.map;
+  const svg = $('#map');
+  svg.setAttribute('viewBox', `0 0 ${M.width} ${M.height}`);
+  svg.innerHTML = `<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--paper)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--hatch)" stroke-width="2"/></pattern></defs>` +
+    Object.entries(M.paths).map(([no,d]) => `<path data-no="${no}" d="${d}"/>`).join('');
+  const BINS = [0.20, 0.24, 0.28, 0.32];
+  const binOf = r => BINS.filter(b => r >= b).length;
+  $('#legQ').innerHTML = [0,1,2,3,4].map(i => `<span style="background:var(--q${i})"></span>`).join('');
+  $('#legAx').innerHTML = ['<20%','20%','24%','28%','32%+'].map(s => `<span>${s}</span>`).join('');
+  let areaIdx = {};
+  svg.addEventListener('mousemove', e => {
+    const p = e.target.closest('path'); if (!p) return hideTip();
+    const r = areaIdx[p.dataset.no];
+    if (!r) return showTip(e, `<b>Community area ${p.dataset.no}</b>No inspections in this view`);
+    showTip(e, `<b>${esc(r.community_area)}</b><span class="mono">${pct(r.fail_rate)} failed · ${num(r.inspections)} inspections</span><br><span class="mono">${pct(r.complaint_share,0)} from complaints${r.fail_rank ? ' · rank ' + r.fail_rank : ''}</span>`);
+  });
+  svg.addEventListener('mouseleave', hideTip);
+
+  // ---------- facility matrix (static) ----------
+  (function matrix(){
+    const purposes = ['All','Canvass','License','Complaint','Suspected food poisoning','Re-inspection'];
+    const heads = ['All visits','Routine (canvass)','New license','Complaint','Suspected food poisoning','Re-inspection'];
+    const rows = D.kpis.filter(k => k.facility_group !== 'All').map(k => k.facility_group);
+    const look = {}; D.facility.forEach(r => look[r.facility_group + '|' + r.purpose] = r);
+    const shade = r => { const b = binOf(r); return `background:var(--q${b})`; };
+    $('#mx').innerHTML = `<thead><tr><th class="rh">Facility type</th>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>` +
+      rows.map(g => `<tr><td class="rl">${esc(g)}<small>${num(look[g+'|All'].inspections)} inspections</small></td>` +
+        purposes.map(p => { const r = look[g+'|'+p];
+          if (!r || r.inspections < 30) return `<td><div class="cell na" title="${r ? r.inspections : 0} inspections">${r ? '' : '·'}</div></td>`;
+          return `<td><div class="cell${binOf(r.fail_rate) >= 3 ? ' d' : ''}" style="${shade(r.fail_rate)}" data-tip="${esc(g)} · ${esc(p === 'All' ? 'all visits' : p.toLowerCase())}|${pct(r.fail_rate)} failed · ${num(r.inspections)} inspections">${pct(r.fail_rate,0)}</div></td>`;
+        }).join('') + '</tr>').join('') + '</tbody>';
+    $('#mx').addEventListener('mousemove', e => { const c = e.target.closest('[data-tip]'); if (!c) return hideTip(); const [a,b] = c.dataset.tip.split('|'); showTip(e, `<b>${a}</b><span class="mono">${b}</span>`); });
+    $('#mx').addEventListener('mouseleave', hideTip);
+  })();
+
+  // ---------- histogram (static, All) ----------
+  (function hist(){
+    const rows = D.reinspection_days; const max = Math.max(...rows.map(r => r.fails)); const tot = rows.reduce((a,r) => a + r.fails, 0);
+    $('#hist').innerHTML = rows.map(r => `<div style="height:${r.fails/max*100}%" data-tip="Week ${r.week+1}: days ${r.week*7} to ${r.week*7+6}|${num(r.fails)} re-inspections · ${pct(r.fails/tot)}"></div>`).join('');
+    const two = rows.filter(r => r.week <= 1).reduce((a,r) => a + r.fails, 0);
+    $('#histNote').textContent = `${pct(two/tot,0)} of re-inspections happen within two weeks of the fail. Most land in the second week.`;
+    $('#hist').addEventListener('mousemove', e => { const c = e.target.closest('[data-tip]'); if (!c) return hideTip(); const [a,b] = c.dataset.tip.split('|'); showTip(e, `<b>${a}</b><span class="mono">${b}</span>`); });
+    $('#hist').addEventListener('mouseleave', hideTip);
+  })();
+
+  // ---------- render (filtered) ----------
+  function render(){
+    const k = by(D.kpis, G)[0];
+    const re = by(D.reinspection, G);
+    const passed = re.filter(r => /^[12]/.test(r.outcome)).reduce((a,r) => a + r.share, 0);
+    const reN = re.reduce((a,r) => a + r.fails, 0);
+    $('#mCount').textContent = num(k.inspections);
+    $('#mBiz').textContent = num(k.businesses);
+    $('#crumb').innerHTML = G === 'All' ? 'Showing <b>all facility types</b>.' : `Showing <b>${esc(G)}</b> only. Findings, the histogram and the facility table always show everything.`;
+    $('#summary').innerHTML = [
+      ['Fail rate', pct(k.fail_rate), `${num(k.fails)} of ${num(k.inspections)} inspections`],
+      ['Businesses inspected', num(k.businesses), 'distinct license numbers'],
+      ['Pass on re-inspection', pct(passed,0), `of ${num(reN)} fails, incl. pass with conditions`],
+      ['Median days to re-inspect', `${re[0].median_days}<small>days</small>`, 'from the fail to the next visit']
+    ].map(([l,v,s]) => `<div><span class="lbl">${l}</span><span class="v">${v}</span><span class="s">${s}</span></div>`).join('');
+
+    // trend
+    trendRows = by(D.monthly, G).filter(r => r.month !== kAll.last_date.slice(0,7) || +kAll.last_date.slice(8) > 20);
+    const labels = trendRows.map(r => monthLabel(r.month));
+    trend.data.labels = labels; volume.data.labels = labels;
+    trend.data.datasets[0].data = trendRows.map(r => r.fail_rate);
+    trend.data.datasets[1].data = trendRows.map(() => k.fail_rate);
+    volume.data.datasets[0].data = trendRows.map(r => r.inspections);
+    trend.update(); volume.update();
+
+    // violations
+    const v = by(D.violations, G).filter(r => r.n_cited >= 200).sort((a,b) => b[vSort] - a[vSort]).slice(0, 15);
+    $('#vTable tbody').innerHTML = v.map(r => `<tr>
+      <td class="no">${r.violation_no}</td>
+      <td class="desc">${esc(title(r.violation_desc))}</td>
+      <td class="n r">${pct(r.cited_share)}</td>
+      <td class="barcell"><div style="display:flex;gap:10px;align-items:center"><div class="bar" style="flex:1"><i class="${r.lift >= 3 ? 'hi' : ''}" style="width:${r.fail_rate_cited*100}%"></i><span class="base" style="left:${r.fail_rate_not_cited*100}%"></span></div><span class="mono" style="width:44px;text-align:right">${pct(r.fail_rate_cited,0)}</span></div></td>
+      <td class="n r">${r.lift.toFixed(1)}×</td>
+      <td class="n r">${pct(r.share_of_fails)}</td></tr>`).join('') || '<tr><td colspan="6">Not enough inspections in this view.</td></tr>';
+
+    // severity
+    const sevLabel = { '0':'Core violations only, or none', '1':'Priority foundation (PF) only', '2':'Priority (P) only', '3':'Both P and PF' };
+    $('#sevTable tbody').innerHTML = by(D.severity, G).map(r => `<tr>
+      <td>${sevLabel[r.severity_mix[0]]}<br><span class="note" style="margin:0">avg ${r.avg_violations} violations cited</span></td>
+      <td class="n r">${num(r.inspections)}</td>
+      <td class="barcell"><div style="display:flex;gap:10px;align-items:center"><div class="bar" style="flex:1"><i style="width:${r.fail_rate*100}%"></i></div><span class="mono" style="width:44px;text-align:right">${pct(r.fail_rate,0)}</span></div></td></tr>`).join('');
+
+    // next canvass
+    const order = ['Pass','Pass w/ Conditions','Fail'];
+    $('#nextTable tbody').innerHTML = by(D.next_canvass, G).sort((a,b) => order.indexOf(a.previous_result) - order.indexOf(b.previous_result)).map(r => `<tr>
+      <td>${r.previous_result}</td><td class="n r">${num(r.inspections)}</td>
+      <td class="barcell"><div style="display:flex;gap:10px;align-items:center"><div class="bar" style="flex:1"><i class="${r.previous_result === 'Fail' ? 'hi' : ''}" style="width:${r.fail_rate*100}%"></i></div><span class="mono" style="width:44px;text-align:right">${pct(r.fail_rate,0)}</span></div></td></tr>`).join('');
+
+    // re-inspection
+    $('#reStack').innerHTML = re.map(r => `<div class="o${r.outcome[0]}" style="flex:${r.share}" data-tip="${esc(r.outcome.slice(2))}|${pct(r.share)} · ${num(r.fails)} fails"></div>`).join('');
+    $('#reTable tbody').innerHTML = re.map(r => `<tr><td><span style="display:inline-flex;gap:8px;align-items:center"><i class="sw o${r.outcome[0]}"></i>${esc(r.outcome.slice(2))}</span></td>
+      <td class="n r">${num(r.fails)}</td><td class="n r">${pct(r.share)}</td><td class="n r">${r.median_days ?? '·'}</td></tr>`).join('');
+
+    // map + table
+    const areas = by(D.areas, G);
+    areaIdx = {}; areas.forEach(r => areaIdx[r.community_area_no] = r);
+    svg.querySelectorAll('path').forEach(p => {
+      const r = areaIdx[p.dataset.no];
+      if (!r || r.inspections < 100) { p.setAttribute('class', 'na'); p.style.fill = ''; }
+      else { p.removeAttribute('class'); p.style.fill = `var(--q${binOf(r.fail_rate)})`; }
+    });
+    const ranked = areas.filter(r => r.fail_rank).sort((a,b) => a.fail_rank - b.fail_rank);
+    const show = ranked.length > 16 ? [...ranked.slice(0,8), null, ...ranked.slice(-8)] : ranked;
+    $('#areaTable tbody').innerHTML = show.map(r => r === null ? `<tr><td colspan="5" class="note" style="text-align:center;margin:0">· · ·</td></tr>` : `<tr data-no="${r.community_area_no}">
+      <td class="n r">${r.fail_rank}</td><td>${esc(r.community_area)}</td><td class="n r">${num(r.inspections)}</td>
+      <td class="barcell"><div style="display:flex;gap:10px;align-items:center"><div class="bar" style="flex:1"><i style="width:${r.fail_rate*100/0.5}%;background:var(--q${binOf(r.fail_rate)})"></i></div><span class="mono" style="width:44px;text-align:right">${pct(r.fail_rate,0)}</span></div></td>
+      <td class="n r">${pct(r.complaint_share,0)}</td></tr>`).join('') || '<tr><td colspan="5">No area has 100 inspections of this type.</td></tr>';
+  }
+
+  // table row hover highlights the map
+  $('#areaTable').addEventListener('mouseover', e => { const tr = e.target.closest('tr[data-no]'); svg.querySelectorAll('path.sel').forEach(p => p.classList.remove('sel')); if (tr) svg.querySelector(`path[data-no="${tr.dataset.no}"]`)?.classList.add('sel'); });
+  $('#areaTable').addEventListener('mouseleave', () => svg.querySelectorAll('path.sel').forEach(p => p.classList.remove('sel')));
+  $('#reStack').addEventListener('mousemove', e => { const c = e.target.closest('[data-tip]'); if (!c) return hideTip(); const [a,b] = c.dataset.tip.split('|'); showTip(e, `<b>${a}</b><span class="mono">${b}</span>`); });
+  $('#reStack').addEventListener('mouseleave', hideTip);
+
+  $('#fGroup').addEventListener('change', e => { G = e.target.value; render(); });
+  $('#vSort').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    vSort = b.dataset.k; $('#vSort').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+facility_group,severity_mix,inspections,fail_rate,avg_violations
+All,"0 Core violations only, or none",66034,0.0222,2.2
+All,1 Priority foundation only,39237,0.43,6.2
+All,2 Priority only,4453,0.3241,4.2
+All,3 Priority and priority foundation,10946,0.6993,8.5
+Bakery,"0 Core violations only, or none",816,0.011,2.4
+Bakery,1 Priority foundation only,675,0.4207,7.0
+Bakery,2 Priority only,36,0.4444,4.2
+Bakery,3 Priority and priority foundation,163,0.7791,9.2
+Bar / tavern / liquor,"0 Core violations only, or none",349,0.0716,0.9
+Bar / tavern / liquor,1 Priority foundation only,283,0.5406,5.7
+Bar / tavern / liquor,2 Priority only,6,0.6667,1.7
+Bar / tavern / liquor,3 Priority and priority foundation,41,0.8537,6.8
+Catering,"0 Core violations only, or none",429,0.0117,2.0
+Catering,1 Priority foundation only,216,0.3935,5.5
+Catering,2 Priority only,16,0.25,4.2
+Catering,3 Priority and priority foundation,52,0.5,8.4
+Daycare / children's services,"0 Core violations only, or none",5123,0.0137,1.5
+Daycare / children's services,1 Priority foundation only,2079,0.4661,4.4
+Daycare / children's services,2 Priority only,300,0.6033,2.8
+Daycare / children's services,3 Priority and priority foundation,343,0.8192,6.0
+Grocery store,"0 Core violations only, or none",6252,0.027,2.4
+Grocery store,1 Priority foundation only,4937,0.4221,6.4
+Grocery store,2 Priority only,397,0.33,4.5
+Grocery store,3 Priority and priority foundation,1101,0.7448,8.8
+Hospital / long-term care,"0 Core violations only, or none",1295,0.0247,1.9
+Hospital / long-term care,1 Priority foundation only,562,0.4662,5.6
+Hospital / long-term care,2 Priority only,93,0.2796,3.8
+Hospital / long-term care,3 Priority and priority foundation,176,0.7557,7.6
+Mobile food,"0 Core violations only, or none",675,0.0489,0.9
+Mobile food,1 Priority foundation only,177,0.3446,3.4
+Mobile food,2 Priority only,47,0.5745,3.0
+Mobile food,3 Priority and priority foundation,100,0.9,6.2
+Other,"0 Core violations only, or none",1234,0.0194,1.4
+Other,1 Priority foundation only,642,0.4564,4.8
+Other,2 Priority only,45,0.4222,3.2
+Other,3 Priority and priority foundation,157,0.7325,6.9
+Restaurant,"0 Core violations only, or none",44134,0.0213,2.4
+Restaurant,1 Priority foundation only,27316,0.4156,6.6
+Restaurant,2 Priority only,3067,0.2361,4.5
+Restaurant,3 Priority and priority foundation,8236,0.6734,9.0
+School,"0 Core violations only, or none",5643,0.0269,1.7
+School,1 Priority foundation only,2309,0.5686,4.2
+School,2 Priority only,446,0.6973,2.8
+School,3 Priority and priority foundation,561,0.8324,4.7
+Unknown,"0 Core violations only, or none",84,0.0833,1.3
+Unknown,1 Priority foundation only,41,0.3659,4.9
+Unknown,3 Priority and priority foundation,16,0.9375,8.1

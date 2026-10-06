@@ -1,0 +1,37 @@
+facility_group,previous_result,inspections,fail_rate
+All,Fail,10005,0.3084
+All,Pass,20024,0.1873
+All,Pass w/ Conditions,12845,0.2675
+Bakery,Fail,175,0.3771
+Bakery,Pass,207,0.2174
+Bakery,Pass w/ Conditions,189,0.3175
+Bar / tavern / liquor,Fail,8,0.5
+Bar / tavern / liquor,Pass,5,0.2
+Bar / tavern / liquor,Pass w/ Conditions,1,0.0
+Catering,Fail,62,0.1774
+Catering,Pass,181,0.1436
+Catering,Pass w/ Conditions,92,0.1957
+Daycare / children's services,Fail,382,0.2461
+Daycare / children's services,Pass,1203,0.1646
+Daycare / children's services,Pass w/ Conditions,583,0.1852
+Grocery store,Fail,670,0.3269
+Grocery store,Pass,1000,0.152
+Grocery store,Pass w/ Conditions,952,0.2595
+Hospital / long-term care,Fail,270,0.3556
+Hospital / long-term care,Pass,536,0.1884
+Hospital / long-term care,Pass w/ Conditions,258,0.2752
+Mobile food,Fail,14,0.0
+Mobile food,Pass,58,0.1207
+Mobile food,Pass w/ Conditions,13,0.3846
+Other,Fail,130,0.2385
+Other,Pass,452,0.1504
+Other,Pass w/ Conditions,159,0.2138
+Restaurant,Fail,6827,0.3076
+Restaurant,Pass,13070,0.1834
+Restaurant,Pass w/ Conditions,9657,0.2746
+School,Fail,1463,0.3165
+School,Pass,3300,0.2288
+School,Pass w/ Conditions,940,0.2553
+Unknown,Fail,4,0.5
+Unknown,Pass,12,0.0833
+Unknown,Pass w/ Conditions,1,1.0
