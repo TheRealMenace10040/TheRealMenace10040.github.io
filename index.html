@@ -64,6 +64,7 @@ footer{text-align:center;font-size:12px;color:var(--text-secondary);padding:36px
   <div class="section-title">Core Tools</div>
   <div class="skills-row">
     <span class="skill-pill">Excel / Google Sheets</span>
+    <span class="skill-pill">VBA</span>
     <span class="skill-pill">SQL</span>
     <span class="skill-pill">Power BI</span>
     <span class="skill-pill">Python</span>
@@ -90,6 +91,38 @@ footer{text-align:center;font-size:12px;color:var(--text-secondary);padding:36px
       </div>
     </div>
 
+    <div class="project-card">
+      <h3>Lab Supply &amp; Vendor Performance Tracker</h3>
+      <div class="tags">
+        <span class="tag">Excel</span>
+        <span class="tag">VBA</span>
+        <span class="tag">COUNTIFS / SUMIFS</span>
+        <span class="tag">Purchasing</span>
+      </div>
+      <p class="desc">An Excel tool for the time-sensitive supplies a QC lab runs on. It scores 8 vendors on on-time delivery and lead time across 320 purchase orders, flags expiring lots, and calculates reorder points. VBA macros import new POs, export a dated reorder list, and refresh the dashboard. <i>Synthetic data.</i></p>
+      <div class="findings"><b>Key finding:</b> One calibration vendor delivers on time only 75% of the time and gets flagged "At risk", while overall on-time delivery is 89.7%. Six items sit below their reorder point.</div>
+      <div class="cta">
+        <a class="primary" href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/raw/main/projects/lab-supply-vendor-tracker/Lab_Supply_Vendor_Tracker.xlsx">Download Workbook →</a>
+        <a class="secondary" href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/lab-supply-vendor-tracker" target="_blank" rel="noopener">View Code + Case Study</a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <h3>Environmental Monitoring QC Trend Report</h3>
+      <div class="tags">
+        <span class="tag">Python</span>
+        <span class="tag">SQL</span>
+        <span class="tag">Excel</span>
+        <span class="tag">VBA</span>
+      </div>
+      <p class="desc">A small pipeline for cleanroom EM results. Python generates 3,600 results, SQL (views, CTEs, self-joins) finds excursion trends and repeat excursions, and a formula-driven Excel report with a VBA macro builds the weekly summary and exports it to PDF. <i>Synthetic data; limits are illustrative.</i></p>
+      <div class="findings"><b>Key finding:</b> The excursion rate runs 2-5% most months but jumps to 8.0% in July. One ISO 7 room nearly tripled its rate in the last 30 days against its 90-day baseline.</div>
+      <div class="cta">
+        <a class="primary" href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/raw/main/projects/em-qc-trend-report/EM_QC_Trend_Report.xlsx">Download Workbook →</a>
+        <a class="secondary" href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/em-qc-trend-report" target="_blank" rel="noopener">View Code + Case Study</a>
+      </div>
+    </div>
+
   </div>
 
   <div class="section-title">In the Pipeline</div>
@@ -99,11 +132,10 @@ footer{text-align:center;font-size:12px;color:var(--text-secondary);padding:36px
       <li>Deviation &amp; CAPA tracking dashboard (aging, repeat root causes, close-out trends)</li>
       <li>Statistical Process Control charts for lab test results (X-bar/R, out-of-control flagging)</li>
       <li>Out-of-Spec (OOS) investigation tracker</li>
-      <li>Environmental monitoring trend dashboard</li>
     </ul>
   </div>
 
-  <footer>Built &amp; maintained by Dennis Nguyen · Updated Aug 2026</footer>
+  <footer>Built &amp; maintained by Dennis Nguyen · Updated Oct 2026</footer>
 </div>
 </body>
 </html>
