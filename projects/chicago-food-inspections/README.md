@@ -59,7 +59,8 @@ python -m http.server     # then open http://localhost:8000
 
 - **Scope:** from 1 Jul 2018, when Chicago adopted the FDA Food Code and renumbered every violation. Older inspections use a different checklist.
 - **Fail rate** = Fail / (Pass + Pass w/ Conditions + Fail). Out of Business, No Entry and Not Ready visits are left out.
-- **Re-inspection** = the same license's next visit within 120 days of a fail. Fails from the last 120 days of data are excluded.
+- **Re-inspection** = the same license's next visit within 120 days of a fail (97.6% of those visits are logged as re-inspections). Fails from the last 120 days of data are excluded.
+- **Checked:** the pest numbers were recomputed straight from the raw violation text and matched; facility groups add up to the overall total; re-inspection outcome shares sum to 100% for every group; the partial current month is left off the trend chart.
 - **Neighborhood** rates use first visits only, so areas with many re-inspections don't look better than they are. Areas with fewer than 100 inspections aren't ranked.
 - **Severity tags** come from the inspector's free-text comment, so they're only as complete as the comments.
 - Lift shows which violations travel with a fail. It isn't cause and effect, and city rules fail some violations automatically.
