@@ -1,0 +1,74 @@
+facility_group,purpose,inspections,fail_rate
+Bakery,All,1690,0.258
+Bakery,Canvass,858,0.2949
+Bakery,Complaint,182,0.3791
+Bakery,License,208,0.2981
+Bakery,Other,6,0.3333
+Bakery,Re-inspection,435,0.1126
+Bakery,Suspected food poisoning,1,1.0
+Bar / tavern / liquor,All,679,0.3196
+Bar / tavern / liquor,Canvass,61,0.377
+Bar / tavern / liquor,Complaint,107,0.5327
+Bar / tavern / liquor,License,307,0.3746
+Bar / tavern / liquor,Re-inspection,204,0.1078
+Catering,All,713,0.1683
+Catering,Canvass,456,0.1754
+Catering,Complaint,39,0.2564
+Catering,License,85,0.2235
+Catering,Re-inspection,129,0.0775
+Catering,Suspected food poisoning,4,0.25
+Daycare / children's services,All,7845,0.1913
+Daycare / children's services,Canvass,3159,0.1789
+Daycare / children's services,Complaint,15,0.3333
+Daycare / children's services,License,3177,0.2398
+Daycare / children's services,Other,21,0.3333
+Daycare / children's services,Re-inspection,1469,0.1096
+Daycare / children's services,Suspected food poisoning,4,0.25
+Grocery store,All,12687,0.2525
+Grocery store,Canvass,4501,0.2717
+Grocery store,Complaint,2724,0.3223
+Grocery store,License,2228,0.3097
+Grocery store,Other,29,0.1724
+Grocery store,Re-inspection,3180,0.1258
+Grocery store,Suspected food poisoning,25,0.32
+Hospital / long-term care,All,2126,0.2131
+Hospital / long-term care,Canvass,1430,0.2364
+Hospital / long-term care,Complaint,113,0.3451
+Hospital / long-term care,License,94,0.1915
+Hospital / long-term care,Other,3,0.3333
+Hospital / long-term care,Re-inspection,481,0.1164
+Hospital / long-term care,Suspected food poisoning,5,0.2
+Mobile food,All,999,0.2112
+Mobile food,Canvass,193,0.1658
+Mobile food,Complaint,18,0.5
+Mobile food,License,606,0.2343
+Mobile food,Other,2,1.0
+Mobile food,Re-inspection,179,0.1453
+Mobile food,Suspected food poisoning,1,0.0
+Other,All,2078,0.217
+Other,Canvass,1129,0.194
+Other,Complaint,178,0.3876
+Other,License,330,0.3061
+Other,Other,3,0.6667
+Other,Re-inspection,432,0.1389
+Other,Suspected food poisoning,6,0.0
+Restaurant,All,82753,0.2243
+Restaurant,Canvass,40877,0.2414
+Restaurant,Complaint,12605,0.3228
+Restaurant,License,9482,0.2784
+Restaurant,Other,221,0.0769
+Restaurant,Re-inspection,19349,0.0986
+Restaurant,Suspected food poisoning,219,0.2831
+School,All,8959,0.2504
+School,Canvass,6687,0.2535
+School,Complaint,41,0.4634
+School,License,78,0.2436
+School,Other,21,0.3333
+School,Re-inspection,2131,0.236
+School,Suspected food poisoning,1,0.0
+Unknown,All,141,0.2624
+Unknown,Canvass,48,0.2083
+Unknown,Complaint,15,0.5333
+Unknown,License,49,0.2653
+Unknown,Other,1,0.0
+Unknown,Re-inspection,28,0.2143

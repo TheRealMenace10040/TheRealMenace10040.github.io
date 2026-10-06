@@ -1,0 +1,1152 @@
+facility_group,month,inspections,fail_rate
+All,2018-07,1008,0.2093
+All,2018-08,1200,0.225
+All,2018-09,1170,0.2162
+All,2018-10,1250,0.2008
+All,2018-11,1091,0.2136
+All,2018-12,834,0.1918
+All,2019-01,1163,0.2055
+All,2019-02,1223,0.2273
+All,2019-03,1414,0.2221
+All,2019-04,1441,0.1964
+All,2019-05,1525,0.2098
+All,2019-06,1439,0.2147
+All,2019-07,1272,0.2366
+All,2019-08,1409,0.2633
+All,2019-09,1259,0.2756
+All,2019-10,1515,0.2568
+All,2019-11,1280,0.1992
+All,2019-12,1180,0.1746
+All,2020-01,1516,0.2394
+All,2020-02,1163,0.2451
+All,2020-03,1289,0.2265
+All,2020-04,1042,0.2399
+All,2020-05,1071,0.253
+All,2020-06,1003,0.2672
+All,2020-07,940,0.2085
+All,2020-08,892,0.2231
+All,2020-09,1078,0.2078
+All,2020-10,1001,0.2428
+All,2020-11,797,0.2146
+All,2020-12,808,0.2141
+All,2021-01,919,0.2165
+All,2021-02,804,0.204
+All,2021-03,1120,0.2196
+All,2021-04,1172,0.2534
+All,2021-05,1324,0.216
+All,2021-06,1369,0.2264
+All,2021-07,1024,0.2529
+All,2021-08,1143,0.2458
+All,2021-09,1132,0.2429
+All,2021-10,1103,0.2557
+All,2021-11,1041,0.2142
+All,2021-12,987,0.2158
+All,2022-01,941,0.2359
+All,2022-02,917,0.2312
+All,2022-03,1233,0.253
+All,2022-04,1125,0.2409
+All,2022-05,1250,0.2408
+All,2022-06,1386,0.2641
+All,2022-07,1139,0.2362
+All,2022-08,1351,0.2665
+All,2022-09,1317,0.2642
+All,2022-10,1326,0.2436
+All,2022-11,1241,0.2442
+All,2022-12,1056,0.2519
+All,2023-01,1122,0.2549
+All,2023-02,1162,0.2461
+All,2023-03,1424,0.2423
+All,2023-04,1348,0.2485
+All,2023-05,1223,0.2445
+All,2023-06,1335,0.2569
+All,2023-07,1003,0.2622
+All,2023-08,1492,0.2775
+All,2023-09,1323,0.26
+All,2023-10,1509,0.2531
+All,2023-11,1341,0.2364
+All,2023-12,1130,0.1956
+All,2024-01,1202,0.2696
+All,2024-02,1190,0.2529
+All,2024-03,1323,0.2328
+All,2024-04,1612,0.227
+All,2024-05,1524,0.1995
+All,2024-06,1052,0.2262
+All,2024-07,1333,0.2123
+All,2024-08,1300,0.2238
+All,2024-09,1421,0.2027
+All,2024-10,1641,0.2084
+All,2024-11,1102,0.1996
+All,2024-12,1293,0.1671
+All,2025-01,1388,0.2233
+All,2025-02,1308,0.2148
+All,2025-03,1573,0.2047
+All,2025-04,1624,0.1878
+All,2025-05,1395,0.2244
+All,2025-06,1228,0.2052
+All,2025-07,1367,0.2143
+All,2025-08,1225,0.231
+All,2025-09,1298,0.2211
+All,2025-10,1400,0.2257
+All,2025-11,1118,0.186
+All,2025-12,1129,0.1957
+All,2026-01,1139,0.2125
+All,2026-02,1184,0.2035
+All,2026-03,1158,0.2038
+All,2026-04,1419,0.2058
+All,2026-05,1363,0.1834
+All,2026-06,1291,0.2161
+All,2026-07,912,0.2346
+All,2026-08,1029,0.2138
+All,2026-09,953,0.2403
+All,2026-10,71,0.169
+Bakery,2018-07,23,0.3478
+Bakery,2018-08,27,0.4074
+Bakery,2018-09,16,0.25
+Bakery,2018-10,18,0.3889
+Bakery,2018-11,14,0.2143
+Bakery,2018-12,12,0.1667
+Bakery,2019-01,9,0.1111
+Bakery,2019-02,8,0.375
+Bakery,2019-03,18,0.3333
+Bakery,2019-04,28,0.25
+Bakery,2019-05,25,0.28
+Bakery,2019-06,23,0.3043
+Bakery,2019-07,19,0.2105
+Bakery,2019-08,22,0.2727
+Bakery,2019-09,18,0.3333
+Bakery,2019-10,20,0.2
+Bakery,2019-11,16,0.4375
+Bakery,2019-12,19,0.1579
+Bakery,2020-01,18,0.3333
+Bakery,2020-02,15,0.3333
+Bakery,2020-03,22,0.3636
+Bakery,2020-04,16,0.4375
+Bakery,2020-05,20,0.2
+Bakery,2020-06,14,0.2857
+Bakery,2020-07,10,0.0
+Bakery,2020-08,20,0.35
+Bakery,2020-09,9,0.1111
+Bakery,2020-10,16,0.3125
+Bakery,2020-11,20,0.35
+Bakery,2020-12,15,0.3333
+Bakery,2021-01,20,0.35
+Bakery,2021-02,13,0.2308
+Bakery,2021-03,14,0.2857
+Bakery,2021-04,23,0.3478
+Bakery,2021-05,19,0.3158
+Bakery,2021-06,17,0.2353
+Bakery,2021-07,8,0.0
+Bakery,2021-08,20,0.25
+Bakery,2021-09,9,0.0
+Bakery,2021-10,9,0.2222
+Bakery,2021-11,14,0.2857
+Bakery,2021-12,14,0.2857
+Bakery,2022-01,18,0.2222
+Bakery,2022-02,12,0.0833
+Bakery,2022-03,15,0.3333
+Bakery,2022-04,9,0.1111
+Bakery,2022-05,12,0.3333
+Bakery,2022-06,21,0.1905
+Bakery,2022-07,12,0.25
+Bakery,2022-08,12,0.0833
+Bakery,2022-09,12,0.25
+Bakery,2022-10,21,0.2381
+Bakery,2022-11,20,0.35
+Bakery,2022-12,18,0.2222
+Bakery,2023-01,9,0.0
+Bakery,2023-02,12,0.4167
+Bakery,2023-03,14,0.1429
+Bakery,2023-04,22,0.2727
+Bakery,2023-05,13,0.3077
+Bakery,2023-06,21,0.381
+Bakery,2023-07,20,0.2
+Bakery,2023-08,27,0.3704
+Bakery,2023-09,13,0.1538
+Bakery,2023-10,13,0.2308
+Bakery,2023-11,17,0.1765
+Bakery,2023-12,20,0.4
+Bakery,2024-01,10,0.3
+Bakery,2024-02,9,0.1111
+Bakery,2024-03,15,0.3333
+Bakery,2024-04,14,0.1429
+Bakery,2024-05,26,0.2692
+Bakery,2024-06,10,0.2
+Bakery,2024-07,18,0.2222
+Bakery,2024-08,20,0.3
+Bakery,2024-09,21,0.1905
+Bakery,2024-10,22,0.4091
+Bakery,2024-11,24,0.125
+Bakery,2024-12,43,0.2093
+Bakery,2025-01,15,0.1333
+Bakery,2025-02,12,0.3333
+Bakery,2025-03,23,0.1304
+Bakery,2025-04,22,0.1818
+Bakery,2025-05,22,0.2727
+Bakery,2025-06,21,0.4286
+Bakery,2025-07,16,0.1875
+Bakery,2025-08,15,0.2
+Bakery,2025-09,18,0.2778
+Bakery,2025-10,14,0.1429
+Bakery,2025-11,19,0.1579
+Bakery,2025-12,41,0.1951
+Bakery,2026-01,14,0.4286
+Bakery,2026-02,12,0.25
+Bakery,2026-03,28,0.2857
+Bakery,2026-04,14,0.2143
+Bakery,2026-05,17,0.0588
+Bakery,2026-06,12,0.1667
+Bakery,2026-07,9,0.1111
+Bakery,2026-08,10,0.2
+Bakery,2026-09,10,0.4
+Bakery,2026-10,1,0.0
+Bar / tavern / liquor,2018-07,5,0.4
+Bar / tavern / liquor,2018-08,4,0.25
+Bar / tavern / liquor,2018-09,4,0.25
+Bar / tavern / liquor,2018-10,9,0.4444
+Bar / tavern / liquor,2018-11,4,0.0
+Bar / tavern / liquor,2018-12,10,0.3
+Bar / tavern / liquor,2019-01,5,0.0
+Bar / tavern / liquor,2019-02,6,0.6667
+Bar / tavern / liquor,2019-03,4,0.5
+Bar / tavern / liquor,2019-04,13,0.3846
+Bar / tavern / liquor,2019-05,11,0.3636
+Bar / tavern / liquor,2019-06,9,0.5556
+Bar / tavern / liquor,2019-07,5,0.2
+Bar / tavern / liquor,2019-08,6,0.5
+Bar / tavern / liquor,2019-09,5,0.2
+Bar / tavern / liquor,2019-10,9,0.2222
+Bar / tavern / liquor,2019-11,7,0.7143
+Bar / tavern / liquor,2019-12,8,0.25
+Bar / tavern / liquor,2020-01,5,0.4
+Bar / tavern / liquor,2020-02,5,0.2
+Bar / tavern / liquor,2020-03,5,0.8
+Bar / tavern / liquor,2020-04,6,0.5
+Bar / tavern / liquor,2020-05,6,0.3333
+Bar / tavern / liquor,2020-06,13,0.5385
+Bar / tavern / liquor,2020-07,17,0.2941
+Bar / tavern / liquor,2020-08,10,0.1
+Bar / tavern / liquor,2020-09,14,0.2857
+Bar / tavern / liquor,2020-10,15,0.3333
+Bar / tavern / liquor,2020-11,6,0.3333
+Bar / tavern / liquor,2020-12,3,0.0
+Bar / tavern / liquor,2021-01,3,0.0
+Bar / tavern / liquor,2021-02,3,0.3333
+Bar / tavern / liquor,2021-03,9,0.3333
+Bar / tavern / liquor,2021-04,12,0.25
+Bar / tavern / liquor,2021-05,6,0.6667
+Bar / tavern / liquor,2021-06,14,0.2857
+Bar / tavern / liquor,2021-07,10,0.3
+Bar / tavern / liquor,2021-08,3,0.0
+Bar / tavern / liquor,2021-09,8,0.375
+Bar / tavern / liquor,2021-10,13,0.3077
+Bar / tavern / liquor,2021-11,4,0.0
+Bar / tavern / liquor,2022-01,6,0.5
+Bar / tavern / liquor,2022-02,3,0.0
+Bar / tavern / liquor,2022-03,6,0.8333
+Bar / tavern / liquor,2022-04,3,0.3333
+Bar / tavern / liquor,2022-05,10,0.5
+Bar / tavern / liquor,2022-06,5,0.2
+Bar / tavern / liquor,2022-07,7,0.2857
+Bar / tavern / liquor,2022-08,9,0.1111
+Bar / tavern / liquor,2022-09,10,0.3
+Bar / tavern / liquor,2022-10,9,0.4444
+Bar / tavern / liquor,2022-11,7,0.2857
+Bar / tavern / liquor,2022-12,4,0.25
+Bar / tavern / liquor,2023-02,1,0.0
+Bar / tavern / liquor,2023-03,1,0.0
+Bar / tavern / liquor,2023-04,11,0.2727
+Bar / tavern / liquor,2023-05,7,0.2857
+Bar / tavern / liquor,2023-06,10,0.3
+Bar / tavern / liquor,2023-07,2,1.0
+Bar / tavern / liquor,2023-08,10,0.5
+Bar / tavern / liquor,2023-09,11,0.2727
+Bar / tavern / liquor,2023-10,5,0.2
+Bar / tavern / liquor,2023-11,5,0.6
+Bar / tavern / liquor,2023-12,3,0.3333
+Bar / tavern / liquor,2024-01,1,0.0
+Bar / tavern / liquor,2024-02,3,0.0
+Bar / tavern / liquor,2024-03,8,0.375
+Bar / tavern / liquor,2024-04,9,0.3333
+Bar / tavern / liquor,2024-05,8,0.25
+Bar / tavern / liquor,2024-06,8,0.25
+Bar / tavern / liquor,2024-07,4,0.5
+Bar / tavern / liquor,2024-08,8,0.25
+Bar / tavern / liquor,2024-10,10,0.3
+Bar / tavern / liquor,2024-11,4,0.25
+Bar / tavern / liquor,2024-12,3,0.3333
+Bar / tavern / liquor,2025-01,9,0.1111
+Bar / tavern / liquor,2025-02,4,0.0
+Bar / tavern / liquor,2025-03,5,0.4
+Bar / tavern / liquor,2025-04,12,0.3333
+Bar / tavern / liquor,2025-05,5,0.4
+Bar / tavern / liquor,2025-06,6,0.1667
+Bar / tavern / liquor,2025-07,9,0.2222
+Bar / tavern / liquor,2025-08,13,0.1538
+Bar / tavern / liquor,2025-09,4,0.0
+Bar / tavern / liquor,2025-10,3,0.0
+Bar / tavern / liquor,2025-11,2,0.0
+Bar / tavern / liquor,2025-12,14,0.4286
+Bar / tavern / liquor,2026-01,9,0.2222
+Bar / tavern / liquor,2026-02,11,0.4545
+Bar / tavern / liquor,2026-03,9,0.2222
+Bar / tavern / liquor,2026-04,5,0.2
+Bar / tavern / liquor,2026-05,6,0.1667
+Bar / tavern / liquor,2026-06,10,0.5
+Bar / tavern / liquor,2026-07,11,0.3636
+Bar / tavern / liquor,2026-08,2,0.0
+Bar / tavern / liquor,2026-09,5,0.2
+Catering,2018-07,6,0.3333
+Catering,2018-08,12,0.0833
+Catering,2018-09,14,0.0714
+Catering,2018-10,7,0.0
+Catering,2018-11,5,0.4
+Catering,2018-12,6,0.0
+Catering,2019-01,7,0.1429
+Catering,2019-02,2,0.0
+Catering,2019-03,14,0.1429
+Catering,2019-04,7,0.1429
+Catering,2019-05,9,0.1111
+Catering,2019-06,9,0.1111
+Catering,2019-07,9,0.1111
+Catering,2019-08,20,0.3
+Catering,2019-09,9,0.2222
+Catering,2019-10,9,0.2222
+Catering,2019-11,14,0.1429
+Catering,2019-12,10,0.0
+Catering,2020-01,7,0.1429
+Catering,2020-02,4,0.0
+Catering,2020-03,8,0.25
+Catering,2020-04,1,0.0
+Catering,2020-05,2,0.0
+Catering,2020-06,3,0.3333
+Catering,2020-07,4,0.0
+Catering,2020-08,6,0.5
+Catering,2020-09,8,0.25
+Catering,2020-10,9,0.2222
+Catering,2020-11,8,0.125
+Catering,2020-12,11,0.0909
+Catering,2021-01,7,0.4286
+Catering,2021-02,5,0.2
+Catering,2021-03,6,0.3333
+Catering,2021-04,2,0.0
+Catering,2021-05,6,0.1667
+Catering,2021-06,4,0.25
+Catering,2021-07,8,0.25
+Catering,2021-08,6,0.0
+Catering,2021-09,4,0.0
+Catering,2021-10,3,0.0
+Catering,2021-11,7,0.1429
+Catering,2021-12,12,0.25
+Catering,2022-01,4,0.0
+Catering,2022-02,8,0.25
+Catering,2022-03,7,0.4286
+Catering,2022-04,10,0.1
+Catering,2022-05,3,0.0
+Catering,2022-06,13,0.2308
+Catering,2022-07,5,0.0
+Catering,2022-08,11,0.2727
+Catering,2022-09,13,0.2308
+Catering,2022-10,8,0.25
+Catering,2022-11,10,0.1
+Catering,2022-12,4,0.25
+Catering,2023-01,9,0.4444
+Catering,2023-02,6,0.0
+Catering,2023-03,4,0.0
+Catering,2023-04,5,0.0
+Catering,2023-05,4,0.0
+Catering,2023-06,9,0.2222
+Catering,2023-07,5,0.4
+Catering,2023-08,9,0.1111
+Catering,2023-09,8,0.25
+Catering,2023-10,10,0.3
+Catering,2023-11,14,0.2857
+Catering,2023-12,13,0.2308
+Catering,2024-01,3,0.3333
+Catering,2024-02,5,0.2
+Catering,2024-03,2,0.0
+Catering,2024-04,12,0.3333
+Catering,2024-05,9,0.2222
+Catering,2024-06,10,0.1
+Catering,2024-07,13,0.1538
+Catering,2024-08,11,0.0
+Catering,2024-09,4,0.25
+Catering,2024-10,13,0.0769
+Catering,2024-11,2,0.0
+Catering,2024-12,4,0.0
+Catering,2025-02,4,0.0
+Catering,2025-03,5,0.2
+Catering,2025-04,10,0.1
+Catering,2025-05,14,0.2143
+Catering,2025-06,7,0.1429
+Catering,2025-07,6,0.0
+Catering,2025-08,6,0.1667
+Catering,2025-09,4,0.0
+Catering,2025-10,12,0.25
+Catering,2025-11,13,0.0
+Catering,2025-12,5,0.4
+Catering,2026-01,3,0.0
+Catering,2026-02,4,0.0
+Catering,2026-03,2,0.0
+Catering,2026-04,6,0.0
+Catering,2026-05,4,0.0
+Catering,2026-06,4,0.25
+Catering,2026-07,6,0.1667
+Catering,2026-08,8,0.125
+Daycare / children's services,2018-07,84,0.1548
+Daycare / children's services,2018-08,63,0.2222
+Daycare / children's services,2018-09,74,0.1757
+Daycare / children's services,2018-10,206,0.1311
+Daycare / children's services,2018-11,190,0.1632
+Daycare / children's services,2018-12,58,0.0862
+Daycare / children's services,2019-01,55,0.2364
+Daycare / children's services,2019-02,40,0.2
+Daycare / children's services,2019-03,48,0.2708
+Daycare / children's services,2019-04,75,0.24
+Daycare / children's services,2019-05,75,0.2133
+Daycare / children's services,2019-06,83,0.1687
+Daycare / children's services,2019-07,82,0.1951
+Daycare / children's services,2019-08,100,0.28
+Daycare / children's services,2019-09,92,0.2065
+Daycare / children's services,2019-10,150,0.1667
+Daycare / children's services,2019-11,99,0.1818
+Daycare / children's services,2019-12,106,0.1887
+Daycare / children's services,2020-01,76,0.1184
+Daycare / children's services,2020-02,72,0.1806
+Daycare / children's services,2020-03,38,0.1579
+Daycare / children's services,2020-04,9,0.1111
+Daycare / children's services,2020-05,16,0.125
+Daycare / children's services,2020-06,46,0.1739
+Daycare / children's services,2020-07,62,0.2258
+Daycare / children's services,2020-08,49,0.1224
+Daycare / children's services,2020-09,58,0.2586
+Daycare / children's services,2020-10,81,0.1728
+Daycare / children's services,2020-11,86,0.186
+Daycare / children's services,2020-12,101,0.2871
+Daycare / children's services,2021-01,51,0.1569
+Daycare / children's services,2021-02,45,0.1556
+Daycare / children's services,2021-03,59,0.1525
+Daycare / children's services,2021-04,69,0.1884
+Daycare / children's services,2021-05,93,0.2581
+Daycare / children's services,2021-06,116,0.2328
+Daycare / children's services,2021-07,61,0.1967
+Daycare / children's services,2021-08,93,0.1828
+Daycare / children's services,2021-09,65,0.2154
+Daycare / children's services,2021-10,85,0.1647
+Daycare / children's services,2021-11,63,0.1587
+Daycare / children's services,2021-12,86,0.1512
+Daycare / children's services,2022-01,68,0.2941
+Daycare / children's services,2022-02,47,0.1702
+Daycare / children's services,2022-03,50,0.2
+Daycare / children's services,2022-04,42,0.2143
+Daycare / children's services,2022-05,73,0.3151
+Daycare / children's services,2022-06,78,0.2051
+Daycare / children's services,2022-07,68,0.1471
+Daycare / children's services,2022-08,93,0.1828
+Daycare / children's services,2022-09,85,0.1529
+Daycare / children's services,2022-10,93,0.2366
+Daycare / children's services,2022-11,100,0.19
+Daycare / children's services,2022-12,68,0.25
+Daycare / children's services,2023-01,83,0.2651
+Daycare / children's services,2023-02,76,0.1974
+Daycare / children's services,2023-03,98,0.3061
+Daycare / children's services,2023-04,66,0.197
+Daycare / children's services,2023-05,78,0.2436
+Daycare / children's services,2023-06,83,0.2289
+Daycare / children's services,2023-07,68,0.3382
+Daycare / children's services,2023-08,83,0.2048
+Daycare / children's services,2023-09,83,0.2169
+Daycare / children's services,2023-10,121,0.2149
+Daycare / children's services,2023-11,214,0.2056
+Daycare / children's services,2023-12,37,0.2162
+Daycare / children's services,2024-01,52,0.25
+Daycare / children's services,2024-02,81,0.2469
+Daycare / children's services,2024-03,64,0.1875
+Daycare / children's services,2024-04,106,0.1887
+Daycare / children's services,2024-05,114,0.1404
+Daycare / children's services,2024-06,55,0.2727
+Daycare / children's services,2024-07,60,0.2167
+Daycare / children's services,2024-08,76,0.1974
+Daycare / children's services,2024-09,104,0.1827
+Daycare / children's services,2024-10,184,0.1467
+Daycare / children's services,2024-11,78,0.2564
+Daycare / children's services,2024-12,45,0.1556
+Daycare / children's services,2025-01,65,0.1385
+Daycare / children's services,2025-02,62,0.1613
+Daycare / children's services,2025-03,80,0.1875
+Daycare / children's services,2025-04,90,0.1222
+Daycare / children's services,2025-05,104,0.1538
+Daycare / children's services,2025-06,85,0.1765
+Daycare / children's services,2025-07,72,0.1111
+Daycare / children's services,2025-08,54,0.1296
+Daycare / children's services,2025-09,86,0.1395
+Daycare / children's services,2025-10,148,0.2162
+Daycare / children's services,2025-11,112,0.125
+Daycare / children's services,2025-12,38,0.2105
+Daycare / children's services,2026-01,58,0.1724
+Daycare / children's services,2026-02,64,0.2188
+Daycare / children's services,2026-03,67,0.1791
+Daycare / children's services,2026-04,72,0.1667
+Daycare / children's services,2026-05,94,0.0851
+Daycare / children's services,2026-06,82,0.1707
+Daycare / children's services,2026-07,49,0.1429
+Daycare / children's services,2026-08,65,0.1077
+Daycare / children's services,2026-09,53,0.2264
+Daycare / children's services,2026-10,11,0.0909
+Grocery store,2018-07,98,0.2449
+Grocery store,2018-08,142,0.2817
+Grocery store,2018-09,149,0.3423
+Grocery store,2018-10,140,0.2643
+Grocery store,2018-11,120,0.3167
+Grocery store,2018-12,95,0.2421
+Grocery store,2019-01,73,0.1644
+Grocery store,2019-02,98,0.3061
+Grocery store,2019-03,135,0.2889
+Grocery store,2019-04,143,0.2168
+Grocery store,2019-05,130,0.2231
+Grocery store,2019-06,163,0.2515
+Grocery store,2019-07,133,0.2556
+Grocery store,2019-08,141,0.2624
+Grocery store,2019-09,131,0.3435
+Grocery store,2019-10,143,0.2937
+Grocery store,2019-11,121,0.2149
+Grocery store,2019-12,129,0.2326
+Grocery store,2020-01,77,0.2468
+Grocery store,2020-02,89,0.2472
+Grocery store,2020-03,202,0.2723
+Grocery store,2020-04,419,0.2912
+Grocery store,2020-05,392,0.3189
+Grocery store,2020-06,265,0.2679
+Grocery store,2020-07,190,0.2421
+Grocery store,2020-08,146,0.2329
+Grocery store,2020-09,145,0.2138
+Grocery store,2020-10,101,0.2178
+Grocery store,2020-11,82,0.1829
+Grocery store,2020-12,118,0.2627
+Grocery store,2021-01,109,0.2294
+Grocery store,2021-02,88,0.2386
+Grocery store,2021-03,97,0.2887
+Grocery store,2021-04,108,0.2593
+Grocery store,2021-05,117,0.2137
+Grocery store,2021-06,113,0.2832
+Grocery store,2021-07,86,0.2442
+Grocery store,2021-08,124,0.3065
+Grocery store,2021-09,105,0.2286
+Grocery store,2021-10,124,0.2742
+Grocery store,2021-11,105,0.181
+Grocery store,2021-12,136,0.2353
+Grocery store,2022-01,110,0.2727
+Grocery store,2022-02,90,0.3
+Grocery store,2022-03,137,0.2044
+Grocery store,2022-04,114,0.2632
+Grocery store,2022-05,109,0.2661
+Grocery store,2022-06,126,0.1905
+Grocery store,2022-07,123,0.2846
+Grocery store,2022-08,109,0.2752
+Grocery store,2022-09,107,0.2243
+Grocery store,2022-10,143,0.2238
+Grocery store,2022-11,109,0.2294
+Grocery store,2022-12,158,0.2722
+Grocery store,2023-01,119,0.2605
+Grocery store,2023-02,104,0.2692
+Grocery store,2023-03,107,0.3364
+Grocery store,2023-04,124,0.2661
+Grocery store,2023-05,118,0.2797
+Grocery store,2023-06,153,0.281
+Grocery store,2023-07,109,0.3303
+Grocery store,2023-08,156,0.2692
+Grocery store,2023-09,125,0.248
+Grocery store,2023-10,133,0.3083
+Grocery store,2023-11,123,0.2439
+Grocery store,2023-12,133,0.218
+Grocery store,2024-01,97,0.2577
+Grocery store,2024-02,111,0.2883
+Grocery store,2024-03,102,0.2255
+Grocery store,2024-04,113,0.2655
+Grocery store,2024-05,118,0.2458
+Grocery store,2024-06,119,0.2185
+Grocery store,2024-07,146,0.2603
+Grocery store,2024-08,133,0.218
+Grocery store,2024-09,127,0.2283
+Grocery store,2024-10,181,0.2265
+Grocery store,2024-11,160,0.225
+Grocery store,2024-12,152,0.1382
+Grocery store,2025-01,73,0.2329
+Grocery store,2025-02,99,0.2121
+Grocery store,2025-03,102,0.2843
+Grocery store,2025-04,137,0.2263
+Grocery store,2025-05,116,0.2931
+Grocery store,2025-06,138,0.2101
+Grocery store,2025-07,139,0.2374
+Grocery store,2025-08,134,0.2239
+Grocery store,2025-09,111,0.2523
+Grocery store,2025-10,141,0.2553
+Grocery store,2025-11,100,0.24
+Grocery store,2025-12,118,0.1356
+Grocery store,2026-01,63,0.1746
+Grocery store,2026-02,81,0.2222
+Grocery store,2026-03,129,0.2326
+Grocery store,2026-04,155,0.2645
+Grocery store,2026-05,101,0.2178
+Grocery store,2026-06,124,0.1935
+Grocery store,2026-07,87,0.2529
+Grocery store,2026-08,120,0.2333
+Grocery store,2026-09,88,0.2386
+Grocery store,2026-10,11,0.0909
+Hospital / long-term care,2018-07,13,0.1538
+Hospital / long-term care,2018-08,30,0.1333
+Hospital / long-term care,2018-09,8,0.375
+Hospital / long-term care,2018-10,47,0.3404
+Hospital / long-term care,2018-11,43,0.2558
+Hospital / long-term care,2018-12,20,0.15
+Hospital / long-term care,2019-01,4,0.25
+Hospital / long-term care,2019-02,15,0.3333
+Hospital / long-term care,2019-03,23,0.3478
+Hospital / long-term care,2019-04,15,0.1333
+Hospital / long-term care,2019-05,38,0.2105
+Hospital / long-term care,2019-06,33,0.2424
+Hospital / long-term care,2019-07,31,0.2258
+Hospital / long-term care,2019-08,28,0.1786
+Hospital / long-term care,2019-09,39,0.3077
+Hospital / long-term care,2019-10,27,0.1852
+Hospital / long-term care,2019-11,8,0.375
+Hospital / long-term care,2019-12,10,0.0
+Hospital / long-term care,2020-01,13,0.0769
+Hospital / long-term care,2020-02,23,0.2174
+Hospital / long-term care,2020-03,11,0.0909
+Hospital / long-term care,2020-04,2,0.0
+Hospital / long-term care,2020-06,1,0.0
+Hospital / long-term care,2020-07,4,0.25
+Hospital / long-term care,2020-08,6,0.1667
+Hospital / long-term care,2020-09,3,0.0
+Hospital / long-term care,2020-10,6,0.1667
+Hospital / long-term care,2020-11,5,0.0
+Hospital / long-term care,2020-12,4,0.25
+Hospital / long-term care,2021-01,6,0.1667
+Hospital / long-term care,2021-02,3,0.6667
+Hospital / long-term care,2021-03,7,0.1429
+Hospital / long-term care,2021-04,2,0.0
+Hospital / long-term care,2021-05,35,0.1714
+Hospital / long-term care,2021-06,38,0.1842
+Hospital / long-term care,2021-07,27,0.4074
+Hospital / long-term care,2021-08,35,0.2571
+Hospital / long-term care,2021-09,15,0.2667
+Hospital / long-term care,2021-10,17,0.4118
+Hospital / long-term care,2021-11,18,0.0556
+Hospital / long-term care,2021-12,18,0.2778
+Hospital / long-term care,2022-01,9,0.3333
+Hospital / long-term care,2022-02,7,0.0
+Hospital / long-term care,2022-03,19,0.3684
+Hospital / long-term care,2022-04,27,0.3333
+Hospital / long-term care,2022-05,24,0.1667
+Hospital / long-term care,2022-06,34,0.1176
+Hospital / long-term care,2022-07,29,0.1724
+Hospital / long-term care,2022-08,33,0.2121
+Hospital / long-term care,2022-09,24,0.2083
+Hospital / long-term care,2022-10,35,0.2286
+Hospital / long-term care,2022-11,17,0.1765
+Hospital / long-term care,2022-12,35,0.3429
+Hospital / long-term care,2023-01,7,0.1429
+Hospital / long-term care,2023-02,17,0.1765
+Hospital / long-term care,2023-03,14,0.2143
+Hospital / long-term care,2023-04,37,0.2162
+Hospital / long-term care,2023-05,31,0.2581
+Hospital / long-term care,2023-06,33,0.1818
+Hospital / long-term care,2023-07,29,0.1379
+Hospital / long-term care,2023-08,24,0.3333
+Hospital / long-term care,2023-09,19,0.3684
+Hospital / long-term care,2023-10,31,0.2258
+Hospital / long-term care,2023-11,54,0.2778
+Hospital / long-term care,2023-12,9,0.2222
+Hospital / long-term care,2024-01,12,0.1667
+Hospital / long-term care,2024-02,6,0.1667
+Hospital / long-term care,2024-03,27,0.1111
+Hospital / long-term care,2024-04,50,0.3
+Hospital / long-term care,2024-05,38,0.1316
+Hospital / long-term care,2024-06,36,0.1667
+Hospital / long-term care,2024-07,46,0.2174
+Hospital / long-term care,2024-08,24,0.2917
+Hospital / long-term care,2024-09,28,0.1786
+Hospital / long-term care,2024-10,33,0.1515
+Hospital / long-term care,2024-11,15,0.2
+Hospital / long-term care,2024-12,16,0.125
+Hospital / long-term care,2025-01,3,0.0
+Hospital / long-term care,2025-02,13,0.2308
+Hospital / long-term care,2025-03,60,0.2833
+Hospital / long-term care,2025-04,48,0.1458
+Hospital / long-term care,2025-05,37,0.1351
+Hospital / long-term care,2025-06,29,0.1379
+Hospital / long-term care,2025-07,50,0.18
+Hospital / long-term care,2025-08,24,0.0833
+Hospital / long-term care,2025-09,6,0.0
+Hospital / long-term care,2025-10,11,0.2727
+Hospital / long-term care,2025-11,11,0.2727
+Hospital / long-term care,2025-12,6,0.1667
+Hospital / long-term care,2026-01,7,0.1429
+Hospital / long-term care,2026-02,7,0.2857
+Hospital / long-term care,2026-03,12,0.0
+Hospital / long-term care,2026-04,23,0.1304
+Hospital / long-term care,2026-05,39,0.1795
+Hospital / long-term care,2026-06,25,0.16
+Hospital / long-term care,2026-07,21,0.1905
+Hospital / long-term care,2026-08,20,0.25
+Hospital / long-term care,2026-09,13,0.1538
+Hospital / long-term care,2026-10,1,0.0
+Mobile food,2018-07,14,0.3571
+Mobile food,2018-08,12,0.4167
+Mobile food,2018-09,9,0.2222
+Mobile food,2018-10,14,0.2857
+Mobile food,2018-11,2,0.5
+Mobile food,2018-12,2,0.0
+Mobile food,2019-01,3,0.6667
+Mobile food,2019-02,5,0.4
+Mobile food,2019-03,10,0.0
+Mobile food,2019-04,27,0.1111
+Mobile food,2019-05,29,0.1379
+Mobile food,2019-06,25,0.08
+Mobile food,2019-07,15,0.2
+Mobile food,2019-08,15,0.3333
+Mobile food,2019-09,7,0.2857
+Mobile food,2019-10,12,0.3333
+Mobile food,2019-11,6,0.5
+Mobile food,2019-12,5,0.4
+Mobile food,2020-01,4,0.25
+Mobile food,2020-02,9,0.4444
+Mobile food,2020-03,7,0.1429
+Mobile food,2020-05,7,0.0
+Mobile food,2020-07,2,0.0
+Mobile food,2020-08,3,0.0
+Mobile food,2020-09,2,0.0
+Mobile food,2020-10,9,0.2222
+Mobile food,2020-11,1,0.0
+Mobile food,2020-12,5,0.4
+Mobile food,2021-02,2,0.5
+Mobile food,2021-03,1,1.0
+Mobile food,2021-04,6,0.3333
+Mobile food,2021-05,7,0.1429
+Mobile food,2021-06,10,0.0
+Mobile food,2021-07,18,0.3333
+Mobile food,2021-08,12,0.4167
+Mobile food,2021-09,7,0.0
+Mobile food,2021-10,13,0.3077
+Mobile food,2021-11,7,0.4286
+Mobile food,2021-12,5,0.0
+Mobile food,2022-01,6,0.5
+Mobile food,2022-02,6,0.0
+Mobile food,2022-03,7,0.1429
+Mobile food,2022-04,11,0.0909
+Mobile food,2022-05,12,0.0833
+Mobile food,2022-06,16,0.3125
+Mobile food,2022-07,10,0.3
+Mobile food,2022-08,11,0.0909
+Mobile food,2022-09,7,0.4286
+Mobile food,2022-10,6,0.5
+Mobile food,2022-11,6,0.3333
+Mobile food,2022-12,4,0.25
+Mobile food,2023-01,6,0.0
+Mobile food,2023-02,5,0.0
+Mobile food,2023-03,14,0.0714
+Mobile food,2023-04,3,0.0
+Mobile food,2023-05,18,0.1667
+Mobile food,2023-06,24,0.0833
+Mobile food,2023-07,9,0.1111
+Mobile food,2023-08,5,0.2
+Mobile food,2023-09,4,0.25
+Mobile food,2023-10,13,0.1538
+Mobile food,2023-11,9,0.3333
+Mobile food,2023-12,2,0.0
+Mobile food,2024-01,2,0.5
+Mobile food,2024-02,4,0.75
+Mobile food,2024-03,16,0.0625
+Mobile food,2024-04,20,0.1
+Mobile food,2024-05,20,0.1
+Mobile food,2024-06,12,0.1667
+Mobile food,2024-07,13,0.0769
+Mobile food,2024-08,9,0.5556
+Mobile food,2024-09,9,0.2222
+Mobile food,2024-10,10,0.2
+Mobile food,2024-11,5,0.6
+Mobile food,2024-12,4,0.0
+Mobile food,2025-01,7,0.4286
+Mobile food,2025-02,4,0.5
+Mobile food,2025-03,17,0.1765
+Mobile food,2025-04,34,0.1176
+Mobile food,2025-05,23,0.0435
+Mobile food,2025-06,17,0.2353
+Mobile food,2025-07,16,0.25
+Mobile food,2025-08,16,0.5
+Mobile food,2025-09,12,0.0
+Mobile food,2025-10,3,0.0
+Mobile food,2025-11,3,0.0
+Mobile food,2025-12,6,0.1667
+Mobile food,2026-01,5,0.6
+Mobile food,2026-02,10,0.3
+Mobile food,2026-03,28,0.2857
+Mobile food,2026-04,38,0.2368
+Mobile food,2026-05,17,0.0
+Mobile food,2026-06,23,0.3478
+Mobile food,2026-07,11,0.2727
+Mobile food,2026-08,16,0.0
+Mobile food,2026-09,6,0.5
+Other,2018-07,29,0.1724
+Other,2018-08,17,0.2353
+Other,2018-09,17,0.4118
+Other,2018-10,31,0.2258
+Other,2018-11,25,0.24
+Other,2018-12,18,0.4444
+Other,2019-01,18,0.3333
+Other,2019-02,18,0.3889
+Other,2019-03,21,0.2381
+Other,2019-04,12,0.5
+Other,2019-05,46,0.2391
+Other,2019-06,33,0.1212
+Other,2019-07,29,0.2759
+Other,2019-08,26,0.1923
+Other,2019-09,30,0.2667
+Other,2019-10,25,0.2
+Other,2019-11,26,0.2308
+Other,2019-12,30,0.1667
+Other,2020-01,24,0.25
+Other,2020-02,21,0.2381
+Other,2020-03,21,0.1905
+Other,2020-04,15,0.2667
+Other,2020-05,35,0.3429
+Other,2020-06,19,0.2105
+Other,2020-07,17,0.2941
+Other,2020-08,21,0.2381
+Other,2020-09,13,0.1538
+Other,2020-10,12,0.0833
+Other,2020-11,10,0.1
+Other,2020-12,11,0.2727
+Other,2021-01,11,0.3636
+Other,2021-02,6,0.1667
+Other,2021-03,20,0.15
+Other,2021-04,23,0.1739
+Other,2021-05,19,0.1053
+Other,2021-06,28,0.0714
+Other,2021-07,19,0.1579
+Other,2021-08,22,0.2727
+Other,2021-09,17,0.1765
+Other,2021-10,23,0.2609
+Other,2021-11,20,0.3
+Other,2021-12,11,0.0909
+Other,2022-01,11,0.1818
+Other,2022-02,11,0.1818
+Other,2022-03,37,0.2162
+Other,2022-04,17,0.1765
+Other,2022-05,13,0.0769
+Other,2022-06,22,0.1818
+Other,2022-07,11,0.0909
+Other,2022-08,17,0.1765
+Other,2022-09,15,0.2667
+Other,2022-10,23,0.3043
+Other,2022-11,30,0.1333
+Other,2022-12,19,0.1579
+Other,2023-01,20,0.25
+Other,2023-02,15,0.3333
+Other,2023-03,16,0.125
+Other,2023-04,20,0.3
+Other,2023-05,37,0.2432
+Other,2023-06,34,0.3824
+Other,2023-07,27,0.1111
+Other,2023-08,29,0.2414
+Other,2023-09,14,0.1429
+Other,2023-10,25,0.2
+Other,2023-11,25,0.28
+Other,2023-12,27,0.2222
+Other,2024-01,14,0.5
+Other,2024-02,17,0.2353
+Other,2024-03,21,0.0476
+Other,2024-04,30,0.1667
+Other,2024-05,39,0.1795
+Other,2024-06,17,0.0588
+Other,2024-07,20,0.25
+Other,2024-08,30,0.2
+Other,2024-09,17,0.1176
+Other,2024-10,25,0.2
+Other,2024-11,16,0.1875
+Other,2024-12,16,0.125
+Other,2025-01,18,0.3333
+Other,2025-02,15,0.4667
+Other,2025-03,23,0.2174
+Other,2025-04,32,0.0938
+Other,2025-05,23,0.1304
+Other,2025-06,20,0.3
+Other,2025-07,19,0.1053
+Other,2025-08,25,0.04
+Other,2025-09,10,0.3
+Other,2025-10,18,0.1111
+Other,2025-11,14,0.1429
+Other,2025-12,13,0.3846
+Other,2026-01,5,0.4
+Other,2026-02,15,0.2
+Other,2026-03,11,0.0
+Other,2026-04,25,0.28
+Other,2026-05,45,0.1556
+Other,2026-06,36,0.3889
+Other,2026-07,20,0.1
+Other,2026-08,12,0.3333
+Other,2026-09,13,0.0769
+Restaurant,2018-07,731,0.2011
+Restaurant,2018-08,880,0.2125
+Restaurant,2018-09,837,0.1935
+Restaurant,2018-10,650,0.1862
+Restaurant,2018-11,577,0.2062
+Restaurant,2018-12,586,0.1911
+Restaurant,2019-01,795,0.205
+Restaurant,2019-02,816,0.2047
+Restaurant,2019-03,926,0.203
+Restaurant,2019-04,1005,0.193
+Restaurant,2019-05,1111,0.2106
+Restaurant,2019-06,1056,0.215
+Restaurant,2019-07,942,0.241
+Restaurant,2019-08,1042,0.263
+Restaurant,2019-09,813,0.2608
+Restaurant,2019-10,1051,0.2636
+Restaurant,2019-11,904,0.1836
+Restaurant,2019-12,813,0.1648
+Restaurant,2020-01,1045,0.2316
+Restaurant,2020-02,773,0.2251
+Restaurant,2020-03,907,0.2117
+Restaurant,2020-04,570,0.1982
+Restaurant,2020-05,544,0.2224
+Restaurant,2020-06,619,0.2746
+Restaurant,2020-07,632,0.1978
+Restaurant,2020-08,629,0.2258
+Restaurant,2020-09,592,0.2247
+Restaurant,2020-10,703,0.2575
+Restaurant,2020-11,526,0.2129
+Restaurant,2020-12,498,0.1867
+Restaurant,2021-01,687,0.2198
+Restaurant,2021-02,591,0.2064
+Restaurant,2021-03,764,0.2081
+Restaurant,2021-04,784,0.2602
+Restaurant,2021-05,840,0.2119
+Restaurant,2021-06,932,0.2318
+Restaurant,2021-07,777,0.2535
+Restaurant,2021-08,816,0.2439
+Restaurant,2021-09,661,0.2542
+Restaurant,2021-10,704,0.2486
+Restaurant,2021-11,762,0.2257
+Restaurant,2021-12,654,0.2095
+Restaurant,2022-01,637,0.2214
+Restaurant,2022-02,616,0.2338
+Restaurant,2022-03,829,0.2545
+Restaurant,2022-04,787,0.2338
+Restaurant,2022-05,801,0.236
+Restaurant,2022-06,996,0.2841
+Restaurant,2022-07,864,0.2419
+Restaurant,2022-08,1004,0.2849
+Restaurant,2022-09,813,0.2595
+Restaurant,2022-10,916,0.2391
+Restaurant,2022-11,910,0.2516
+Restaurant,2022-12,651,0.2197
+Restaurant,2023-01,766,0.2507
+Restaurant,2023-02,767,0.2399
+Restaurant,2023-03,952,0.2153
+Restaurant,2023-04,934,0.242
+Restaurant,2023-05,814,0.2285
+Restaurant,2023-06,916,0.2566
+Restaurant,2023-07,715,0.2559
+Restaurant,2023-08,1051,0.2769
+Restaurant,2023-09,805,0.2758
+Restaurant,2023-10,1101,0.2561
+Restaurant,2023-11,859,0.2363
+Restaurant,2023-12,832,0.1851
+Restaurant,2024-01,871,0.2572
+Restaurant,2024-02,769,0.2328
+Restaurant,2024-03,921,0.2248
+Restaurant,2024-04,1137,0.226
+Restaurant,2024-05,1076,0.1989
+Restaurant,2024-06,762,0.2336
+Restaurant,2024-07,1009,0.2052
+Restaurant,2024-08,966,0.2257
+Restaurant,2024-09,803,0.208
+Restaurant,2024-10,1079,0.2206
+Restaurant,2024-11,779,0.1874
+Restaurant,2024-12,983,0.1719
+Restaurant,2025-01,1055,0.219
+Restaurant,2025-02,899,0.2102
+Restaurant,2025-03,1127,0.1881
+Restaurant,2025-04,1135,0.1859
+Restaurant,2025-05,974,0.2351
+Restaurant,2025-06,896,0.202
+Restaurant,2025-07,1037,0.2237
+Restaurant,2025-08,877,0.2474
+Restaurant,2025-09,778,0.2391
+Restaurant,2025-10,985,0.2244
+Restaurant,2025-11,816,0.1863
+Restaurant,2025-12,847,0.1924
+Restaurant,2026-01,863,0.2132
+Restaurant,2026-02,828,0.1944
+Restaurant,2026-03,791,0.196
+Restaurant,2026-04,948,0.192
+Restaurant,2026-05,910,0.1945
+Restaurant,2026-06,962,0.2141
+Restaurant,2026-07,691,0.246
+Restaurant,2026-08,756,0.2235
+Restaurant,2026-09,508,0.2382
+Restaurant,2026-10,34,0.2941
+School,2018-07,4,0.5
+School,2018-08,9,0.2222
+School,2018-09,42,0.2143
+School,2018-10,127,0.2205
+School,2018-11,109,0.2018
+School,2018-12,27,0.1481
+School,2019-01,194,0.2062
+School,2019-02,215,0.2419
+School,2019-03,214,0.2383
+School,2019-04,113,0.1416
+School,2019-05,50,0.12
+School,2019-06,4,0.0
+School,2019-07,6,0.0
+School,2019-08,8,0.25
+School,2019-09,113,0.3451
+School,2019-10,69,0.3333
+School,2019-11,78,0.2436
+School,2019-12,50,0.2
+School,2020-01,246,0.3089
+School,2020-02,148,0.3581
+School,2020-03,67,0.2836
+School,2020-04,2,0.0
+School,2020-05,49,0.102
+School,2020-06,23,0.1304
+School,2020-07,2,0.0
+School,2020-08,2,0.0
+School,2020-09,232,0.1552
+School,2020-10,49,0.2041
+School,2020-11,52,0.3077
+School,2020-12,41,0.1951
+School,2021-01,25,0.0
+School,2021-02,48,0.1042
+School,2021-03,143,0.2517
+School,2021-04,143,0.2448
+School,2021-05,180,0.2056
+School,2021-06,97,0.1753
+School,2021-07,7,0.2857
+School,2021-08,10,0.1
+School,2021-09,241,0.2448
+School,2021-10,112,0.3214
+School,2021-11,39,0.1795
+School,2021-12,51,0.3529
+School,2022-01,72,0.2222
+School,2022-02,117,0.2393
+School,2022-03,125,0.272
+School,2022-04,101,0.297
+School,2022-05,191,0.2356
+School,2022-06,75,0.2933
+School,2022-07,8,0.125
+School,2022-08,51,0.2157
+School,2022-09,231,0.342
+School,2022-10,71,0.2958
+School,2022-11,32,0.3438
+School,2022-12,90,0.4333
+School,2023-01,101,0.3069
+School,2023-02,159,0.2893
+School,2023-03,203,0.3251
+School,2023-04,126,0.3175
+School,2023-05,100,0.34
+School,2023-06,50,0.22
+School,2023-07,14,0.1429
+School,2023-08,89,0.3146
+School,2023-09,238,0.2353
+School,2023-10,56,0.2143
+School,2023-11,21,0.2381
+School,2023-12,53,0.1887
+School,2024-01,139,0.3453
+School,2024-02,185,0.3243
+School,2024-03,146,0.363
+School,2024-04,119,0.2269
+School,2024-05,74,0.2703
+School,2024-06,20,0.25
+School,2024-07,4,0.25
+School,2024-08,22,0.1364
+School,2024-09,306,0.1895
+School,2024-10,81,0.1235
+School,2024-11,19,0.2632
+School,2024-12,25,0.2
+School,2025-01,139,0.2878
+School,2025-02,196,0.2296
+School,2025-03,131,0.2672
+School,2025-04,101,0.2871
+School,2025-05,75,0.1867
+School,2025-06,9,0.2222
+School,2025-07,3,0.0
+School,2025-08,60,0.2
+School,2025-09,268,0.1978
+School,2025-10,62,0.2581
+School,2025-11,24,0.375
+School,2025-12,35,0.2571
+School,2026-01,111,0.2072
+School,2026-02,151,0.2119
+School,2026-03,77,0.2727
+School,2026-04,132,0.25
+School,2026-05,126,0.2063
+School,2026-06,10,0.0
+School,2026-07,5,0.0
+School,2026-08,20,0.2
+School,2026-09,256,0.2461
+School,2026-10,13,0.0
+Unknown,2018-07,1,1.0
+Unknown,2018-08,4,0.25
+Unknown,2018-10,1,0.0
+Unknown,2018-11,2,0.0
+Unknown,2019-03,1,0.0
+Unknown,2019-04,3,0.0
+Unknown,2019-05,1,0.0
+Unknown,2019-06,1,0.0
+Unknown,2019-07,1,0.0
+Unknown,2019-08,1,0.0
+Unknown,2019-09,2,0.5
+Unknown,2019-11,1,0.0
+Unknown,2020-01,1,0.0
+Unknown,2020-02,4,0.75
+Unknown,2020-03,1,0.0
+Unknown,2020-04,2,0.0
+Unknown,2020-09,2,0.0
+Unknown,2020-11,1,1.0
+Unknown,2020-12,1,0.0
+Unknown,2021-05,2,1.0
+Unknown,2021-07,3,0.6667
+Unknown,2021-08,2,0.5
+Unknown,2021-11,2,0.0
+Unknown,2022-03,1,0.0
+Unknown,2022-04,4,0.5
+Unknown,2022-05,2,0.0
+Unknown,2022-07,2,0.0
+Unknown,2022-08,1,0.0
+Unknown,2022-10,1,0.0
+Unknown,2022-12,5,0.4
+Unknown,2023-01,2,0.0
+Unknown,2023-03,1,0.0
+Unknown,2023-05,3,0.3333
+Unknown,2023-06,2,0.5
+Unknown,2023-07,5,0.6
+Unknown,2023-08,9,0.4444
+Unknown,2023-09,3,0.0
+Unknown,2023-10,1,0.0
+Unknown,2023-12,1,0.0
+Unknown,2024-01,1,0.0
+Unknown,2024-03,1,0.0
+Unknown,2024-04,2,0.5
+Unknown,2024-05,2,0.0
+Unknown,2024-06,3,0.0
+Unknown,2024-08,1,0.0
+Unknown,2024-09,2,0.5
+Unknown,2024-10,3,0.3333
+Unknown,2024-12,2,0.0
+Unknown,2025-01,4,0.25
+Unknown,2025-04,3,0.0
+Unknown,2025-05,2,0.0
+Unknown,2025-08,1,0.0
+Unknown,2025-09,1,0.0
+Unknown,2025-10,3,0.3333
+Unknown,2025-11,4,0.25
+Unknown,2025-12,6,0.3333
+Unknown,2026-01,1,0.0
+Unknown,2026-02,1,0.0
+Unknown,2026-03,4,0.0
+Unknown,2026-04,1,1.0
+Unknown,2026-05,4,0.25
+Unknown,2026-06,3,0.3333
+Unknown,2026-07,2,0.0
+Unknown,2026-09,1,1.0

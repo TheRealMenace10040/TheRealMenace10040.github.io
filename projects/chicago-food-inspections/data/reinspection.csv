@@ -1,0 +1,60 @@
+facility_group,outcome,fails,share,median_days
+All,1 Passed,17389,0.6576,7.0
+All,2 Passed with conditions,4872,0.1842,7.0
+All,3 Failed again,3076,0.1163,7.0
+All,"4 Closed, not ready or no entry",495,0.0187,8.0
+All,5 No follow-up within 120 days,612,0.0231,
+Bakery,1 Passed,281,0.6565,7.0
+Bakery,2 Passed with conditions,83,0.1939,7.0
+Bakery,3 Failed again,49,0.1145,7.0
+Bakery,"4 Closed, not ready or no entry",10,0.0234,8.5
+Bakery,5 No follow-up within 120 days,5,0.0117,
+Bar / tavern / liquor,1 Passed,123,0.5913,9.0
+Bar / tavern / liquor,2 Passed with conditions,42,0.2019,7.0
+Bar / tavern / liquor,3 Failed again,21,0.101,10.0
+Bar / tavern / liquor,"4 Closed, not ready or no entry",6,0.0288,10.5
+Bar / tavern / liquor,5 No follow-up within 120 days,16,0.0769,
+Catering,1 Passed,88,0.7521,7.0
+Catering,2 Passed with conditions,16,0.1368,8.5
+Catering,3 Failed again,9,0.0769,8.0
+Catering,"4 Closed, not ready or no entry",2,0.0171,18.0
+Catering,5 No follow-up within 120 days,2,0.0171,
+Daycare / children's services,1 Passed,1051,0.7179,7.0
+Daycare / children's services,2 Passed with conditions,171,0.1168,7.0
+Daycare / children's services,3 Failed again,168,0.1148,7.0
+Daycare / children's services,"4 Closed, not ready or no entry",32,0.0219,11.5
+Daycare / children's services,5 No follow-up within 120 days,42,0.0287,
+Grocery store,1 Passed,1824,0.5873,7.0
+Grocery store,2 Passed with conditions,734,0.2363,7.0
+Grocery store,3 Failed again,387,0.1246,7.0
+Grocery store,"4 Closed, not ready or no entry",87,0.028,7.0
+Grocery store,5 No follow-up within 120 days,74,0.0238,
+Hospital / long-term care,1 Passed,305,0.7011,7.0
+Hospital / long-term care,2 Passed with conditions,64,0.1471,7.0
+Hospital / long-term care,3 Failed again,57,0.131,7.0
+Hospital / long-term care,"4 Closed, not ready or no entry",3,0.0069,0.0
+Hospital / long-term care,5 No follow-up within 120 days,6,0.0138,
+Mobile food,1 Passed,120,0.6218,14.0
+Mobile food,2 Passed with conditions,27,0.1399,14.0
+Mobile food,3 Failed again,24,0.1244,13.5
+Mobile food,"4 Closed, not ready or no entry",4,0.0207,10.5
+Mobile food,5 No follow-up within 120 days,18,0.0933,
+Other,1 Passed,251,0.6307,7.0
+Other,2 Passed with conditions,71,0.1784,7.0
+Other,3 Failed again,51,0.1281,7.0
+Other,"4 Closed, not ready or no entry",8,0.0201,17.5
+Other,5 No follow-up within 120 days,17,0.0427,
+Restaurant,1 Passed,11981,0.6694,7.0
+Restaurant,2 Passed with conditions,3476,0.1942,7.0
+Restaurant,3 Failed again,1810,0.1011,7.0
+Restaurant,"4 Closed, not ready or no entry",331,0.0185,8.0
+Restaurant,5 No follow-up within 120 days,299,0.0167,
+School,1 Passed,1348,0.6221,7.0
+School,2 Passed with conditions,184,0.0849,7.0
+School,3 Failed again,497,0.2293,7.0
+School,"4 Closed, not ready or no entry",12,0.0055,8.5
+School,5 No follow-up within 120 days,126,0.0581,
+Unknown,1 Passed,17,0.5484,7.0
+Unknown,2 Passed with conditions,4,0.129,8.5
+Unknown,3 Failed again,3,0.0968,5.0
+Unknown,5 No follow-up within 120 days,7,0.2258,
