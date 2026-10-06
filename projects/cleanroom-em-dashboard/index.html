@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cleanroom EM Dashboard, Dennis Nguyen</title>
+<meta name="description" content="Interactive environmental monitoring and CAPA dashboard for 17 simulated ISO 5 to ISO 8 medical device cleanrooms over 12 months.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a GMP controlled report. Document control block, numbered sections, ruled tables, square corners, ink on paper. Semantic colour only where a result needs attention. */
+:root{
+  --ground:#e4e7e4; --paper:#ffffff; --tint:#f3f5f3;
+  --ink:#121518; --rule:#121518; --hair:#cfd4d0; --muted:#596166;
+  --pen:#1d3d73;            /* GMP blue ink: signatures, links, selections */
+  --pass:#2b6e48; --alert:#9a6a00; --action:#b02a20;
+  --pass-bg:#e5efe8; --alert-bg:#f6ecd2; --action-bg:#f6dedb;
+  --hatch:#d9ddda;
+  --f-head:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6;
+  --pass:#6cc392; --alert:#e2b34a; --action:#f07a6e;
+  --pass-bg:#16291f; --alert-bg:#2e2512; --action-bg:#361a17;
+  --hatch:#262b30; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6;
+  --pass:#6cc392; --alert:#e2b34a; --action:#f07a6e;
+  --pass-bg:#16291f; --alert-bg:#2e2512; --action-bg:#361a17;
+  --hatch:#262b30; color-scheme:dark;}
+
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;background:var(--ground);color:var(--ink);font:14px/1.5 var(--f-body)}
+[hidden]{display:none!important}
+.back{display:inline-block;margin-bottom:12px;font:500 13px var(--f-body);color:var(--pen);text-underline-offset:3px}
+.sheet{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+.doc{background:var(--paper);border:1px solid var(--rule);display:grid}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font:600 10px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--f-head);margin:0;text-wrap:balance}
+h1{font-size:clamp(24px,3.4vw,34px);font-weight:700;line-height:1.05;letter-spacing:-.005em}
+h2{font-size:19px;font-weight:600;display:flex;gap:12px;align-items:baseline}
+h2 .no{font:500 13px var(--f-mono);color:var(--muted)}
+.sub{color:var(--muted);font-size:12.5px;margin:3px 0 0;max-width:80ch}
+section.sec{border-top:1px solid var(--rule);padding:18px 20px;min-width:0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 20px;flex-wrap:wrap;margin-bottom:14px}
+
+/* document control block */
+.ctrl{display:grid;grid-template-columns:minmax(0,1fr) auto}
+.ctrl .title{padding:20px;display:grid;gap:10px;align-content:start}
+.ctrl .meta{display:grid;grid-template-columns:repeat(2,minmax(130px,auto));border-left:1px solid var(--rule)}
+.ctrl .meta div{padding:9px 14px;border-bottom:1px solid var(--hair);border-left:1px solid var(--hair);display:grid;gap:3px}
+.ctrl .meta div:nth-child(odd){border-left:0}
+.ctrl .meta div:nth-last-child(-n+2){border-bottom:0}
+.ctrl .meta b{font:500 13px var(--f-mono);font-variant-numeric:tabular-nums}
+.stamp{justify-self:start;font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--action);border:1.5px solid var(--action);padding:3px 8px;transform:rotate(-1.5deg)}
+@media (max-width:760px){.ctrl{grid-template-columns:1fr}.ctrl .meta{border-left:0;border-top:1px solid var(--rule)}}
+
+/* summary strip */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.summary > div{padding:14px 20px;border-left:1px solid var(--hair);display:grid;gap:4px;align-content:start}
+.summary > div:first-child{border-left:0}
+.summary .v{font:500 30px/1.05 var(--f-mono);font-variant-numeric:tabular-nums}
+.summary .v small{font-size:13px;color:var(--muted);margin-left:4px}
+.summary .s{font-size:12px;color:var(--muted)}
+.summary .v.is-action{color:var(--action)} .summary .v.is-alert{color:var(--alert)} .summary .v.is-pass{color:var(--pass)}
+@media (max-width:820px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.summary > div:nth-child(3){border-left:0}.summary > div:nth-child(n+3){border-top:1px solid var(--hair)}}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-end;padding:14px 20px;background:var(--tint);border-top:1px solid var(--rule)}
+.field{display:grid;gap:5px;min-width:0}
+select,input[type=search]{font:13px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:6px 9px;min-width:0;max-width:100%}
+select{min-width:230px}
+input[type=search]{width:240px}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--rule);flex-wrap:wrap}
+.seg button{font:500 12px var(--f-body);color:var(--ink);background:var(--paper);border:0;border-left:1px solid var(--rule);padding:6px 11px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.sq{width:9px;height:9px;display:inline-block;flex:none}
+.sq0{background:var(--pass)}.sq1{background:var(--alert)}.sq2{background:var(--action)}
+.linkbtn{font:500 12px var(--f-body);color:var(--pen);background:none;border:0;padding:6px 0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.crumb{flex-basis:100%;font-size:12px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+
+/* charts */
+.pair{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);border-top:1px solid var(--rule)}
+.pair > section{border-top:0}
+.pair > section + section{border-left:1px solid var(--rule)}
+@media (max-width:980px){.pair{grid-template-columns:minmax(0,1fr)}.pair > section + section{border-left:0;border-top:1px solid var(--rule)}}
+.chartbox{position:relative;height:290px}
+.empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px}
+.empty[hidden]{display:none}
+.log .mono{white-space:nowrap}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--muted);margin-top:10px}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.ln{width:18px;border-top:2px solid}
+.ln.d{border-top-style:dashed}
+.mk{width:8px;height:8px}
+
+/* pareto as a ruled table */
+table.par{width:100%;border-collapse:collapse;font-size:12.5px}
+.par th{font:600 10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 6px 6px;border-bottom:1px solid var(--rule)}
+.par th.r,.par td.r{text-align:right}
+.par td{padding:6px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.par td.c{width:42%}
+.par td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{position:relative;height:12px;background:var(--tint)}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.par tr.vital .bar i{background:var(--pen)}
+.par tr.cut td{border-bottom:1.5px dashed var(--alert)}
+.par-note{font-size:11.5px;color:var(--muted);margin-top:8px}
+
+/* facility matrix */
+.scroll{overflow-x:auto}
+table.mx{border-collapse:collapse;min-width:780px;width:100%}
+.mx th{font:600 10px var(--f-mono);letter-spacing:.06em;color:var(--muted);text-align:center;padding:0 0 6px;border-bottom:1px solid var(--rule)}
+.mx th.rh{text-align:left}
+.mx td{padding:2px;border-bottom:1px solid var(--hair)}
+.mx tr.first td{border-top:1px solid var(--rule)}
+.mx td.rl{white-space:nowrap;padding:5px 14px 5px 0;cursor:pointer;width:1%}
+.mx td.rl .n{font-weight:600;font-size:13px}
+.mx td.rl .m{font:11px var(--f-mono);color:var(--muted)}
+.mx tr.gown td.rl{padding-left:16px}
+.mx tr.gown td.rl .n{font-weight:400}
+.mx tr.sel td.rl .n{color:var(--pen);text-decoration:underline;text-underline-offset:3px}
+.mx tr:hover td.rl .n{text-decoration:underline}
+.cell{height:24px;display:grid;place-items:center;font:600 9.5px var(--f-mono);letter-spacing:.04em;cursor:pointer;border:1px solid var(--hair);background:var(--paper)}
+.cell.s0{background:var(--pass-bg);border-color:var(--pass-bg)}
+.cell.s1{background:var(--alert);border-color:var(--alert);color:var(--paper)}
+.cell.s2{background:var(--action);border-color:var(--action);color:var(--paper)}
+.cell.na{cursor:default;border-color:transparent;background:repeating-linear-gradient(135deg,var(--hatch) 0 1px,transparent 1px 6px)}
+.cell.none{cursor:default}
+
+/* audit log */
+table.log{border-collapse:collapse;width:100%;min-width:1160px;font-size:12.5px}
+.log th{text-align:left;font:600 10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--rule);border-top:1px solid var(--rule);white-space:nowrap;background:var(--tint)}
+.log td{padding:8px 10px;border-bottom:1px solid var(--hair);vertical-align:top}
+.log td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.log .f1{color:var(--alert);font-weight:600}
+.log .f2{color:var(--action);font-weight:600}
+.log .f1::after{content:" A";font-size:10px}
+.log .f2::after{content:" L";font-size:10px}
+.log .small{color:var(--muted);font-size:11.5px}
+.code{display:inline-block;font:600 10.5px var(--f-mono);letter-spacing:.08em;padding:2px 6px;border:1.5px solid currentColor;white-space:nowrap}
+.c0{color:var(--pass)}.c1{color:var(--alert)}.c2{color:var(--action)}
+.open{color:var(--action)}
+.sig{font-family:var(--f-body);color:var(--pen)}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.btn{font:500 12px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:6px 12px;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.notes{font-size:12px;color:var(--muted);line-height:1.65;max-width:95ch;margin:0}
+.notes b{color:var(--ink)}
+.pagefoot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:11px var(--f-mono);color:var(--muted);padding:10px 20px;border-top:1px solid var(--rule)}
+@media (max-width:540px){select,input[type=search]{width:100%;min-width:0}.field{flex:1 1 100%}section.sec{padding:16px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<a class="back" href="/">Back to portfolio</a>
+<div class="doc">
+
+  <div class="ctrl">
+    <div class="title">
+      <span class="lbl">Site 04 · Medical device manufacturing · Quality Control Microbiology</span>
+      <h1>Cleanroom Environmental Monitoring Trend Report</h1>
+      <span class="stamp">Simulated data · portfolio demonstration</span>
+    </div>
+    <div class="meta">
+      <div><span class="lbl">Document no.</span><b>EM-TR-004</b></div>
+      <div><span class="lbl">Revision</span><b>C</b></div>
+      <div><span class="lbl">Review period</span><b>Sep 2025 to Aug 2026</b></div>
+      <div><span class="lbl">Data locked</span><b>31 Aug 2026</b></div>
+      <div><span class="lbl">Records in view</span><b id="recCount">0</b></div>
+      <div><span class="lbl">Rooms in scope</span><b>17</b></div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="filters">
+    <div class="field">
+      <label class="lbl" for="fRoom">Suite / room</label>
+      <select id="fRoom"></select>
+    </div>
+    <div class="field">
+      <label class="lbl" for="fTest">Test</label>
+      <select id="fTest" style="min-width:190px">
+        <option value="all">All tests</option>
+        <option value="AM">Air microbial (AM)</option>
+        <option value="AP">Air particulate (AP)</option>
+        <option value="PER">Personnel (PER)</option>
+        <option value="WS">Work surface (WS)</option>
+        <option value="DP">Differential pressure (DP)</option>
+      </select>
+    </div>
+    <div class="field">
+      <span class="lbl" id="fStatusLbl">Result</span>
+      <div class="seg" id="fStatus" role="group" aria-labelledby="fStatusLbl">
+        <button data-v="all" aria-pressed="true">All</button>
+        <button data-v="0" aria-pressed="false"><i class="sq sq0"></i>Pass</button>
+        <button data-v="1" aria-pressed="false"><i class="sq sq1"></i>Alert</button>
+        <button data-v="2" aria-pressed="false"><i class="sq sq2"></i>Action</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="lbl" for="fSearch">Search log</label>
+      <input type="search" id="fSearch" placeholder="Record, CAPA, cause, analyst">
+    </div>
+    <button class="linkbtn" id="reset">Clear filters</button>
+    <div class="crumb" id="crumb"></div>
+  </div>
+
+  <div class="pair">
+    <section class="sec">
+      <div class="sec-head">
+        <div>
+          <h2><span class="no">2.0</span><span id="trendTitle">Trend</span></h2>
+          <p class="sub" id="trendSub"></p>
+        </div>
+        <div class="field">
+          <label class="lbl" for="fMetric">Metric</label>
+          <select id="fMetric" style="min-width:200px">
+            <option value="AP05">AP, 0.5 µm particles</option>
+            <option value="AP50">AP, 5.0 µm particles</option>
+            <option value="AM">AM, air microbial</option>
+            <option value="PER">PER, personnel</option>
+            <option value="WS">WS, work surface</option>
+            <option value="DP">DP, differential pressure</option>
+          </select>
+        </div>
+      </div>
+      <div class="chartbox"><canvas id="trend" aria-label="Monthly trend chart"></canvas><div class="empty" id="trendEmpty" hidden>No results for this metric in the current selection.</div></div>
+      <div class="key" id="trendKey"></div>
+    </section>
+    <section class="sec">
+      <div class="sec-head">
+        <div>
+          <h2><span class="no">3.0</span>Root cause Pareto</h2>
+          <p class="sub">Assigned causes for Alert and Action results in view</p>
+        </div>
+      </div>
+      <div id="pareto"></div>
+    </section>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">4.0</span>Facility matrix</h2>
+        <p class="sub">Worst result per room per month. Gowning rooms are sampled quarterly; hatched months are not scheduled. Select a room to filter the report.</p>
+      </div>
+      <div class="key" style="margin:0">
+        <span><i class="mk" style="background:var(--pass-bg);outline:1px solid var(--hair)"></i>Pass</span>
+        <span><i class="mk" style="background:var(--alert)"></i>Alert</span>
+        <span><i class="mk" style="background:var(--action)"></i>Action</span>
+      </div>
+    </div>
+    <div class="scroll"><table class="mx" id="matrix"></table></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">5.0</span>Environmental monitoring and CAPA log</h2>
+        <p class="sub">Each result is the mean of n samples. Values at or above Alert are marked A, above Action are marked L (limit). Records are append-only and carry analyst and QA reviewer per ALCOA+.</p>
+      </div>
+    </div>
+    <div class="scroll">
+      <table class="log">
+        <thead><tr>
+          <th>Record ID</th><th>Sampled</th><th>Room</th><th>Test</th><th>Result (mean)</th><th>n</th><th>Alert / Action</th><th>Result</th><th>CAPA</th><th>Root cause</th><th>Analyst / QA review</th>
+        </tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+    <div class="foot">
+      <span id="logShown"></span>
+      <button class="btn" id="more">Show 25 more</button>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 style="margin-bottom:8px"><span class="no">6.0</span>Basis of limits</h2>
+    <p class="notes">All records are simulated for a portfolio demonstration and contain no proprietary site data. <b>Particulates</b> use ISO 14644-1 class limits per m³ at 0.5 µm and 5.0 µm. <b>Microbial</b> action levels are illustrative and modelled on EU GMP Annex 1 grade levels, with alert set at 60% of action. <b>Differential pressure</b> uses a floor: below 0.030 in. WC is an Alert, below 0.020 in. WC is an Action. Production rooms run AM, AP, PER, WS and DP monthly. ISO 8 gowning rooms run AM, AP and DP quarterly. AM, AP, PER and WS results average 12 to 40 samples; DP averages 1 to 4 entrance readings.</p>
+  </section>
+
+  <div class="pagefoot"><span>EM-TR-004 Rev C</span><span>Uncontrolled when printed</span></div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function(){
+/* ---------- seeded RNG ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=mulberry32(20260818);
+const between=(a,b)=>a+R()*(b-a), intB=(a,b)=>Math.floor(between(a,b+1)), pick=a=>a[Math.floor(R()*a.length)];
+
+/* ---------- reference data ---------- */
+const MONTHS=[];for(let i=0;i<12;i++){const d=new Date(2025,8+i,1);MONTHS.push({y:d.getFullYear(),m:d.getMonth(),label:d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)})}
+const ASOF=new Date(2026,7,31);
+const LIM={5:{AP05:3520,AP50:29,AM:1,PER:1,WS:1},6:{AP05:35200,AP50:293,AM:10,PER:5,WS:5},7:{AP05:352000,AP50:2930,AM:100,PER:10,WS:50},8:{AP05:3520000,AP50:29300,AM:200,PER:20,WS:100}};
+const ALERT=0.6, DP_ALERT=0.030, DP_ACTION=0.020;
+const TESTS={AM:{name:'Air microbial',unit:'CFU/m³'},AP:{name:'Air particulate',unit:'particles/m³'},PER:{name:'Personnel',unit:'CFU/plate'},WS:{name:'Work surface',unit:'CFU/plate'},DP:{name:'Differential pressure',unit:'in. WC'}};
+const CAUSES={
+  AM:['HEPA filter saturation','Aseptic technique breach','Material transfer contamination','Door interlock fault'],
+  AP:['HEPA filter saturation','Excess personnel traffic','Compressed air line contamination','Door interlock fault'],
+  PER:['Gowning technique breach','Glove sanitization lapse','Aseptic technique breach'],
+  WS:['Disinfectant contact time not met','Cleaning frequency missed','Material transfer contamination'],
+  DP:['HVAC damper drift','Door interlock fault','AHU fan degradation']
+};
+const ANALYSTS=['A. Reyes','K. Morales','J. Tran','S. Lindqvist','P. Varga','M. Okafor'];
+const QA=['QA: L. Chen','QA: R. Patel','QA: T. Brennan'];
+const SUITES=[
+  {code:'ALP',name:'Alpha',iso:5,use:'Aseptic filling',stages:2,base:.10,pA:.02,pW:.05},
+  {code:'BET',name:'Beta',iso:5,use:'Critical processing',stages:2,base:.12,pA:.035,pW:.07},
+  {code:'GAM',name:'Gamma',iso:6,use:'Buffer suite',stages:2,base:.16,pA:.02,pW:.05},
+  {code:'DEL',name:'Delta',iso:7,use:'Device assembly',stages:1,base:.20,pA:.045,pW:.09},
+  {code:'EPS',name:'Epsilon',iso:7,use:'Primary packaging',stages:1,base:.18,pA:.02,pW:.06},
+  {code:'ZET',name:'Zeta',iso:8,use:'Component prep',stages:1,base:.22,pA:.015,pW:.05},
+  {code:'ETA',name:'Eta',iso:8,use:'General prep',stages:1,base:.24,pA:.015,pW:.05}
+];
+const ROOMS=[];
+SUITES.forEach(s=>{
+  ROOMS.push({id:s.code,suite:s.code,kind:'prod',name:s.name,iso:s.iso,desc:`ISO ${s.iso} · ${s.use}`,tests:['AM','AP','PER','WS','DP'],entr:intB(2,4),base:s.base,pA:s.pA,pW:s.pW});
+  const stages=s.stages===2?[['G1','Gown 1','Pre-gown'],['G2','Gown 2','Final gown']]:[['G1','Gowning','Gown room']];
+  stages.forEach(([c,n,u])=>ROOMS.push({id:`${s.code}-${c}`,suite:s.code,kind:'gown',name:`${s.name} ${n}`,iso:8,desc:`ISO 8 · ${u}`,tests:['AM','AP','DP'],entr:intB(1,3),base:.22,pA:.03,pW:.07}));
+});
+const ROOM=Object.fromEntries(ROOMS.map(r=>[r.id,r]));
+
+/* ---------- scripted events that give the year a story ---------- */
+function override(room,mi,test){
+  if(room.id==='GAM'&&(mi===4||mi===5)&&(test==='AP'||test==='AM'))return{sev:mi===5?2:1,cause:'HEPA filter saturation'}; // Jan-Feb 26
+  if(room.id==='DEL'&&mi===7&&test==='DP')return{sev:2,cause:'HVAC damper drift'};
+  if(room.id==='DEL'&&mi===8&&test==='PER')return{sev:2,cause:'Gowning technique breach'};
+  if(room.id==='BET-G2'&&mi===9&&test==='AM')return{sev:2,cause:'Door interlock fault'};
+  if(room.id==='BET'&&mi===11&&test==='WS')return{sev:2,cause:'Under investigation'};
+  return null;
+}
+
+/* ---------- grading ---------- */
+function grade(key,iso,v){
+  if(key==='DP')return v<DP_ACTION?2:v<DP_ALERT?1:0;
+  const lim=LIM[iso][key];return v>lim?2:v>=lim*ALERT?1:0;
+}
+function fracFor(sev,base){return sev===0?Math.min(.5,base*between(.2,1.8)):sev===1?between(.62,.97):between(1.08,1.9)}
+const round=(v,d)=>Math.round(v*10**d)/10**d;
+
+/* ---------- generate records ---------- */
+const RECS=[];let capaSeq=412;
+MONTHS.forEach((M,mi)=>{
+  ROOMS.forEach(room=>{
+    if(room.kind==='gown'&&mi%3!==0)return;
+    const day=intB(3,24);
+    room.tests.forEach(test=>{
+      const ov=override(room,mi,test);
+      let sev;if(ov)sev=ov.sev;else{const x=R();sev=x<room.pA?2:x<room.pA+room.pW?1:0}
+      const r={room:room.id,test,mi,date:new Date(M.y,M.m,day+(test==='DP'?0:intB(0,2)))};
+      if(test==='DP'){
+        r.n=room.entr;
+        r.v=round(sev===0?between(.034,.068):sev===1?between(.021,.0295):between(.009,.019),3);
+        r.status=grade('DP',room.iso,r.v);
+      }else if(test==='AP'){
+        r.n=intB(20,40);
+        const f1=fracFor(sev,room.base),f2=sev===0?fracFor(0,room.base):Math.max(.05,f1*between(.35,.9));
+        r.v05=Math.round(f1*LIM[room.iso].AP05);r.v50=Math.round(f2*LIM[room.iso].AP50);
+        r.status=Math.max(grade('AP05',room.iso,r.v05),grade('AP50',room.iso,r.v50));
+      }else{
+        r.n=test==='PER'?intB(12,30):intB(20,40);
+        const lim=LIM[room.iso][test];
+        let v=fracFor(sev,room.base)*lim;
+        if(sev===0&&room.iso===5)v=Math.min(v,between(0,.12));
+        r.v=round(v,2);
+        r.status=grade(test,room.iso,r.v);
+      }
+      if(r.status>0){
+        r.cause=ov?ov.cause:(mi===11&&R()<.5?'Under investigation':pick(CAUSES[test]));
+      }
+      if(r.status===2){
+        r.capa=`CAPA-${r.date.getFullYear()}-${String(capaSeq++).padStart(4,'0')}`;
+        const open=mi>=10||R()<.1||r.cause==='Under investigation';
+        if(open){r.capaState='Open';r.age=Math.round((ASOF-r.date)/864e5)}
+        else{r.capaState='Closed';r.ttr=intB(8,52)}
+      }
+      r.analyst=pick(ANALYSTS);r.qa=pick(QA);
+      const mm=String(M.m+1).padStart(2,'0');
+      r.id=`EM-${String(M.y).slice(2)}${mm}-${room.id}-${test}`;
+      RECS.push(r);
+    });
+  });
+});
+RECS.sort((a,b)=>b.date-a.date||a.room.localeCompare(b.room));
+
+
+
+/* ---------- state ---------- */
+const S={room:'all',test:'all',status:'all',q:'',metric:'AP05',shown:25};
+const $=id=>document.getElementById(id);
+
+(function(){
+  const sel=$('fRoom');let h='<option value="all">All suites, 17 rooms</option>';
+  SUITES.forEach(s=>{
+    const rs=ROOMS.filter(r=>r.suite===s.code);
+    h+=`<optgroup label="${s.name} suite (ISO ${s.iso})"><option value="suite:${s.code}">${s.name} suite, all ${rs.length} rooms</option>`;
+    rs.forEach(r=>h+=`<option value="room:${r.id}">${r.kind==='gown'?' ':''}${r.name} (${r.desc})</option>`);
+    h+='</optgroup>';
+  });sel.innerHTML=h;
+})();
+
+function inRoom(r){
+  if(S.room==='all')return true;
+  const [k,v]=S.room.split(':');return k==='suite'?ROOM[r.room].suite===v:r.room===v;
+}
+function matchQ(r){
+  if(!S.q)return true;const q=S.q.toLowerCase(),rm=ROOM[r.room];
+  return [r.id,rm.name,rm.desc,TESTS[r.test].name,r.capa||'',r.cause||'',r.analyst,r.qa].some(t=>t.toLowerCase().includes(q));
+}
+const filtered=()=>RECS.filter(r=>inRoom(r)&&(S.test==='all'||r.test===S.test)&&(S.status==='all'||r.status==+S.status)&&matchQ(r));
+
+const nf=new Intl.NumberFormat('en-US');
+const fmtDate=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+const CODE=['PASS','ALERT','ACTION'];
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc=s=>s.replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+
+/* ---------- 1.0 summary ---------- */
+function renderSummary(F){
+  const rooms=new Set(F.map(r=>r.room)),prod=[...rooms].filter(id=>ROOM[id].kind==='prod').length;
+  const c=[0,0,0];F.forEach(r=>c[r.status]++);
+  const rate=F.length?c[0]/F.length*100:0;
+  const capas=F.filter(r=>r.capa),open=capas.filter(r=>r.capaState==='Open'),closed=capas.filter(r=>r.capaState==='Closed');
+  const mttr=closed.length?closed.reduce((a,r)=>a+r.ttr,0)/closed.length:null;
+  const oldest=open.length?Math.max(...open.map(r=>r.age)):0;
+  const K=[
+    {l:'Rooms monitored',v:rooms.size,u:'of 17',s:`${prod} production, ${rooms.size-prod} gowning`},
+    {l:'Pass rate',v:F.length?rate.toFixed(1):'0',u:'%',s:`${c[1]} alert and ${c[2]} action results in ${nf.format(F.length)}`,cl:rate>=95?'is-pass':rate>=90?'is-alert':'is-action'},
+    {l:'Open CAPAs',v:open.length,u:`of ${capas.length}`,s:open.length?`Oldest open for ${oldest} days`:'None open in this view',cl:open.length?'is-action':''},
+    {l:'Mean time to close',v:mttr==null?'n/a':mttr.toFixed(1),u:mttr==null?'':'days',s:`Across ${closed.length} closed CAPAs`}
+  ];
+  $('summary').innerHTML=K.map(k=>`<div><span class="lbl">${k.l}</span><span class="v ${k.cl||''}">${k.v}<small>${k.u}</small></span><span class="s">${k.s}</span></div>`).join('');
+}
+
+/* ---------- 2.0 trend ---------- */
+let trendChart;
+const METRIC={AP05:{t:'AP',lbl:'0.5 µm particulate trend'},AP50:{t:'AP',lbl:'5.0 µm particulate trend'},AM:{t:'AM',lbl:'Air microbial trend'},PER:{t:'PER',lbl:'Personnel monitoring trend'},WS:{t:'WS',lbl:'Work surface trend'},DP:{t:'DP',lbl:'Differential pressure trend'}};
+function scopeLabel(){
+  if(S.room==='all')return 'All suites';
+  const [k,v]=S.room.split(':');return k==='suite'?SUITES.find(s=>s.code===v).name+' suite':ROOM[v].name;
+}
+function renderTrend(F){
+  const m=S.metric,meta=METRIC[m],isDP=m==='DP';
+  const recs=F.filter(r=>r.test===meta.t);
+  const iso=r=>ROOM[r.room].iso;
+  const val=r=>isDP?r.v:m==='AP05'?r.v05/LIM[iso(r)].AP05*100:m==='AP50'?r.v50/LIM[iso(r)].AP50*100:r.v/LIM[iso(r)][m]*100;
+  const isAct=r=>isDP?r.status===2:m==='AP05'?grade('AP05',iso(r),r.v05)===2:m==='AP50'?grade('AP50',iso(r),r.v50)===2:r.status===2;
+  const labels=MONTHS.map(x=>x.label),mean=[],worst=[],oos=[];
+  const dp=isDP?4:1;
+  MONTHS.forEach((M,mi)=>{
+    const vs=recs.filter(r=>r.mi===mi);
+    if(!vs.length){mean.push(null);worst.push(null);return}
+    const arr=vs.map(val);
+    mean.push(round(arr.reduce((a,b)=>a+b,0)/arr.length,dp));
+    const acts=vs.filter(isAct);
+    acts.forEach(r=>oos.push({x:M.label,y:round(val(r),dp),room:ROOM[r.room].name}));
+    const rest=vs.filter(r=>!isAct(r)).map(val);
+    worst.push(rest.length?round(isDP?Math.min(...rest):Math.max(...rest),dp):null);
+  });
+  $('trendTitle').textContent=meta.lbl;
+  $('trendSub').textContent=isDP?`${scopeLabel()}. Inches of water column relative to the adjacent lower-grade area.`:`${scopeLabel()}. Each result plotted as % of its room's action limit, so ISO 5 to ISO 8 rooms share one scale.`;
+  $('trendEmpty').hidden=recs.length>0;
+  const ink=css('--ink'),muted=css('--muted'),alert=css('--alert'),action=css('--action'),hair=css('--hair'),rule=css('--rule'),paper=css('--paper'),pen=css('--pen');
+  const flat=v=>labels.map(()=>v);
+  const tick={color:muted,font:{family:'IBM Plex Mono',size:10.5},padding:6};
+  const yMax=isDP?.08:Math.ceil(Math.max(120,...worst.filter(v=>v!=null),...oos.map(o=>o.y))/20)*20;
+  const opts={responsive:true,maintainAspectRatio:false,animation:false,
+    interaction:{mode:'nearest',intersect:true},
+    plugins:{legend:{display:false},tooltip:{backgroundColor:paper,titleColor:ink,bodyColor:ink,borderColor:rule,borderWidth:1,cornerRadius:0,displayColors:false,titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'},
+      callbacks:{label:c=>{const y=c.parsed.y,s=isDP?y.toFixed(3)+' in. WC':y.toFixed(1)+'% of action limit';return c.dataset.label==='Action result'?`ACTION, ${c.raw.room}: ${s}`:`${c.dataset.label}: ${s}`}}}},
+    scales:{x:{grid:{display:false},ticks:tick,border:{color:rule}},
+            y:{min:0,max:yMax,grid:{color:hair,drawTicks:false},border:{display:false},ticks:Object.assign({},tick,{stepSize:isDP?.01:20,callback:v=>isDP?v.toFixed(3):v+'%'}),title:{display:true,text:isDP?'in. WC':'% of action limit',color:muted,font:{family:'IBM Plex Mono',size:10.5}}}}};
+  const ds=[
+    {label:isDP?'Alert floor':'Alert level',data:flat(isDP?DP_ALERT:ALERT*100),borderColor:alert,borderDash:[5,4],borderWidth:1.25,pointRadius:0,pointHitRadius:0},
+    {label:isDP?'Action floor':'Action limit',data:flat(isDP?DP_ACTION:100),borderColor:action,borderWidth:1.25,pointRadius:0,pointHitRadius:0},
+    {label:isDP?'Lowest passing reading':'Highest non-action reading',data:worst,showLine:false,pointStyle:'line',pointRadius:9,pointBorderWidth:2,pointBorderColor:muted,pointBackgroundColor:muted},
+    {label:'Facility mean',data:mean,borderColor:pen,backgroundColor:pen,borderWidth:2,tension:0,pointStyle:'rect',pointRadius:3.5,spanGaps:true},
+    {label:'Action result',data:oos,showLine:false,pointStyle:'rectRot',pointRadius:6,pointHoverRadius:8,pointBackgroundColor:action,pointBorderColor:paper,pointBorderWidth:1.5}
+  ];
+  if(trendChart)trendChart.destroy();
+  trendChart=new Chart($('trend'),{type:'line',data:{labels,datasets:ds},options:opts});
+  $('trendKey').innerHTML=`<span><i class="mk" style="background:${pen}"></i><i class="ln" style="border-color:${pen};margin-left:-10px"></i>Mean</span><span><i class="ln" style="border-color:${muted};width:10px"></i>${isDP?'Lowest passing':'Highest non-action'}</span><span><i class="ln d" style="border-color:${alert}"></i>${isDP?'Alert floor 0.030':'Alert 60%'}</span><span><i class="ln" style="border-color:${action}"></i>${isDP?'Action floor 0.020':'Action 100%'}</span><span><i class="mk" style="background:${action};transform:rotate(45deg)"></i>Action result</span>`;
+}
+
+/* ---------- 3.0 pareto (ruled table) ---------- */
+function renderPareto(F){
+  const counts={};F.filter(r=>r.status>0).forEach(r=>counts[r.cause]=(counts[r.cause]||0)+1);
+  const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  if(!rows.length){$('pareto').innerHTML='<p class="sub" style="padding:40px 0;text-align:center">No Alert or Action results in the current selection.</p>';return}
+  const tot=rows.reduce((a,r)=>a+r[1],0),max=rows[0][1];let cum=0,cutDone=false;
+  const body=rows.map(([c,n])=>{
+    const before=cum;cum+=n;const pct=cum/tot*100;
+    const vital=before/tot*100<80;const cut=vital&&pct>=80&&!cutDone;if(cut)cutDone=true;
+    return `<tr class="${vital?'vital':''}${cut?' cut':''}"><td class="c">${esc(c)}</td><td class="n r">${n}</td><td><div class="bar"><i style="width:${n/max*100}%"></i></div></td><td class="n r">${pct.toFixed(0)}%</td></tr>`;
+  }).join('');
+  const vitalN=rows.findIndex((r,i)=>rows.slice(0,i+1).reduce((a,x)=>a+x[1],0)/tot>=.8)+1;
+  $('pareto').innerHTML=`<table class="par"><thead><tr><th>Cause</th><th class="r">n</th><th>Frequency</th><th class="r">Cum.</th></tr></thead><tbody>${body}</tbody></table><p class="par-note">${vitalN} of ${rows.length} causes account for 80% of ${tot} excursions (above the dashed line).</p>`;
+}
+
+/* ---------- 4.0 matrix ---------- */
+function renderMatrix(){
+  const recs=RECS.filter(r=>(S.test==='all'||r.test===S.test)&&matchQ(r));
+  const worst={};recs.forEach(r=>{const k=r.room+'|'+r.mi;worst[k]=Math.max(worst[k]??-1,r.status)});
+  const selRoom=S.room.startsWith('room:')?S.room.slice(5):null,selSuite=S.room.startsWith('suite:')?S.room.slice(6):null;
+  let h='<thead><tr><th class="rh">Room</th>'+MONTHS.map(m=>`<th>${m.label.toUpperCase()}</th>`).join('')+'</tr></thead><tbody>';
+  let prev='';
+  ROOMS.forEach(rm=>{
+    const sel=selRoom===rm.id||selSuite===rm.suite;
+    h+=`<tr class="${rm.kind}${rm.suite!==prev&&prev?' first':''}${sel?' sel':''}" data-room="${rm.id}"><td class="rl" tabindex="0" role="button" aria-label="Filter to ${rm.name}"><div class="n">${rm.name}</div><div class="m">${rm.desc}</div></td>`;
+    prev=rm.suite;
+    MONTHS.forEach((M,mi)=>{
+      const sched=rm.kind==='prod'||mi%3===0,w=worst[rm.id+'|'+mi];
+      if(!sched)h+='<td><div class="cell na" title="Not scheduled (quarterly)"></div></td>';
+      else if(w==null)h+='<td><div class="cell none" title="No matching records"></div></td>';
+      else h+=`<td><div class="cell s${w}" title="${rm.name}, ${M.label}: ${CODE[w]}">${w===2?'ACT':w===1?'ALT':''}</div></td>`;
+    });
+    h+='</tr>';
+  });
+  $('matrix').innerHTML=h+'</tbody>';
+}
+$('matrix').addEventListener('click',e=>{const tr=e.target.closest('tr[data-room]');if(!tr||e.target.closest('.na,.none'))return;setRoom('room:'+tr.dataset.room)});
+$('matrix').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('td.rl')){e.preventDefault();setRoom('room:'+e.target.parentElement.dataset.room)}});
+function setRoom(v){S.room=S.room===v?'all':v;$('fRoom').value=S.room;S.shown=25;render()}
+
+/* ---------- 5.0 log ---------- */
+function renderLog(F){
+  const rows=F.slice(0,S.shown);
+  $('logBody').innerHTML=rows.length?rows.map(r=>{
+    const rm=ROOM[r.room],iso=rm.iso;let res,lim;
+    if(r.test==='AP'){
+      const g1=grade('AP05',iso,r.v05),g2=grade('AP50',iso,r.v50);
+      res=`<span class="f${g1}">0.5 µm ${nf.format(r.v05)}</span><br><span class="f${g2}">5.0 µm ${nf.format(r.v50)}</span><br><span class="small">particles/m³</span>`;
+      lim=`${nf.format(Math.round(LIM[iso].AP05*ALERT))} / ${nf.format(LIM[iso].AP05)}<br>${nf.format(Math.round(LIM[iso].AP50*ALERT))} / ${nf.format(LIM[iso].AP50)}`;
+    }else if(r.test==='DP'){res=`<span class="f${r.status}">${r.v.toFixed(3)}</span> <span class="small">in. WC</span>`;lim=`≥${DP_ALERT.toFixed(3)} / ≥${DP_ACTION.toFixed(3)}`}
+    else{res=`<span class="f${r.status}">${r.v.toFixed(2)}</span> <span class="small">${TESTS[r.test].unit}</span>`;lim=`${round(LIM[iso][r.test]*ALERT,2)} / ${LIM[iso][r.test]}`}
+    const capa=r.capa?`<span class="mono">${r.capa}</span><br><span class="small ${r.capaState==='Open'?'open':''}">${r.capaState==='Open'?`Open, ${r.age} days`:`Closed in ${r.ttr} days`}</span>`:'<span class="small">Not required</span>';
+    return `<tr><td class="num">${r.id}</td><td class="num">${fmtDate(r.date)}</td><td>${rm.name}<br><span class="small">${rm.desc}</span></td><td>${TESTS[r.test].name}<br><span class="small mono">${r.test}</span></td><td class="num">${res}</td><td class="num">${r.n}</td><td class="num small">${lim}</td><td><span class="code c${r.status}">${CODE[r.status]}</span></td><td>${capa}</td><td>${r.cause||'<span class="small">None</span>'}</td><td><span class="sig">${r.analyst}</span><br><span class="small">${r.qa.replace('QA: ','QA ')}</span></td></tr>`;
+  }).join(''):'<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:28px">No records match these filters.</td></tr>';
+  $('logShown').textContent=`Showing ${Math.min(S.shown,F.length)} of ${nf.format(F.length)} records, newest first`;
+  $('more').hidden=S.shown>=F.length;
+}
+
+function render(){
+  const F=filtered();
+  $('recCount').textContent=`${nf.format(F.length)} of ${nf.format(RECS.length)}`;
+  const parts=[`<b>${scopeLabel()}</b>`];
+  if(S.test!=='all')parts.push(TESTS[S.test].name);
+  if(S.status!=='all')parts.push(CODE[S.status].toLowerCase()+' results');
+  if(S.q)parts.push(`matching "${esc(S.q)}"`);
+  $('crumb').innerHTML='Showing '+parts.join(', ');
+  renderSummary(F);renderTrend(F);renderPareto(F);renderMatrix();renderLog(F);
+}
+
+$('fRoom').onchange=e=>{S.room=e.target.value;S.shown=25;render()};
+$('fTest').onchange=e=>{S.test=e.target.value;if(S.test!=='all'&&METRIC[S.metric].t!==S.test){S.metric=S.test==='AP'?'AP05':S.test;$('fMetric').value=S.metric}S.shown=25;render()};
+$('fMetric').onchange=e=>{S.metric=e.target.value;renderTrend(filtered())};
+$('fStatus').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.status=b.dataset.v;[...$('fStatus').children].forEach(x=>x.setAttribute('aria-pressed',x===b));S.shown=25;render()};
+let qt;$('fSearch').oninput=e=>{clearTimeout(qt);qt=setTimeout(()=>{S.q=e.target.value.trim();S.shown=25;render()},150)};
+$('more').onclick=()=>{S.shown+=25;renderLog(filtered())};
+$('reset').onclick=()=>{Object.assign(S,{room:'all',test:'all',status:'all',q:'',shown:25});$('fRoom').value='all';$('fTest').value='all';$('fSearch').value='';[...$('fStatus').children].forEach((x,i)=>x.setAttribute('aria-pressed',i===0));render()};
+
+const retheme=()=>renderTrend(filtered());
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',retheme)}catch(e){}
+new MutationObserver(retheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(window.Chart)Chart.defaults.font.family='Public Sans, system-ui, sans-serif';
+render();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(retheme);
+})();
+</script>
+</body>
+</html>
