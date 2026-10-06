@@ -1,141 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dennis Nguyen — Data Analyst Portfolio</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dennis Nguyen, Data Analyst Portfolio</title>
+<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, and an environmental monitoring trend report.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-:root{
-  --bg-primary:#f4f6f8;
-  --bg-card:#ffffff;
-  --bg-header:#132043;
-  --text-primary:#1c2536;
-  --text-secondary:#64748b;
-  --text-on-dark:#ffffff;
-  --accent:#2f6fed;
-  --radius:10px;
-  --gap:20px;
+:root {
+  --ground: #e4e7e4;
+  --paper: #ffffff;
+  --tint: #f3f5f3;
+  --ink: #121518;
+  --rule: #121518;
+  --hair: #cfd4d0;
+  --muted: #596166;
+  --pen: #1d3d73;
+  --f-head: "Archivo Narrow", "Arial Narrow", Arial, sans-serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.55;}
-.container{max-width:980px;margin:0 auto;padding:var(--gap);}
-header.hero{background:linear-gradient(135deg,var(--bg-header),#1f3160);color:var(--text-on-dark);padding:48px 40px;border-radius:var(--radius);margin-bottom:32px;}
-header.hero h1{font-size:30px;font-weight:700;margin-bottom:8px;}
-header.hero .role{font-size:15px;color:#a9c0ff;margin-bottom:16px;font-weight:500;}
-header.hero p{font-size:14.5px;color:rgba(255,255,255,0.82);max-width:640px;margin-bottom:20px;}
-.links{display:flex;gap:12px;flex-wrap:wrap;}
-.links a{color:var(--text-on-dark);background:rgba(255,255,255,0.12);padding:8px 16px;border-radius:20px;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,0.18);transition:background .15s;}
-.links a:hover{background:rgba(255,255,255,0.22);}
-.section-title{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-secondary);margin:36px 0 16px;font-weight:600;}
-.skills-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;}
-.skill-pill{background:var(--bg-card);border:1px solid #e2e8f0;padding:7px 14px;border-radius:20px;font-size:13px;color:var(--text-primary);box-shadow:0 1px 2px rgba(0,0,0,.04);}
-.projects{display:grid;grid-template-columns:1fr;gap:18px;}
-.project-card{background:var(--bg-card);border-radius:var(--radius);padding:26px 28px;box-shadow:0 1px 3px rgba(0,0,0,.07);border-left:4px solid var(--accent);}
-.project-card h3{font-size:18px;font-weight:700;margin-bottom:6px;}
-.project-card .tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px;}
-.project-card .tag{font-size:11px;background:#eef4ff;color:#1d4fbf;padding:3px 9px;border-radius:12px;font-weight:600;letter-spacing:.2px;}
-.project-card p.desc{font-size:14px;color:var(--text-secondary);margin-bottom:8px;}
-.project-card .findings{font-size:13.5px;color:var(--text-primary);background:#f8fafc;border-radius:8px;padding:12px 14px;margin:12px 0 16px;border:1px solid #eef1f5;}
-.project-card .cta{display:flex;gap:10px;flex-wrap:wrap;}
-.project-card .cta a{font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px;text-decoration:none;}
-.cta .primary{background:var(--accent);color:#fff;}
-.cta .primary:hover{background:#2159c9;}
-.cta .secondary{background:#eef2f7;color:var(--text-primary);}
-.cta .secondary:hover{background:#e2e8f0;}
-.roadmap{background:var(--bg-card);border-radius:var(--radius);padding:22px 26px;box-shadow:0 1px 3px rgba(0,0,0,.07);}
-.roadmap ul{margin-left:18px;margin-top:8px;}
-.roadmap li{font-size:13.5px;color:var(--text-secondary);margin-bottom:6px;}
-footer{text-align:center;font-size:12px;color:var(--text-secondary);padding:36px 0 12px;}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0c0e10; --paper: #15181b; --tint: #1b1f23;
+    --ink: #e4e7e5; --rule: #8d959a; --hair: #2b3136; --muted: #99a2a7;
+    --pen: #93b4e6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0c0e10; --paper: #15181b; --tint: #1b1f23;
+  --ink: #e4e7e5; --rule: #8d959a; --hair: #2b3136; --muted: #99a2a7;
+  --pen: #93b4e6;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 15px/1.6 var(--f-body); }
+a { color: var(--pen); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+
+.sheet { max-width: 920px; margin: 0 auto; padding: 24px 16px 48px; }
+.doc { background: var(--paper); border: 1px solid var(--rule); }
+.lbl { font: 600 10.5px/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.mono { font-family: var(--f-mono); }
+h1, h2, h3 { font-family: var(--f-head); margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(30px, 5vw, 42px); font-weight: 700; line-height: 1; }
+h2 { font-size: 20px; font-weight: 600; display: flex; gap: 12px; align-items: baseline; margin-bottom: 14px; }
+h2 .no { font: 500 13px var(--f-mono); color: var(--muted); }
+h3 { font-size: 21px; font-weight: 600; line-height: 1.15; }
+section { border-top: 1px solid var(--rule); padding: 22px 24px; }
+
+/* masthead */
+.mast { display: grid; grid-template-columns: minmax(0, 1fr) 280px; }
+.mast .who { padding: 26px 24px; display: grid; gap: 12px; align-content: start; }
+.mast .who p { margin: 0; max-width: 58ch; }
+.mast dl { margin: 0; border-left: 1px solid var(--rule); display: grid; align-content: start; }
+.mast dl div { padding: 10px 16px; border-bottom: 1px solid var(--hair); display: grid; gap: 3px; }
+.mast dl div:last-child { border-bottom: 0; }
+.mast dd { margin: 0; font-size: 14px; }
+@media (max-width: 720px) {
+  .mast { grid-template-columns: 1fr; }
+  .mast dl { border-left: 0; border-top: 1px solid var(--rule); }
+}
+
+/* tools table */
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th { font: 600 10.5px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0 10px 7px 0; border-bottom: 1px solid var(--rule); }
+td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+td:first-child { font-weight: 600; white-space: nowrap; width: 1%; padding-right: 28px; }
+.methods { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); }
+.methods b { color: var(--ink); font-weight: 600; }
+
+/* project entries */
+.proj { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 0 18px; padding: 20px 0; border-bottom: 1px solid var(--hair); }
+.proj:first-of-type { padding-top: 4px; }
+.proj:last-child { border-bottom: 0; padding-bottom: 0; }
+.proj .id { font: 500 13px var(--f-mono); color: var(--muted); padding-top: 4px; }
+.proj .body { display: grid; gap: 10px; min-width: 0; }
+.proj p { margin: 0; }
+.proj .data { font: 500 11.5px var(--f-mono); color: var(--muted); }
+.finding { border-left: 2px solid var(--ink); padding: 2px 0 2px 14px; }
+.finding .lbl { display: block; margin-bottom: 3px; }
+.stack { font: 12.5px var(--f-mono); color: var(--muted); }
+.go { display: flex; flex-wrap: wrap; gap: 6px 22px; font-weight: 500; font-size: 14px; }
+@media (max-width: 560px) {
+  .proj { grid-template-columns: 1fr; }
+  .proj .id { padding: 0 0 4px; }
+  section { padding: 20px 16px; }
+  .mast .who { padding: 22px 16px; }
+}
+
+ol.next { margin: 0; padding-left: 20px; }
+ol.next li { margin-bottom: 4px; }
+.foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font: 11.5px var(--f-mono); color: var(--muted); padding: 10px 24px; border-top: 1px solid var(--rule); }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="sheet">
+<main class="doc">
 
-  <header class="hero">
-    <h1>Dennis Nguyen</h1>
-    <div class="role">Quality Microbiology Lab Technician → Data Analyst</div>
-    <p>I turn quality, lab, and manufacturing data into decisions — bringing real GMP/QC domain expertise from medtech (Edwards Lifesciences) to data analysis. Below are projects built end-to-end: real data, real tooling, real findings.</p>
-    <div class="links">
-      <a href="https://github.com/TheRealMenace10040" target="_blank" rel="noopener">GitHub ↗</a>
-      <a href="mailto:dennishungnguyen@gmail.com">Email</a>
+  <header class="mast">
+    <div class="who">
+      <span class="lbl">Data analyst portfolio</span>
+      <h1>Dennis Nguyen</h1>
+      <p>I work in quality control microbiology at a medical device manufacturer, and I'm moving into data analysis. These projects use the kind of data I already handle at work: recalls, environmental monitoring results, lab supply orders. Each one has its code and a short write-up.</p>
     </div>
+    <dl>
+      <div><dt class="lbl">Current role</dt><dd>QC Microbiology Lab Technician, Edwards Lifesciences</dd></div>
+      <div><dt class="lbl">Looking for</dt><dd>Data analyst roles in quality, lab or manufacturing</dd></div>
+      <div><dt class="lbl">Contact</dt><dd><a href="mailto:dennishungnguyen@gmail.com">dennishungnguyen@gmail.com</a></dd></div>
+      <div><dt class="lbl">Code</dt><dd><a href="https://github.com/TheRealMenace10040">github.com/TheRealMenace10040</a></dd></div>
+    </dl>
   </header>
 
-  <div class="section-title">Core Tools</div>
-  <div class="skills-row">
-    <span class="skill-pill">Excel / Google Sheets</span>
-    <span class="skill-pill">VBA</span>
-    <span class="skill-pill">SQL</span>
-    <span class="skill-pill">Power BI</span>
-    <span class="skill-pill">Python</span>
-    <span class="skill-pill">Statistical Process Control</span>
-    <span class="skill-pill">Root Cause Analysis</span>
-  </div>
+  <section>
+    <h2><span class="no">1</span>Projects</h2>
 
-  <div class="section-title">Projects</div>
-  <div class="projects">
-
-    <div class="project-card">
-      <h3>Cardiovascular Medical Device Recalls</h3>
-      <div class="tags">
-        <span class="tag">openFDA API</span>
-        <span class="tag">Python</span>
-        <span class="tag">Chart.js</span>
-        <span class="tag">Root Cause Analysis</span>
+    <article class="proj">
+      <div class="id">P-01</div>
+      <div class="body">
+        <h3>Cardiovascular medical device recalls</h3>
+        <span class="data">openFDA public data, pulled Aug 2026</span>
+        <p>I pulled FDA recall records for cardiovascular devices and grouped the 15 raw root-cause labels into four categories, the same triage a CAPA program does.</p>
+        <p class="finding"><span class="lbl">Finding</span>Manufacturing and process problems cause more of these recalls (37.3%) than design problems (32.8%), which is the opposite of what most people assume.</p>
+        <span class="stack">openFDA API, Python, Chart.js</span>
+        <div class="go">
+          <a href="https://therealmenace10040.github.io/cardiovascular-device-recall-dashboard/">Open the dashboard</a>
+          <a href="https://github.com/TheRealMenace10040/cardiovascular-device-recall-dashboard">Code and write-up</a>
+        </div>
       </div>
-      <p class="desc">Pulled live FDA recall data for cardiovascular medical devices and recoded 15 raw root-cause categories into four analyst-defined buckets — the same triage work used in a CAPA program.</p>
-      <div class="findings"><b>Key finding:</b> Manufacturing/Process issues (37.3%) edge out Design issues (32.8%) as the top recall driver — the opposite of the common assumption that recalls are mostly design flaws.</div>
-      <div class="cta">
-        <a class="primary" href="https://therealmenace10040.github.io/cardiovascular-device-recall-dashboard/" target="_blank" rel="noopener">View Live Dashboard →</a>
-        <a class="secondary" href="https://github.com/TheRealMenace10040/cardiovascular-device-recall-dashboard" target="_blank" rel="noopener">View Code + Case Study</a>
-      </div>
-    </div>
+    </article>
 
-    <div class="project-card">
-      <h3>Lab Supply &amp; Vendor Performance Tracker</h3>
-      <div class="tags">
-        <span class="tag">Excel</span>
-        <span class="tag">VBA</span>
-        <span class="tag">COUNTIFS / SUMIFS</span>
-        <span class="tag">Purchasing</span>
+    <article class="proj">
+      <div class="id">P-02</div>
+      <div class="body">
+        <h3>Lab supply and vendor performance tracker</h3>
+        <span class="data">Synthetic data</span>
+        <p>An Excel workbook for the time-sensitive supplies a QC lab depends on. It scores 8 vendors on on-time delivery and lead time across 320 purchase orders, flags lots close to expiry and works out reorder points. VBA macros import new orders, export a dated reorder list and refresh the dashboard.</p>
+        <p class="finding"><span class="lbl">Finding</span>Overall on-time delivery is 89.7%, but one calibration vendor is on time only 75% of the time and gets flagged as at risk. Six items are below their reorder point.</p>
+        <span class="stack">Excel, VBA, COUNTIFS / SUMIFS, Python</span>
+        <div class="go">
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/raw/main/projects/lab-supply-vendor-tracker/Lab_Supply_Vendor_Tracker.xlsx">Download the workbook</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/lab-supply-vendor-tracker">Code and write-up</a>
+        </div>
       </div>
-      <p class="desc">An Excel tool for the time-sensitive supplies a QC lab runs on. It scores 8 vendors on on-time delivery and lead time across 320 purchase orders, flags expiring lots, and calculates reorder points. VBA macros import new POs, export a dated reorder list, and refresh the dashboard. <i>Synthetic data.</i></p>
-      <div class="findings"><b>Key finding:</b> One calibration vendor delivers on time only 75% of the time and gets flagged "At risk", while overall on-time delivery is 89.7%. Six items sit below their reorder point.</div>
-      <div class="cta">
-        <a class="primary" href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/raw/main/projects/lab-supply-vendor-tracker/Lab_Supply_Vendor_Tracker.xlsx">Download Workbook →</a>
-        <a class="secondary" href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/lab-supply-vendor-tracker" target="_blank" rel="noopener">View Code + Case Study</a>
+    </article>
+
+    <article class="proj">
+      <div class="id">P-03</div>
+      <div class="body">
+        <h3>Environmental monitoring QC trend report</h3>
+        <span class="data">Synthetic data, illustrative limits</span>
+        <p>A small pipeline for cleanroom EM results. Python generates 3,600 results, SQL finds rising excursion rates and repeat excursions, and an Excel report with a VBA macro builds the weekly summary and saves it as a PDF.</p>
+        <p class="finding"><span class="lbl">Finding</span>The excursion rate sits between 2% and 5% most months, then jumps to 8.0% in July. One ISO 7 room nearly tripled its rate over the last 30 days compared with its 90-day baseline.</p>
+        <span class="stack">Python, SQL (views, CTEs, self-joins), Excel, VBA</span>
+        <div class="go">
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/raw/main/projects/em-qc-trend-report/EM_QC_Trend_Report.xlsx">Download the workbook</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/em-qc-trend-report">Code and write-up</a>
+        </div>
       </div>
-    </div>
+    </article>
+  </section>
 
-    <div class="project-card">
-      <h3>Environmental Monitoring QC Trend Report</h3>
-      <div class="tags">
-        <span class="tag">Python</span>
-        <span class="tag">SQL</span>
-        <span class="tag">Excel</span>
-        <span class="tag">VBA</span>
-      </div>
-      <p class="desc">A small pipeline for cleanroom EM results. Python generates 3,600 results, SQL (views, CTEs, self-joins) finds excursion trends and repeat excursions, and a formula-driven Excel report with a VBA macro builds the weekly summary and exports it to PDF. <i>Synthetic data; limits are illustrative.</i></p>
-      <div class="findings"><b>Key finding:</b> The excursion rate runs 2-5% most months but jumps to 8.0% in July. One ISO 7 room nearly tripled its rate in the last 30 days against its 90-day baseline.</div>
-      <div class="cta">
-        <a class="primary" href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/raw/main/projects/em-qc-trend-report/EM_QC_Trend_Report.xlsx">Download Workbook →</a>
-        <a class="secondary" href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/em-qc-trend-report" target="_blank" rel="noopener">View Code + Case Study</a>
-      </div>
-    </div>
+  <section>
+    <h2><span class="no">2</span>Tools</h2>
+    <table>
+      <thead><tr><th>Tool</th><th>Where it's used</th></tr></thead>
+      <tbody>
+        <tr><td>Excel / Google Sheets</td><td>P-02, P-03, and daily lab work</td></tr>
+        <tr><td>VBA</td><td>P-02, P-03</td></tr>
+        <tr><td>SQL</td><td>P-03</td></tr>
+        <tr><td>Python</td><td>P-01, P-02, P-03</td></tr>
+        <tr><td>Chart.js</td><td>P-01</td></tr>
+      </tbody>
+    </table>
+    <p class="methods"><b>Methods:</b> statistical process control, root cause analysis, Pareto analysis, CAPA trending. <b>Also:</b> Power BI.</p>
+  </section>
 
-  </div>
+  <section>
+    <h2><span class="no">3</span>Next up</h2>
+    <ol class="next">
+      <li>Deviation and CAPA tracker: aging, repeat root causes, close-out trends</li>
+      <li>SPC charts for lab test results: X-bar/R with out-of-control flags</li>
+      <li>Out-of-specification (OOS) investigation tracker</li>
+    </ol>
+  </section>
 
-  <div class="section-title">In the Pipeline</div>
-  <div class="roadmap">
-    <p style="font-size:13.5px;color:var(--text-secondary);">More projects landing here as they're built — each one leans on real quality/lab domain experience:</p>
-    <ul>
-      <li>Deviation &amp; CAPA tracking dashboard (aging, repeat root causes, close-out trends)</li>
-      <li>Statistical Process Control charts for lab test results (X-bar/R, out-of-control flagging)</li>
-      <li>Out-of-Spec (OOS) investigation tracker</li>
-    </ul>
-  </div>
-
-  <footer>Built &amp; maintained by Dennis Nguyen · Updated Oct 2026</footer>
+  <footer class="foot"><span>Dennis Nguyen</span><span>Updated Oct 2026</span></footer>
+</main>
 </div>
 </body>
 </html>
