@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dennis Nguyen, Data Analyst Portfolio</title>
-<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report, an interactive cleanroom EM dashboard and SPC control charts for lab test results.">
+<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report, an interactive cleanroom EM dashboard, SPC control charts for lab test results and a deviation and CAPA tracker.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -193,6 +193,21 @@ ol.next li { margin-bottom: 4px; }
         </div>
       </div>
     </article>
+
+    <article class="proj">
+      <div class="id">P-06</div>
+      <div class="body">
+        <h3>Deviation and CAPA tracker</h3>
+        <span class="data">Synthetic data</span>
+        <p>A QA tracker for 167 deviations over 18 months across six areas of a device plant. It ages open records against a 30-day closure target, trends close-out time by month, finds root causes that repeat on the same equipment within 180 days, and checks whether each CAPA actually stopped the problem.</p>
+        <p class="finding"><span class="lbl">Finding</span>Median days to close jumped from 16 to 36 once QA was short-staffed, and 7 of 13 open deviations are overdue. A line-clearance failure on one packaging line came back 37 days after its CAPA closed; its two CAPAs are the only failures among the 19 that have been checked.</p>
+        <span class="stack">JavaScript, Chart.js, HTML/CSS</span>
+        <div class="go">
+          <a href="https://therealmenace10040.github.io/projects/deviation-capa-tracker/">Open the tracker</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/deviation-capa-tracker">Code and write-up</a>
+        </div>
+      </div>
+    </article>
   </section>
 
   <section>
@@ -204,16 +219,15 @@ ol.next li { margin-bottom: 4px; }
         <tr><td>VBA</td><td>P-02, P-03</td></tr>
         <tr><td>SQL</td><td>P-03</td></tr>
         <tr><td>Python</td><td>P-01, P-02, P-03</td></tr>
-        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05</td></tr>
+        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05, P-06</td></tr>
       </tbody>
     </table>
-    <p class="methods"><b>Methods:</b> statistical process control (X-bar/R, Nelson rules, Cp/Cpk), root cause analysis, Pareto analysis, CAPA trending, EM alert and action limit trending. <b>Also:</b> Power BI.</p>
+    <p class="methods"><b>Methods:</b> statistical process control (X-bar/R, Nelson rules, Cp/Cpk), root cause analysis, Pareto analysis, deviation aging, CAPA trending and effectiveness checks, EM alert and action limit trending. <b>Also:</b> Power BI.</p>
   </section>
 
   <section>
     <h2><span class="no">3</span>Next up</h2>
     <ol class="next">
-      <li>Deviation and CAPA tracker: aging, repeat root causes, close-out trends</li>
       <li>Out-of-specification (OOS) investigation tracker</li>
     </ol>
   </section>

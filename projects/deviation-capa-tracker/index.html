@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deviation and CAPA Tracker, Dennis Nguyen</title>
+<meta name="description" content="Interactive deviation and CAPA tracker for a simulated medical device site: aging of open records, close-out trends, repeat root causes and CAPA effectiveness.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same report language as P-04 and P-05. Colour only where a record needs attention: amber for due soon / repeat, red for overdue / ineffective. */
+:root{
+  --ground:#e4e7e4; --paper:#ffffff; --tint:#f3f5f3;
+  --ink:#121518; --rule:#121518; --hair:#cfd4d0; --muted:#596166;
+  --pen:#1d3d73;
+  --pass:#2b6e48; --alert:#9a6a00; --action:#b02a20;
+  --pass-bg:#e5efe8; --alert-bg:#f6ecd2; --action-bg:#f6dedb;
+  --f-head:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6;
+  --pass:#6cc392; --alert:#e2b34a; --action:#f07a6e;
+  --pass-bg:#16291f; --alert-bg:#2e2512; --action-bg:#361a17; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6;
+  --pass:#6cc392; --alert:#e2b34a; --action:#f07a6e;
+  --pass-bg:#16291f; --alert-bg:#2e2512; --action-bg:#361a17; color-scheme:dark;}
+
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;background:var(--ground);color:var(--ink);font:14px/1.5 var(--f-body)}
+[hidden]{display:none!important}
+.back{display:inline-block;margin-bottom:12px;font:500 13px var(--f-body);color:var(--pen);text-underline-offset:3px}
+.sheet{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+.doc{background:var(--paper);border:1px solid var(--rule);display:grid}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font:600 10px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--f-head);margin:0;text-wrap:balance}
+h1{font-size:clamp(24px,3.4vw,34px);font-weight:700;line-height:1.05}
+h2{font-size:19px;font-weight:600;display:flex;gap:12px;align-items:baseline}
+h2 .no{font:500 13px var(--f-mono);color:var(--muted)}
+.sub{color:var(--muted);font-size:12.5px;margin:3px 0 0;max-width:85ch}
+section.sec{border-top:1px solid var(--rule);padding:18px 20px;min-width:0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 20px;flex-wrap:wrap;margin-bottom:12px}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+
+/* document control block */
+.ctrl{display:grid;grid-template-columns:minmax(0,1fr) auto}
+.ctrl .title{padding:20px;display:grid;gap:10px;align-content:start}
+.ctrl .meta{display:grid;grid-template-columns:repeat(2,minmax(130px,auto));border-left:1px solid var(--rule)}
+.ctrl .meta div{padding:9px 14px;border-bottom:1px solid var(--hair);border-left:1px solid var(--hair);display:grid;gap:3px}
+.ctrl .meta div:nth-child(odd){border-left:0}
+.ctrl .meta div:nth-last-child(-n+2){border-bottom:0}
+.ctrl .meta b{font:500 13px var(--f-mono);font-variant-numeric:tabular-nums}
+.stamp{justify-self:start;font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--action);border:1.5px solid var(--action);padding:3px 8px;transform:rotate(-1.5deg)}
+@media (max-width:760px){.ctrl{grid-template-columns:1fr}.ctrl .meta{border-left:0;border-top:1px solid var(--rule)}}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end;padding:14px 20px;background:var(--tint);border-top:1px solid var(--rule)}
+.field{display:grid;gap:5px;min-width:0}
+select,input[type=search]{font:13px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:6px 9px;min-width:0;max-width:100%}
+select{min-width:220px}
+input[type=search]{width:250px}
+.seg{display:inline-flex;border:1px solid var(--rule);flex-wrap:wrap}
+.seg button{font:500 12px var(--f-body);color:var(--ink);background:var(--paper);border:0;border-left:1px solid var(--rule);padding:6px 11px;cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.linkbtn{font:500 12px var(--f-body);color:var(--pen);background:none;border:0;padding:6px 0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+/* summary strip */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.summary > div{padding:14px 20px;border-left:1px solid var(--hair);display:grid;gap:4px;align-content:start}
+.summary > div:first-child{border-left:0}
+.summary .v{font:500 30px/1.05 var(--f-mono);font-variant-numeric:tabular-nums}
+.summary .v small{font-size:13px;color:var(--muted);margin-left:4px}
+.summary .s{font-size:12px;color:var(--muted)}
+.is-action{color:var(--action)} .is-alert{color:var(--alert)} .is-pass{color:var(--pass)}
+@media (max-width:820px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.summary > div:nth-child(3){border-left:0}.summary > div:nth-child(n+3){border-top:1px solid var(--hair)}}
+
+/* two-up */
+.pair{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);border-top:1px solid var(--rule)}
+.pair > section{border-top:0}
+.pair > section + section{border-left:1px solid var(--rule)}
+@media (max-width:980px){.pair{grid-template-columns:minmax(0,1fr)}.pair > section + section{border-left:0;border-top:1px solid var(--rule)}}
+.chartbox{position:relative;height:290px}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--muted);margin-top:10px}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.ln{width:18px;border-top:2px solid}
+.mk{width:9px;height:9px;display:inline-block}
+
+/* aging grid */
+table.age{width:100%;border-collapse:collapse;font-size:12.5px}
+.age th{font:600 10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center;padding:0 4px 6px;border-bottom:1px solid var(--rule)}
+.age th:first-child{text-align:left}
+.age td{padding:3px;border-bottom:1px solid var(--hair);text-align:center}
+.age td:first-child{text-align:left;font-weight:600;padding:6px 10px 6px 0;white-space:nowrap}
+.age tr.tot td{border-top:1px solid var(--rule);border-bottom:0;font-weight:600}
+.age .cell{height:34px;display:grid;place-items:center;font:600 13px var(--f-mono);font-variant-numeric:tabular-nums;border:1px solid var(--hair)}
+.age .cell.z{color:var(--muted);font-weight:400}
+.age .cell.b1{background:var(--pass-bg);border-color:var(--pass-bg)}
+.age .cell.b2{background:var(--alert-bg);border-color:var(--alert-bg)}
+.age .cell.b3,.age .cell.b4{background:var(--action-bg);border-color:var(--action-bg);color:var(--action)}
+.age-note{font-size:11.5px;color:var(--muted);margin-top:10px}
+
+/* tables */
+.scroll{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:12.5px}
+.t th{text-align:left;font:600 10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--rule);border-top:1px solid var(--rule);white-space:nowrap;background:var(--tint)}
+.t td{padding:7px 10px;border-bottom:1px solid var(--hair);vertical-align:top}
+.t td.num,.t th.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.t td.id{font-family:var(--f-mono);white-space:nowrap}
+.t tr.bad td{background:var(--action-bg)}
+.t tr.warn td{background:var(--alert-bg)}
+table.log{min-width:1180px}
+.code{display:inline-block;font:600 10.5px var(--f-mono);letter-spacing:.06em;padding:2px 6px;border:1.5px solid currentColor;white-space:nowrap}
+.c0{color:var(--pass)}.c1{color:var(--alert)}.c2{color:var(--action)}.cm{color:var(--muted)}
+.small{color:var(--muted);font-size:11.5px}
+.chain{font:11.5px var(--f-mono);color:var(--muted)}
+.chain b{color:var(--ink);font-weight:500}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.btn{font:500 12px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:6px 12px;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.none{padding:14px 0;color:var(--muted);font-size:13px}
+
+/* pareto */
+.bar{position:relative;height:12px;background:var(--tint);min-width:80px}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+
+.notes{font-size:12px;color:var(--muted);line-height:1.65;max-width:95ch;margin:0}
+.notes b{color:var(--ink)}
+.pagefoot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:11px var(--f-mono);color:var(--muted);padding:10px 20px;border-top:1px solid var(--rule)}
+@media (max-width:540px){select,input[type=search]{width:100%;min-width:0}.field{flex:1 1 100%}section.sec{padding:16px}.filters{padding-inline:16px}}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<a class="back" href="/">Back to portfolio</a>
+<div class="doc">
+
+  <div class="ctrl">
+    <div class="title">
+      <span class="lbl">Site 04 · Medical device manufacturing · Quality Assurance</span>
+      <h1>Deviation and CAPA Tracker</h1>
+      <span class="stamp">Simulated data · portfolio demonstration</span>
+    </div>
+    <div class="meta">
+      <div><span class="lbl">Document no.</span><b>QA-DEV-006</b></div>
+      <div><span class="lbl">Revision</span><b>A</b></div>
+      <div><span class="lbl">Review period</span><b id="mPeriod">-</b></div>
+      <div><span class="lbl">Data as of</span><b id="mAsof">-</b></div>
+      <div><span class="lbl">Records in view</span><b id="mCount">0</b></div>
+      <div><span class="lbl">Closure target</span><b>30 days</b></div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="field">
+      <label class="lbl" for="fArea">Area</label>
+      <select id="fArea"></select>
+    </div>
+    <div class="field">
+      <span class="lbl" id="fSevLbl">Severity</span>
+      <div class="seg" id="fSev" role="group" aria-labelledby="fSevLbl">
+        <button data-v="all" aria-pressed="true">All</button>
+        <button data-v="Minor" aria-pressed="false">Minor</button>
+        <button data-v="Major" aria-pressed="false">Major</button>
+        <button data-v="Critical" aria-pressed="false">Critical</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="lbl" for="fCause">Root cause</label>
+      <select id="fCause"></select>
+    </div>
+    <button class="linkbtn" id="reset">Clear filters</button>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="pair">
+    <section class="sec">
+      <div class="sec-head">
+        <div>
+          <h2><span class="no">1.0</span>Close-out trend</h2>
+          <p class="sub">Deviations opened and closed per month, with the median days to close for records closed that month.</p>
+        </div>
+      </div>
+      <div class="chartbox"><canvas id="trend" aria-label="Monthly opened and closed deviations with median days to close"></canvas></div>
+      <div class="key">
+        <span><i class="mk" style="background:var(--muted)"></i>Opened</span>
+        <span><i class="mk" style="background:var(--pen)"></i>Closed</span>
+        <span><i class="ln" style="border-color:var(--action)"></i>Median days to close (right axis)</span>
+        <span><i class="ln" style="border-color:var(--action);border-top-style:dashed;border-top-width:1px"></i>30-day target</span>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="sec-head">
+        <div>
+          <h2><span class="no">2.0</span>Aging of open deviations</h2>
+          <p class="sub">Days open as of the data date, by severity.</p>
+        </div>
+      </div>
+      <div id="aging"></div>
+    </section>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">3.0</span>Repeat root causes</h2>
+        <p class="sub">The same root cause on the same equipment or process within 180 days of the last one. When it comes back after its CAPA was closed, the CAPA is marked ineffective.</p>
+      </div>
+    </div>
+    <div class="scroll" id="repeats"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">4.0</span>Root cause Pareto</h2>
+        <p class="sub">All deviations in view, ranked by assigned root cause.</p>
+      </div>
+    </div>
+    <div class="scroll" id="pareto"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">5.0</span>Deviation register</h2>
+        <p class="sub">Open records past 30 days are shaded red; open records past 20 days are shaded amber.</p>
+      </div>
+      <div style="display:flex;gap:14px 18px;flex-wrap:wrap;align-items:flex-end">
+        <div class="field">
+          <span class="lbl" id="fStatLbl">Status</span>
+          <div class="seg" id="fStat" role="group" aria-labelledby="fStatLbl">
+            <button data-v="all" aria-pressed="true">All</button>
+            <button data-v="open" aria-pressed="false">Open</button>
+            <button data-v="overdue" aria-pressed="false">Overdue</button>
+            <button data-v="closed" aria-pressed="false">Closed</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="fSearch">Search</label>
+          <input type="search" id="fSearch" placeholder="DEV or CAPA no., asset, owner, 'ineffective'">
+        </div>
+      </div>
+    </div>
+    <div class="scroll">
+      <table class="t log">
+        <thead><tr><th>Deviation</th><th>Opened</th><th>Area</th><th>Equipment / process</th><th>Severity</th><th>Root cause</th><th>Status</th><th class="num">Days open</th><th>CAPA</th><th>Owner</th></tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+    <div class="foot">
+      <span id="logShown"></span>
+      <span style="display:flex;gap:10px"><button class="btn" id="more">Show 25 more</button><button class="btn" id="csv">Download CSV</button></span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 style="margin-bottom:8px"><span class="no">6.0</span>Definitions</h2>
+    <p class="notes">All records are simulated for a portfolio demonstration and contain no real site data. <b>Closure target</b>: a deviation should be investigated and closed within 30 calendar days of being opened; an open record past 30 days is <b>overdue</b>. <b>Days to close</b> counts calendar days from opened to closed. <b>CAPA</b> is raised for every Major and Critical deviation, and for any Minor that repeats. CAPAs are due 90 days after the deviation closes, and get an <b>effectiveness check</b> 180 days after CAPA closure. <b>Repeat</b>: the same root cause on the same equipment or process within 180 days of the previous deviation. A repeat that opens after the prior CAPA was closed fails that CAPA's effectiveness check.</p>
+  </section>
+
+  <div class="pagefoot"><span>QA-DEV-006 Rev A</span><span>Uncontrolled when printed</span></div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function(){
+/* ---------- seeded RNG ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=mulberry32(20260930);
+const between=(a,b)=>a+R()*(b-a), intB=(a,b)=>Math.floor(between(a,b+1));
+function wpick(obj){const e=Object.entries(obj),t=e.reduce((a,[,w])=>a+w,0);let r=R()*t;for(const [k,w] of e){if((r-=w)<0)return k}return e[e.length-1][0]}
+
+/* ---------- reference data ---------- */
+const DAY=864e5, ASOF=new Date(2026,8,30), START=new Date(2025,3,1);
+const addD=(d,n)=>new Date(d.getTime()+n*DAY), diffD=(a,b)=>Math.round((b-a)/DAY);
+const MONTHS=[];for(let i=0;i<18;i++){const d=new Date(2025,3+i,1);MONTHS.push({y:d.getFullYear(),m:d.getMonth(),label:d.toLocaleString('en-US',{month:'short'})+' '+String(d.getFullYear()).slice(2)})}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtD=d=>d?String(d.getDate()).padStart(2,'0')+' '+MON[d.getMonth()]+' '+String(d.getFullYear()).slice(2):'-';
+const iso=d=>d?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'):'';
+
+const AREAS={
+  'Valve assembly':{w:30,assets:['Leaflet suturing cell 1','Leaflet suturing cell 2','Leaflet suturing cell 3','Frame crimping station','Tissue rinse station','Holder assembly','Final inspection bench','Batch record review']},
+  'Packaging':{w:16,assets:['Packaging line PL-1','Packaging line PL-2','Packaging line PL-3','Label printer LP-3','Pouch sealer PS-2','Carton printer CP-1']},
+  'Sterilization':{w:12,assets:['EtO chamber ST-1','EtO chamber ST-2','Autoclave AC-02','Aeration room AR-1','Preconditioning room PC-1','Biological indicator testing']},
+  'QC Microbiology':{w:18,assets:['Bioburden testing','Endotoxin (LAL) testing','EM sampling','Sterility testing','Incubator INC-02','Incubator INC-04','Media preparation','Water testing']},
+  'Warehouse':{w:10,assets:['Receiving inspection','Cold storage CS-1','Quarantine cage','Finished goods dispatch','Raw material sampling']},
+  'Facilities':{w:10,assets:['Cleanroom HVAC AHU-1','Cleanroom HVAC AHU-3','WFI loop','Compressed air system','Cleanroom HVAC AHU-2','Gowning room GR-2']}
+};
+const CAUSES={
+  'Valve assembly':{'Procedure not followed':5,'GDP / documentation error':6,'Training gap':3,'Equipment malfunction':3,'Supplier material defect':3},
+  'Packaging':{'Line clearance not performed':3,'Labeling error':4,'GDP / documentation error':4,'Equipment malfunction':3},
+  'Sterilization':{'Calibration overdue':2,'Equipment malfunction':4,'Procedure not followed':3,'GDP / documentation error':3},
+  'QC Microbiology':{'Sample handling error':4,'GDP / documentation error':5,'Calibration overdue':2,'Procedure not followed':3,'Training gap':2},
+  'Warehouse':{'Supplier material defect':4,'Temperature excursion':3,'GDP / documentation error':4},
+  'Facilities':{'Environmental excursion':4,'Equipment malfunction':3,'Preventive maintenance missed':3}
+};
+const OWNERS=['J. Alvarez','M. Chen','R. Patel','S. Okafor','K. Tran','L. Haddad','D. Kim'];
+
+/* ---------- generate ----------
+   ~9 deviations a month for 18 months. Days to close is lognormal around 3 weeks, then a QA
+   staffing gap from Jun 2026 slows close-out. A few records are scripted so the year has
+   something to investigate: a repeat line-clearance failure that comes back after its CAPA closed,
+   a stuck sterilization critical, and an incubator that keeps going out of calibration. */
+const SCRIPT=[
+  {d:new Date(2025,9,14),area:'Packaging',asset:'Packaging line PL-1',cause:'Line clearance not performed',sev:'Major',close:26},
+  {d:new Date(2026,0,20),area:'Packaging',asset:'Packaging line PL-1',cause:'Line clearance not performed',sev:'Major',close:24,capaDays:45},
+  {d:new Date(2026,5,9),area:'Packaging',asset:'Packaging line PL-1',cause:'Line clearance not performed',sev:'Major',close:38},
+  {d:new Date(2026,7,18),area:'Packaging',asset:'Packaging line PL-1',cause:'Line clearance not performed',sev:'Critical',close:null},
+  {d:new Date(2026,1,3),area:'QC Microbiology',asset:'Incubator INC-04',cause:'Calibration overdue',sev:'Minor',close:12},
+  {d:new Date(2026,4,12),area:'QC Microbiology',asset:'Incubator INC-04',cause:'Calibration overdue',sev:'Minor',close:15},
+  {d:new Date(2026,7,4),area:'QC Microbiology',asset:'Incubator INC-04',cause:'Calibration overdue',sev:'Major',close:null},
+  {d:new Date(2026,5,23),area:'Sterilization',asset:'EtO chamber ST-1',cause:'Equipment malfunction',sev:'Critical',close:null}
+];
+const recs=SCRIPT.map(s=>({opened:s.d,area:s.area,asset:s.asset,cause:s.cause,sev:s.sev,cd:s.close,capaDays:s.capaDays,scripted:true}));
+function closeDays(sev,opened){
+  let base=Math.exp(Math.log(sev==='Minor'?17:sev==='Major'?24:20)+0.42*(R()*2-1)+0.25*(R()+R()-1));
+  if(opened>=new Date(2026,4,15))base+=between(12,24); /* QA staffing gap */
+  return Math.max(3,Math.round(base));
+}
+/* background records: most CAPAs work, so only about 1 in 30 random draws is allowed to repeat */
+const recent=(asset,cause,d)=>recs.some(r=>r.asset===asset&&r.cause===cause&&Math.abs(diffD(r.opened,d))<=365);
+for(let i=0;i<MONTHS.length;i++){
+  const M=MONTHS[i], n=intB(7,11), dim=new Date(M.y,M.m+1,0).getDate();
+  for(let k=0;k<n;k++){
+    const d=new Date(M.y,M.m,intB(1,dim));if(d>ASOF)continue;
+    let area,asset,cause,tries=0;
+    do{area=wpick(Object.fromEntries(Object.entries(AREAS).map(([a,v])=>[a,v.w])));
+      asset=AREAS[area].assets[intB(0,AREAS[area].assets.length-1)];
+      cause=wpick(CAUSES[area]);}while(recent(asset,cause,d)&&R()>0.03&&++tries<80);
+    const sev=wpick({Minor:72,Major:24,Critical:4});
+    recs.push({opened:d,area,asset,cause,sev,cd:closeDays(sev,d)});
+  }
+}
+recs.sort((a,b)=>a.opened-b.opened);
+
+recs.forEach((r,i)=>{
+  r.id='DEV-'+(r.opened.getFullYear()%100)+'-'+String(i+101).padStart(4,'0');
+  r.owner=OWNERS[intB(0,OWNERS.length-1)];
+  const c=r.cd==null?null:addD(r.opened,r.cd);
+  r.closed=c&&c<=ASOF?c:null;
+  r.status=r.closed?'Closed':'Open';
+  r.days=diffD(r.opened,r.closed||ASOF);
+  r.overdue=!r.closed&&r.days>30;
+});
+
+/* repeats: same cause on the same asset within 180 days of the previous one */
+const byKey={};
+recs.forEach(r=>{const k=r.asset+'|'+r.cause;(byKey[k]=byKey[k]||[]).push(r)});
+Object.values(byKey).forEach(list=>list.forEach((r,i)=>{if(i>0&&diffD(list[i-1].opened,r.opened)<=180){r.repeat=true;r.prev=list[i-1]}}));
+
+/* CAPA: every Major/Critical, and any repeat */
+let capaNo=1;
+recs.forEach(r=>{
+  if(!(r.sev!=='Minor'||r.repeat))return;
+  r.capa={id:'CAPA-'+String(capaNo++).padStart(3,'0')};
+  if(r.closed){
+    const cl=addD(r.closed,r.capaDays||intB(35,95));
+    r.capa.due=addD(r.closed,90);
+    r.capa.closed=cl<=ASOF?cl:null;
+  }
+});
+/* effectiveness: does the same cause come back on the same asset after the CAPA closed? */
+recs.forEach(r=>{
+  const c=r.capa;if(!c||!c.closed)return;
+  const back=byKey[r.asset+'|'+r.cause].find(x=>x.opened>c.closed&&diffD(c.closed,x.opened)<=180);
+  if(back){c.eff='Ineffective';c.recur=back;back.afterCapa=r}
+  else if(diffD(c.closed,ASOF)>=180)c.eff='Effective';
+  else c.eff='Check pending';
+});
+
+/* ---------- state ---------- */
+const state={area:'all',sev:'all',cause:'all',stat:'all',q:'',shown:25};
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const median=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+
+$('fArea').innerHTML='<option value="all">All areas</option>'+Object.keys(AREAS).map(a=>`<option>${a}</option>`).join('');
+const allCauses=[...new Set(Object.values(CAUSES).flatMap(o=>Object.keys(o)))].sort();
+$('fCause').innerHTML='<option value="all">All root causes</option>'+allCauses.map(c=>`<option>${c}</option>`).join('');
+$('mPeriod').textContent='Apr 2025 to Sep 2026';
+$('mAsof').textContent=fmtD(ASOF);
+
+const inScope=()=>recs.filter(r=>(state.area==='all'||r.area===state.area)&&(state.sev==='all'||r.sev===state.sev)&&(state.cause==='all'||r.cause===state.cause));
+
+let trendChart;
+function render(){
+  const R0=inScope();
+  $('mCount').textContent=R0.length;
+
+  /* summary */
+  const open=R0.filter(r=>!r.closed), od=open.filter(r=>r.overdue);
+  const last90=R0.filter(r=>r.closed&&diffD(r.closed,ASOF)<=90).map(r=>r.days);
+  const prior=R0.filter(r=>r.closed&&diffD(r.closed,ASOF)>90&&diffD(r.closed,ASOF)<=270).map(r=>r.days);
+  const m90=median(last90), mPrior=median(prior);
+  const rep=R0.filter(r=>r.repeat).length, repPct=R0.length?rep/R0.length*100:0;
+  const capas=R0.filter(r=>r.capa&&r.capa.eff&&r.capa.eff!=='Check pending');
+  const inef=capas.filter(r=>r.capa.eff==='Ineffective').length;
+  $('summary').innerHTML=`
+    <div><span class="lbl">Open deviations</span><span class="v">${open.length}</span><span class="s"><b class="${od.length?'is-action':'is-pass'}">${od.length} overdue</b> (past 30 days)</span></div>
+    <div><span class="lbl">Median days to close</span><span class="v ${m90==null?'':m90>30?'is-action':m90>20?'is-alert':'is-pass'}">${m90==null?'-':Math.round(m90)}<small>days</small></span><span class="s">Closed in the last 90 days · prior 6 months: ${mPrior==null?'-':Math.round(mPrior)} days</span></div>
+    <div><span class="lbl">Repeat deviations</span><span class="v ${repPct>=15?'is-action':repPct>=8?'is-alert':''}">${repPct.toFixed(1)}<small>%</small></span><span class="s">${rep} of ${R0.length} records repeat a cause within 180 days</span></div>
+    <div><span class="lbl">CAPA effectiveness</span><span class="v ${!capas.length?'':(capas.length-inef)/capas.length>=.9?'is-pass':(capas.length-inef)/capas.length>=.8?'is-alert':'is-action'}">${capas.length?((capas.length-inef)/capas.length*100).toFixed(0):'-'}<small>%</small></span><span class="s">${capas.length-inef} of ${capas.length} checked CAPAs effective · ${inef} failed</span></div>`;
+
+  renderTrend(R0);renderAging(open);renderRepeats(R0);renderPareto(R0);renderLog(R0);
+  window.__dev={n:R0.length,open:open.length,overdue:od.length,m90,mPrior,rep,repPct,capasChecked:capas.length,inef,critOpen:open.filter(r=>r.sev==='Critical').length};
+}
+
+function renderTrend(R0){
+  const opened=MONTHS.map(M=>R0.filter(r=>r.opened.getFullYear()===M.y&&r.opened.getMonth()===M.m).length);
+  const closedL=MONTHS.map(M=>R0.filter(r=>r.closed&&r.closed.getFullYear()===M.y&&r.closed.getMonth()===M.m));
+  const med=closedL.map(l=>{const v=median(l.map(r=>r.days));return v==null?null:Math.round(v)});
+  window.__trend={opened,closed:closedL.map(l=>l.length),med};
+  if(!window.Chart)return;
+  const ink=css('--ink'),muted=css('--muted'),hair=css('--hair'),pen=css('--pen'),act=css('--action'),paper=css('--paper');
+  trendChart&&trendChart.destroy();
+  trendChart=new Chart($('trend'),{data:{labels:MONTHS.map(m=>m.label),datasets:[
+      {type:'bar',label:'Opened',data:opened,backgroundColor:muted,barPercentage:.85,categoryPercentage:.7,yAxisID:'y',order:2},
+      {type:'bar',label:'Closed',data:closedL.map(l=>l.length),backgroundColor:pen,barPercentage:.85,categoryPercentage:.7,yAxisID:'y',order:2},
+      {type:'line',label:'Median days to close',data:med,borderColor:act,backgroundColor:act,borderWidth:2,pointRadius:3,tension:0,yAxisID:'y2',spanGaps:true,order:1},
+      {type:'line',label:'Target',data:MONTHS.map(()=>30),borderColor:act,borderWidth:1,borderDash:[5,4],pointRadius:0,pointHoverRadius:0,yAxisID:'y2',order:1}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{filter:it=>it.dataset.label!=='Target',backgroundColor:ink,titleColor:paper,bodyColor:paper,titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'}}},
+      scales:{x:{grid:{display:false},border:{color:ink},ticks:{color:muted,font:{family:'IBM Plex Mono',size:10},maxRotation:0,autoSkipPadding:8}},
+        y:{beginAtZero:true,grid:{color:hair},border:{display:false},ticks:{color:muted,font:{family:'IBM Plex Mono',size:10},precision:0},title:{display:true,text:'Deviations',color:muted,font:{family:'IBM Plex Mono',size:10}}},
+        y2:{position:'right',beginAtZero:true,suggestedMax:50,grid:{display:false},border:{display:false},ticks:{color:act,font:{family:'IBM Plex Mono',size:10}},title:{display:true,text:'Median days',color:act,font:{family:'IBM Plex Mono',size:10}}}}}});
+}
+
+function renderAging(open){
+  const B=[[0,30,'0–30'],[31,60,'31–60'],[61,90,'61–90'],[91,1e9,'90+']];
+  const sevs=['Critical','Major','Minor'];
+  const cnt=(s,b)=>open.filter(r=>(s==null||r.sev===s)&&r.days>=b[0]&&r.days<=b[1]).length;
+  const cell=(n,bi)=>`<div class="cell ${n?'b'+(bi+1):'z'}">${n}</div>`;
+  $('aging').innerHTML=open.length?`<table class="age"><thead><tr><th>Severity</th>${B.map(b=>`<th>${b[2]} d</th>`).join('')}<th>Total</th></tr></thead><tbody>${
+    sevs.map(s=>`<tr><td>${s}</td>${B.map((b,bi)=>`<td>${cell(cnt(s,b),bi)}</td>`).join('')}<td class="mono">${open.filter(r=>r.sev===s).length}</td></tr>`).join('')
+  }<tr class="tot"><td>All</td>${B.map(b=>`<td class="mono">${cnt(null,b)}</td>`).join('')}<td class="mono">${open.length}</td></tr></tbody></table>
+  <p class="age-note">Oldest open: <b class="mono">${(o=>o.id+' · '+o.days+' days · '+o.asset)(open.reduce((a,b)=>a.days>b.days?a:b))}</b></p>`:'<p class="none">No open deviations in the current selection.</p>';
+}
+
+function renderRepeats(R0){
+  const ids=new Set(R0.map(r=>r.id));
+  const groups=Object.values(byKey).map(l=>l.filter(r=>ids.has(r.id))).filter(l=>l.some(r=>r.repeat));
+  const rows=groups.map(l=>{
+    const capas=l.filter(r=>r.capa), inef=capas.find(r=>r.capa.eff==='Ineffective');
+    return {l,inef,last:l[l.length-1],reps:l.filter(r=>r.repeat).length,openCapa:capas.some(r=>!r.capa.closed)};
+  }).sort((a,b)=>(!!b.inef-!!a.inef)||(b.l.length-a.l.length)||(b.last.opened-a.last.opened));
+  if(!rows.length){$('repeats').innerHTML='<p class="none">No repeat root causes in the current selection.</p>';return}
+  $('repeats').innerHTML=`<table class="t"><thead><tr><th>Equipment / process</th><th>Root cause</th><th class="num">Records</th><th class="num">Repeats</th><th>History</th><th>CAPA status</th></tr></thead><tbody>${
+    rows.map(g=>{
+      const st=g.inef?`<span class="code c2">CAPA ineffective</span> <span class="small">${g.inef.capa.id} closed ${fmtD(g.inef.capa.closed)}, recurred as ${g.inef.capa.recur.id}</span>`
+        :g.openCapa?'<span class="code c1">CAPA open</span>':g.l.some(r=>r.capa)?'<span class="code cm">Check pending</span>':'<span class="code c1">No CAPA yet</span>';
+      return `<tr class="${g.inef?'bad':''}"><td><b>${esc(g.l[0].asset)}</b><div class="small">${esc(g.l[0].area)}</div></td><td>${esc(g.l[0].cause)}</td><td class="num">${g.l.length}</td><td class="num">${g.reps}</td>
+        <td class="chain">${g.l.map(r=>`<b>${r.id}</b> ${fmtD(r.opened)}`).join(' → ')}</td><td>${st}</td></tr>`}).join('')
+  }</tbody></table>`;
+}
+
+function renderPareto(R0){
+  const c={};R0.forEach(r=>c[r.cause]=(c[r.cause]||0)+1);
+  const e=Object.entries(c).sort((a,b)=>b[1]-a[1]), tot=R0.length;let cum=0;
+  if(!tot){$('pareto').innerHTML='<p class="none">No records in the current selection.</p>';return}
+  const max=e[0][1];
+  $('pareto').innerHTML=`<table class="t"><thead><tr><th>Root cause</th><th class="num">Count</th><th style="width:40%"></th><th class="num">%</th><th class="num">Cumulative</th></tr></thead><tbody>${
+    e.map(([k,v])=>{cum+=v;return `<tr><td>${esc(k)}</td><td class="num">${v}</td><td><div class="bar"><i style="width:${v/max*100}%"></i></div></td><td class="num">${(v/tot*100).toFixed(1)}</td><td class="num">${(cum/tot*100).toFixed(1)}</td></tr>`}).join('')
+  }</tbody></table>`;
+}
+
+function logRows(R0){
+  const q=state.q.trim().toLowerCase();
+  return R0.filter(r=>state.stat==='all'||(state.stat==='open'&&!r.closed)||(state.stat==='closed'&&r.closed)||(state.stat==='overdue'&&r.overdue))
+    .filter(r=>!q||[r.id,r.asset,r.owner,r.cause,r.area,r.capa&&r.capa.id,r.capa&&r.capa.eff].join(' ').toLowerCase().includes(q))
+    .sort((a,b)=>(!!b.overdue-!!a.overdue)||(b.opened-a.opened));
+}
+function renderLog(R0){
+  const rows=logRows(R0), vis=rows.slice(0,state.shown);
+  const sevC={Minor:'cm',Major:'c1',Critical:'c2'};
+  $('logBody').innerHTML=vis.map(r=>{
+    const cls=r.overdue?'bad':(!r.closed&&r.days>20)?'warn':'';
+    const capa=r.capa?`<span class="mono">${r.capa.id}</span><div class="small">${r.capa.closed?'Closed '+fmtD(r.capa.closed)+(r.capa.eff?' · '+r.capa.eff:''):r.capa.due?'Due '+fmtD(r.capa.due):'Awaiting deviation close'}</div>`:'<span class="small">Not required</span>';
+    return `<tr class="${cls}"><td class="id">${r.id}${r.repeat?' <span class="code c1" title="Repeat of '+r.prev.id+'">R</span>':''}</td><td class="id">${fmtD(r.opened)}</td><td>${esc(r.area)}</td><td>${esc(r.asset)}</td><td><span class="code ${sevC[r.sev]}">${r.sev}</span></td><td>${esc(r.cause)}</td>
+      <td>${r.closed?'Closed '+fmtD(r.closed):'<b class="'+(r.overdue?'is-action':'')+'">'+(r.overdue?'Overdue':'Open')+'</b>'}</td><td class="num">${r.days}</td><td>${capa}</td><td>${esc(r.owner)}</td></tr>`}).join('')
+    ||'<tr><td colspan="10" class="none">No records match.</td></tr>';
+  $('logShown').textContent=`Showing ${vis.length} of ${rows.length} records`;
+  $('more').hidden=vis.length>=rows.length;
+}
+
+/* ---------- events ---------- */
+function segBind(id,key){$(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state[key]=b.dataset.v;state.shown=25;
+  [...$(id).children].forEach(x=>x.setAttribute('aria-pressed',x===b));key==='stat'?renderLog(inScope()):render()})}
+segBind('fSev','sev');segBind('fStat','stat');
+$('fArea').addEventListener('change',e=>{state.area=e.target.value;state.shown=25;render()});
+$('fCause').addEventListener('change',e=>{state.cause=e.target.value;state.shown=25;render()});
+$('fSearch').addEventListener('input',e=>{state.q=e.target.value;state.shown=25;renderLog(inScope())});
+$('more').addEventListener('click',()=>{state.shown+=25;renderLog(inScope())});
+$('reset').addEventListener('click',()=>{Object.assign(state,{area:'all',sev:'all',cause:'all',stat:'all',q:'',shown:25});
+  $('fArea').value='all';$('fCause').value='all';$('fSearch').value='';
+  ['fSev','fStat'].forEach(id=>[...$(id).children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.v==='all')));render()});
+$('csv').addEventListener('click',()=>{
+  const head=['deviation','opened','area','equipment_process','severity','root_cause','status','closed','days_open','repeat_of','capa','capa_closed','capa_effectiveness','owner'];
+  const q=v=>/[",\n]/.test(v)?'"'+String(v).replace(/"/g,'""')+'"':v;
+  const lines=[head.join(','),...logRows(inScope()).map(r=>[r.id,iso(r.opened),r.area,r.asset,r.sev,r.cause,r.overdue?'Overdue':r.status,iso(r.closed),r.days,r.prev?r.prev.id:'',r.capa?r.capa.id:'',r.capa?iso(r.capa.closed):'',r.capa&&r.capa.eff||'',r.owner].map(q).join(','))];
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));a.download='deviation_register.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+});
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render)}catch(e){}
+
+render();
+})();
+</script>
+</body>
+</html>
