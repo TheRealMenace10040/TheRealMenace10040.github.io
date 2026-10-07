@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dennis Nguyen, Data Analyst Portfolio</title>
-<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report and an interactive cleanroom EM dashboard.">
+<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report, an interactive cleanroom EM dashboard and SPC control charts for lab test results.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -178,6 +178,21 @@ ol.next li { margin-bottom: 4px; }
         </div>
       </div>
     </article>
+
+    <article class="proj">
+      <div class="id">P-05</div>
+      <div class="body">
+        <h3>SPC control charts for QC lab test results</h3>
+        <span class="data">Synthetic data, illustrative spec limits</span>
+        <p>X-bar and R charts for three routine lab tests: growth promotion of media lots, WFI conductivity and autoclave load temperature. Limits are set on a 20-subgroup baseline and then used for monitoring. Five Nelson rules flag out-of-control points, every signal goes into a log with its investigation outcome, and Cp/Cpk is compared before and after.</p>
+        <p class="finding"><span class="lbl">Finding</span>Each problem was flagged before any result failed spec. An upward drift in WFI conductivity was flagged the day after it began, and no reading ever went above 0.81 µS/cm against a 1.3 limit. An autoclave cold spot didn't show on the X-bar chart at all; only the R chart caught it, and Cpk dropped from 1.37 to 0.76.</p>
+        <span class="stack">JavaScript, Chart.js, statistical process control</span>
+        <div class="go">
+          <a href="https://therealmenace10040.github.io/projects/spc-control-charts/">Open the dashboard</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/spc-control-charts">Code and write-up</a>
+        </div>
+      </div>
+    </article>
   </section>
 
   <section>
@@ -189,17 +204,16 @@ ol.next li { margin-bottom: 4px; }
         <tr><td>VBA</td><td>P-02, P-03</td></tr>
         <tr><td>SQL</td><td>P-03</td></tr>
         <tr><td>Python</td><td>P-01, P-02, P-03</td></tr>
-        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04</td></tr>
+        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05</td></tr>
       </tbody>
     </table>
-    <p class="methods"><b>Methods:</b> statistical process control, root cause analysis, Pareto analysis, CAPA trending, EM alert and action limit trending. <b>Also:</b> Power BI.</p>
+    <p class="methods"><b>Methods:</b> statistical process control (X-bar/R, Nelson rules, Cp/Cpk), root cause analysis, Pareto analysis, CAPA trending, EM alert and action limit trending. <b>Also:</b> Power BI.</p>
   </section>
 
   <section>
     <h2><span class="no">3</span>Next up</h2>
     <ol class="next">
       <li>Deviation and CAPA tracker: aging, repeat root causes, close-out trends</li>
-      <li>SPC charts for lab test results: X-bar/R with out-of-control flags</li>
       <li>Out-of-specification (OOS) investigation tracker</li>
     </ol>
   </section>

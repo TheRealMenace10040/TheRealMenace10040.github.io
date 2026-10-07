@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPC Control Charts, Dennis Nguyen</title>
+<meta name="description" content="X-bar and R control charts for three simulated QC lab test results, with Nelson rule flags, process capability and an out-of-control signal log.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same report language as P-04: document control block, numbered sections, ruled tables, ink on paper. Red only where a point is out of control. */
+:root{
+  --ground:#e4e7e4; --paper:#ffffff; --tint:#f3f5f3;
+  --ink:#121518; --rule:#121518; --hair:#cfd4d0; --muted:#596166;
+  --pen:#1d3d73;
+  --pass:#2b6e48; --alert:#9a6a00; --action:#b02a20;
+  --action-bg:#f6dedb; --alert-bg:#f6ecd2;
+  --f-head:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6;
+  --pass:#6cc392; --alert:#e2b34a; --action:#f07a6e;
+  --action-bg:#361a17; --alert-bg:#2e2512; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6;
+  --pass:#6cc392; --alert:#e2b34a; --action:#f07a6e;
+  --action-bg:#361a17; --alert-bg:#2e2512; color-scheme:dark;}
+
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;background:var(--ground);color:var(--ink);font:14px/1.5 var(--f-body)}
+[hidden]{display:none!important}
+.back{display:inline-block;margin-bottom:12px;font:500 13px var(--f-body);color:var(--pen);text-underline-offset:3px}
+.sheet{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+.doc{background:var(--paper);border:1px solid var(--rule);display:grid}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font:600 10px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--f-head);margin:0;text-wrap:balance}
+h1{font-size:clamp(24px,3.4vw,34px);font-weight:700;line-height:1.05}
+h2{font-size:19px;font-weight:600;display:flex;gap:12px;align-items:baseline}
+h2 .no{font:500 13px var(--f-mono);color:var(--muted)}
+.sub{color:var(--muted);font-size:12.5px;margin:3px 0 0;max-width:85ch}
+section.sec{border-top:1px solid var(--rule);padding:18px 20px;min-width:0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 20px;flex-wrap:wrap;margin-bottom:12px}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+
+/* document control block */
+.ctrl{display:grid;grid-template-columns:minmax(0,1fr) auto}
+.ctrl .title{padding:20px;display:grid;gap:10px;align-content:start}
+.ctrl .meta{display:grid;grid-template-columns:repeat(2,minmax(130px,auto));border-left:1px solid var(--rule)}
+.ctrl .meta div{padding:9px 14px;border-bottom:1px solid var(--hair);border-left:1px solid var(--hair);display:grid;gap:3px}
+.ctrl .meta div:nth-child(odd){border-left:0}
+.ctrl .meta div:nth-last-child(-n+2){border-bottom:0}
+.ctrl .meta b{font:500 13px var(--f-mono);font-variant-numeric:tabular-nums}
+.stamp{justify-self:start;font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--action);border:1.5px solid var(--action);padding:3px 8px;transform:rotate(-1.5deg)}
+@media (max-width:760px){.ctrl{grid-template-columns:1fr}.ctrl .meta{border-left:0;border-top:1px solid var(--rule)}}
+
+/* controls */
+.filters{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end;padding:14px 20px;background:var(--tint);border-top:1px solid var(--rule)}
+.field{display:grid;gap:5px;min-width:0}
+select{font:13px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:6px 9px;min-width:280px;max-width:100%}
+.seg{display:inline-flex;border:1px solid var(--rule);flex-wrap:wrap}
+.seg button{font:500 12px var(--f-body);color:var(--ink);background:var(--paper);border:0;border-left:1px solid var(--rule);padding:6px 11px;cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.rules{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px}
+.rules label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.rules input{accent-color:var(--pen);margin:0}
+
+/* summary strip */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.summary > div{padding:14px 20px;border-left:1px solid var(--hair);display:grid;gap:4px;align-content:start}
+.summary > div:first-child{border-left:0}
+.summary .v{font:500 30px/1.05 var(--f-mono);font-variant-numeric:tabular-nums}
+.summary .s{font-size:12px;color:var(--muted)}
+.is-action{color:var(--action)} .is-alert{color:var(--alert)} .is-pass{color:var(--pass)}
+@media (max-width:820px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.summary > div:nth-child(3){border-left:0}.summary > div:nth-child(n+3){border-top:1px solid var(--hair)}}
+
+/* context note */
+.context{padding:14px 20px;border-top:1px solid var(--rule);display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 18px;font-size:13px}
+.context p{margin:0;max-width:95ch}
+@media (max-width:640px){.context{grid-template-columns:1fr}}
+
+/* charts */
+.chartbox{position:relative;height:300px}
+.chartbox.short{height:200px}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--muted);margin-top:10px}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.ln{width:18px;border-top:2px solid}
+.ln.d{border-top-style:dashed}
+.ln.t{border-top-style:dotted;border-top-width:1.5px}
+.mk{width:8px;height:8px;display:inline-block}
+
+/* tables */
+.scroll{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:12.5px}
+.t th{text-align:left;font:600 10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--rule);border-top:1px solid var(--rule);white-space:nowrap;background:var(--tint)}
+.t td{padding:7px 10px;border-bottom:1px solid var(--hair);vertical-align:top}
+.t td.num,.t th.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.t td.id{font-family:var(--f-mono);white-space:nowrap}
+.t tr.ooc td{background:var(--action-bg)}
+.t tr.phase td{border-top:1.5px dashed var(--muted)}
+.code{display:inline-block;font:600 10.5px var(--f-mono);letter-spacing:.06em;padding:2px 6px;border:1.5px solid currentColor;white-space:nowrap}
+.c2{color:var(--action)}.c1{color:var(--alert)}
+.small{color:var(--muted);font-size:11.5px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.btn{font:500 12px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:6px 12px;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.none{padding:14px 0;color:var(--muted);font-size:13px}
+
+/* capability */
+.cap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0}
+.cap > div{padding-right:20px}
+.cap > div + div{border-left:1px solid var(--hair);padding:0 0 0 20px}
+.hist{position:relative;height:200px}
+@media (max-width:860px){.cap{grid-template-columns:1fr}.cap > div + div{border-left:0;border-top:1px solid var(--hair);padding:16px 0 0;margin-top:16px}}
+
+.notes{font-size:12px;color:var(--muted);line-height:1.65;max-width:95ch;margin:0}
+.notes b{color:var(--ink)}
+.pagefoot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:11px var(--f-mono);color:var(--muted);padding:10px 20px;border-top:1px solid var(--rule)}
+@media (max-width:540px){select{width:100%;min-width:0}.field{flex:1 1 100%}section.sec{padding:16px}.filters,.context{padding-inline:16px}}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<a class="back" href="/">Back to portfolio</a>
+<div class="doc">
+
+  <div class="ctrl">
+    <div class="title">
+      <span class="lbl">Site 04 · Medical device manufacturing · Quality Control Laboratory</span>
+      <h1>Statistical Process Control: QC Lab Test Results</h1>
+      <span class="stamp">Simulated data · portfolio demonstration</span>
+    </div>
+    <div class="meta">
+      <div><span class="lbl">Document no.</span><b>QC-SPC-005</b></div>
+      <div><span class="lbl">Revision</span><b>A</b></div>
+      <div><span class="lbl">Review period</span><b id="mPeriod">-</b></div>
+      <div><span class="lbl">Chart type</span><b>X̄ / R</b></div>
+      <div><span class="lbl">Subgroups</span><b id="mGroups">-</b></div>
+      <div><span class="lbl">Subgroup size</span><b id="mN">-</b></div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="field">
+      <label class="lbl" for="fParam">Test parameter</label>
+      <select id="fParam"></select>
+    </div>
+    <div class="field">
+      <span class="lbl" id="fBasisLbl">Control limits from</span>
+      <div class="seg" id="fBasis" role="group" aria-labelledby="fBasisLbl">
+        <button data-v="base" aria-pressed="true">Baseline (subgroups 1 to 20)</button>
+        <button data-v="all" aria-pressed="false">All subgroups</button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="lbl">Nelson rules applied to X-bar</span>
+      <div class="rules" id="fRules"></div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="context">
+    <span class="lbl" style="padding-top:3px">What this test is</span>
+    <p id="ctxText"></p>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">1.0</span>X-bar chart, subgroup means</h2>
+        <p class="sub" id="xSub"></p>
+      </div>
+    </div>
+    <div class="chartbox"><canvas id="xChart" aria-label="X-bar control chart"></canvas></div>
+    <div class="key">
+      <span><i class="ln" style="border-color:var(--ink)"></i>Subgroup mean</span>
+      <span><i class="ln" style="border-color:var(--pen)"></i>Centre line</span>
+      <span><i class="ln d" style="border-color:var(--action)"></i>UCL / LCL (±3σ)</span>
+      <span><i class="ln t" style="border-color:var(--muted)"></i>±1σ, ±2σ zones</span>
+      <span><i class="mk" style="background:var(--action)"></i>Rule violation</span>
+      <span><i class="ln d" style="border-color:var(--muted)"></i>End of baseline</span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">2.0</span>R chart, subgroup ranges</h2>
+        <p class="sub" id="rSub"></p>
+      </div>
+    </div>
+    <div class="chartbox short"><canvas id="rChart" aria-label="Range control chart"></canvas></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">3.0</span>Out-of-control signal log</h2>
+        <p class="sub">Every subgroup that breaks a rule on the current limits, with the assignable cause from the investigation where one was found.</p>
+      </div>
+    </div>
+    <div class="scroll" id="sigWrap"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">4.0</span>Process capability</h2>
+        <p class="sub">Within-subgroup σ estimated as R̄ / d₂. Cpk of 1.33 or more is the usual target for a capable process.</p>
+      </div>
+    </div>
+    <div class="cap">
+      <div class="scroll" id="capTable"></div>
+      <div>
+        <div class="hist"><canvas id="hChart" aria-label="Histogram of individual results with specification limits"></canvas></div>
+        <div class="key"><span><i class="mk" style="background:var(--ink)"></i>Individual results, all subgroups</span><span><i class="ln d" style="border-color:var(--action)"></i>Spec limit</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <h2><span class="no">5.0</span>Subgroup data</h2>
+        <p class="sub">Raw replicate results. Rows with any violation are shaded. The dashed line marks the end of the baseline.</p>
+      </div>
+      <button class="btn" id="csv">Download CSV</button>
+    </div>
+    <div class="scroll" id="dataTable"></div>
+  </section>
+
+  <section class="sec">
+    <h2 style="margin-bottom:8px"><span class="no">6.0</span>Method</h2>
+    <p class="notes">All results are simulated for a portfolio demonstration and contain no real site data. <b>Control limits</b> use the standard Shewhart constants: X-bar limits are X̿ ± A₂R̄, R limits are D₃R̄ and D₄R̄. By default they are set from the first 20 subgroups (Phase I baseline) and held fixed for monitoring (Phase II), so a later shift shows up against the old limits instead of being absorbed into them. <b>Nelson rules</b> on the X-bar chart: 1, one point beyond 3σ; 2, nine in a row on one side of the centre; 3, six in a row steadily rising or falling; 5, two of three beyond 2σ on the same side; 6, four of five beyond 1σ on the same side. The R chart uses rule 1 only. <b>Specification limits</b> are illustrative: WFI conductivity uses the USP &lt;645&gt; Stage 1 limit at 25 °C, growth promotion uses a 70 to 130% recovery window and the autoclave uses a 121 to 124 °C exposure band.</p>
+  </section>
+
+  <div class="pagefoot"><span>QC-SPC-005 Rev A</span><span>Uncontrolled when printed</span></div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function(){
+/* ---------- seeded RNG ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function normal(R){let u=0,v=0;while(u===0)u=R();while(v===0)v=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+
+/* ---------- Shewhart constants ---------- */
+const K={2:{A2:1.880,D3:0,D4:3.267,d2:1.128},3:{A2:1.023,D3:0,D4:2.574,d2:1.693},4:{A2:0.729,D3:0,D4:2.282,d2:2.059},5:{A2:0.577,D3:0,D4:2.114,d2:2.326}};
+const GROUPS=40, BASE=20;
+
+/* 40 working days from 1 Jun 2026 */
+const DATES=[];{const d=new Date(2026,5,1);while(DATES.length<GROUPS){const w=d.getDay();if(w>0&&w<6)DATES.push(new Date(d));d.setDate(d.getDate()+1)}}
+const fmtD=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+
+/* ---------- parameters ----------
+   Each one has a stable baseline and one scripted special cause in the monitoring phase,
+   so each chart shows a different kind of signal: a shift, a drift and a jump in spread. */
+const PARAMS=[
+  {id:'GPT',name:'Growth promotion recovery, TSA media',short:'Growth promotion',unit:'% recovery',dp:1,n:5,mu:96,sd:5.2,lsl:70,usl:130,seed:1002,
+   rep:'5 plates per media lot, inoculated with ≤100 CFU of S. aureus ATCC 6538',
+   ctx:'Each new lot of tryptic soy agar has to show it can grow organisms before it is released for EM and bioburden testing. Five plates per lot are inoculated with a low count of a compendial organism and the count is compared with a reference lot. A falling recovery means the media is getting worse at detecting contamination, even if each lot still passes.',
+   special:(i,j)=>i>=27?-7.5:0,
+   cause:{from:27,to:39,text:'Media supplier changed peptone source from subgroup 28. Supplier notified, SCAR opened, incoming lots placed on enhanced GPT.'}},
+  {id:'WFI',name:'WFI conductivity, points of use',short:'WFI conductivity',unit:'µS/cm at 25 °C',dp:3,n:4,mu:0.42,sd:0.045,lsl:null,usl:1.3,seed:1003,
+   rep:'4 points of use sampled daily on the water for injection loop',
+   ctx:'Water for injection is tested daily for conductivity, a fast check on dissolved ions. Every result here is far below the USP limit of 1.3 µS/cm, so a pass/fail review sees nothing. The control chart catches the loop slowly drifting upward weeks before it would ever fail.',
+   special:(i,j)=>i>=23?(i-22)*0.019:0,
+   cause:{from:23,to:39,text:'Gradual rise traced to a weakening mixed-bed polisher resin. Resin bed replaced after subgroup 40; trend to be confirmed on the next 20 subgroups.'}},
+  {id:'AC',name:'Autoclave exposure temperature, liquid load',short:'Autoclave temperature',unit:'°C',dp:2,n:4,mu:122.1,sd:0.32,lsl:121.0,usl:124.0,seed:1009,
+   rep:'4 load thermocouples per validated cycle, mean over exposure',
+   ctx:'Each sterilization cycle logs temperature from four thermocouples placed in the load. The mean stays steady, so the X-bar chart looks normal, but for one week the spread between probes opened up. That is a cold spot in the chamber, and only the R chart shows it.',
+   special:(i,j)=>(i>=29&&i<=34)?(j===0?-1.25:j===3?0.65:0):0,
+   cause:{from:29,to:34,text:'Cold spot at probe position 1 (drain end). Steam trap found partially blocked; trap replaced, chamber re-mapped and cycles 30 to 35 re-reviewed for sterility assurance.'}}
+];
+
+function build(p){
+  const R=mulberry32(p.seed), rows=[];
+  for(let i=0;i<GROUPS;i++){
+    const v=[];for(let j=0;j<p.n;j++)v.push(+(p.mu+p.sd*normal(R)+p.special(i,j)).toFixed(p.dp+1));
+    rows.push({i,date:DATES[i],v,mean:v.reduce((a,b)=>a+b,0)/v.length,range:Math.max(...v)-Math.min(...v)});
+  }
+  return rows;
+}
+PARAMS.forEach(p=>p.rows=build(p));
+
+/* ---------- limits and rules ---------- */
+function limits(p,basis){
+  const src=basis==='base'?p.rows.slice(0,BASE):p.rows, k=K[p.n];
+  const xbb=src.reduce((a,r)=>a+r.mean,0)/src.length, rbar=src.reduce((a,r)=>a+r.range,0)/src.length;
+  const s=k.A2*rbar/3; /* one sigma of the subgroup mean */
+  return {cl:xbb,ucl:xbb+k.A2*rbar,lcl:xbb-k.A2*rbar,s,rbar,rucl:k.D4*rbar,rlcl:k.D3*rbar,sigma:rbar/k.d2};
+}
+const RULES=[
+  {id:1,label:'1 · beyond 3σ'},{id:2,label:'2 · 9 on one side'},{id:3,label:'3 · 6 trending'},
+  {id:5,label:'5 · 2 of 3 beyond 2σ'},{id:6,label:'6 · 4 of 5 beyond 1σ'}
+];
+function nelson(x,L,on){
+  const hits=x.map(()=>[]), z=x.map(v=>(v-L.cl)/L.s), add=(i,r)=>{if(!hits[i].includes(r))hits[i].push(r)};
+  for(let i=0;i<x.length;i++){
+    if(on.has(1)&&Math.abs(z[i])>3)add(i,1);
+    if(on.has(2)&&i>=8){const w=z.slice(i-8,i+1);if(w.every(v=>v>0)||w.every(v=>v<0))add(i,2)}
+    if(on.has(3)&&i>=5){const w=x.slice(i-5,i+1);let up=true,dn=true;for(let k=1;k<6;k++){if(!(w[k]>w[k-1]))up=false;if(!(w[k]<w[k-1]))dn=false}if(up||dn)add(i,3)}
+    if(on.has(5)&&i>=2){const w=z.slice(i-2,i+1);if((Math.abs(z[i])>2)&&(w.filter(v=>v>2).length>=2||w.filter(v=>v<-2).length>=2))add(i,5)}
+    if(on.has(6)&&i>=4){const w=z.slice(i-4,i+1);if((Math.abs(z[i])>1)&&(w.filter(v=>v>1).length>=4||w.filter(v=>v<-1).length>=4))add(i,6)}
+  }
+  return hits;
+}
+const RULE_TEXT={1:'Point beyond 3σ limit',2:'9 in a row on one side of centre',3:'6 in a row steadily trending',5:'2 of 3 beyond 2σ, same side',6:'4 of 5 beyond 1σ, same side'};
+
+function capability(rows,p){
+  const k=K[p.n], mu=rows.reduce((a,r)=>a+r.mean,0)/rows.length, s=rows.reduce((a,r)=>a+r.range,0)/rows.length/k.d2;
+  const cpu=p.usl!=null?(p.usl-mu)/(3*s):null, cpl=p.lsl!=null?(mu-p.lsl)/(3*s):null;
+  const cp=(p.usl!=null&&p.lsl!=null)?(p.usl-p.lsl)/(6*s):null;
+  const cpk=Math.min(...[cpu,cpl].filter(v=>v!=null));
+  return {mu,s,cp,cpk,cpu,cpl};
+}
+
+/* ---------- state ---------- */
+const state={param:'GPT',basis:'base',rules:new Set([1,2,3,5,6])};
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const f=(v,dp)=>v==null||!isFinite(v)?'-':v.toFixed(dp);
+
+$('fParam').innerHTML=PARAMS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+$('fRules').innerHTML=RULES.map(r=>`<label><input type="checkbox" value="${r.id}" checked>${r.label}</label>`).join('');
+$('mPeriod').textContent=fmtD(DATES[0])+' to '+fmtD(DATES[GROUPS-1])+' 2026';
+$('mGroups').textContent=GROUPS+' ('+BASE+' baseline)';
+
+let xChart,rChart,hChart;
+
+/* draws the phase divider and the zone lines under the data */
+const guides={id:'guides',beforeDatasetsDraw(c,_,o){
+  const {ctx,chartArea:a,scales:{x,y}}=c;if(!o||!a)return;
+  ctx.save();
+  if(o.zones){ctx.strokeStyle=css('--muted');ctx.lineWidth=1;ctx.setLineDash([1,3]);
+    o.zones.forEach(v=>{const py=y.getPixelForValue(v);if(py>a.top&&py<a.bottom){ctx.beginPath();ctx.moveTo(a.left,py);ctx.lineTo(a.right,py);ctx.stroke()}})}
+  if(o.split){const px=(x.getPixelForValue(BASE-1)+x.getPixelForValue(BASE))/2;ctx.strokeStyle=css('--muted');ctx.setLineDash([4,4]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(px,a.top);ctx.lineTo(px,a.bottom);ctx.stroke();
+    ctx.setLineDash([]);ctx.fillStyle=css('--muted');ctx.font='600 10px "IBM Plex Mono", monospace';ctx.textAlign='left';
+    ctx.fillText('MONITORING →',px+6,a.bottom-6);ctx.textAlign='right';ctx.fillText('← BASELINE',px-6,a.bottom-6)}
+  ctx.restore();
+}};
+if(window.Chart)Chart.register(guides);
+
+function lineSet(label,val,color,dash){return {label,data:Array(GROUPS).fill(val),borderColor:color,borderWidth:1.5,borderDash:dash||[],pointRadius:0,pointHoverRadius:0,fill:false}}
+
+function chartOpts(dp,unit,extra){
+  const ink=css('--ink'),muted=css('--muted'),hair=css('--hair');
+  return {responsive:true,maintainAspectRatio:false,animation:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},guides:extra,
+      tooltip:{filter:it=>it.datasetIndex===0,backgroundColor:ink,titleColor:css('--paper'),bodyColor:css('--paper'),titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'},
+        callbacks:{title:it=>'Subgroup '+(it[0].dataIndex+1)+' · '+fmtD(DATES[it[0].dataIndex]),label:it=>' '+it.parsed.y.toFixed(dp)+' '+unit}}},
+    scales:{x:{grid:{display:false},border:{color:ink},ticks:{color:muted,font:{family:'IBM Plex Mono',size:10},maxRotation:0,autoSkipPadding:10}},
+      y:{grid:{color:hair},border:{display:false},ticks:{color:muted,font:{family:'IBM Plex Mono',size:10}}}}};
+}
+
+function render(){
+  const p=PARAMS.find(q=>q.id===state.param), L=limits(p,state.basis), k=K[p.n];
+  const xs=p.rows.map(r=>r.mean), rs=p.rows.map(r=>r.range);
+  const xh=nelson(xs,L,state.rules);
+  const rh=rs.map(v=>v>L.rucl||v<L.rlcl?[1]:[]);
+  const oocX=xh.filter(h=>h.length).length, oocR=rh.filter(h=>h.length).length;
+  const anyOOC=p.rows.map((_,i)=>xh[i].length||rh[i].length);
+  const first=anyOOC.findIndex(Boolean);
+  const capB=capability(p.rows.slice(0,BASE),p), capM=capability(p.rows.slice(BASE),p);
+  const allVals=p.rows.flatMap(r=>r.v), outSpec=allVals.filter(v=>(p.usl!=null&&v>p.usl)||(p.lsl!=null&&v<p.lsl)).length;
+
+  $('mN').textContent='n = '+p.n;
+  $('ctxText').innerHTML=p.ctx+' <span class="small">Sampling: '+p.rep+'.</span>';
+
+  /* summary */
+  const cpkCls=v=>v>=1.33?'is-pass':v>=1?'is-alert':'is-action';
+  $('summary').innerHTML=`
+    <div><span class="lbl">Out-of-control points</span><span class="v ${oocX+oocR?'is-action':'is-pass'}">${oocX+oocR}</span><span class="s">${oocX} on X-bar, ${oocR} on R</span></div>
+    <div><span class="lbl">First signal</span><span class="v mono" style="font-size:24px">${first<0?'None':'SG '+(first+1)}</span><span class="s">${first<0?'Process in control':fmtD(DATES[first])+' · '+(first>=BASE?'monitoring phase':'baseline phase')}</span></div>
+    <div><span class="lbl">Cpk, baseline</span><span class="v ${cpkCls(capB.cpk)}">${f(capB.cpk,2)}</span><span class="s">Subgroups 1 to ${BASE}</span></div>
+    <div><span class="lbl">Cpk, monitoring</span><span class="v ${cpkCls(capM.cpk)}">${f(capM.cpk,2)}</span><span class="s">Subgroups ${BASE+1} to ${GROUPS} · ${outSpec} result${outSpec===1?'':'s'} out of spec</span></div>`;
+
+  $('xSub').textContent=`Centre ${f(L.cl,p.dp+1)}, UCL ${f(L.ucl,p.dp+1)}, LCL ${f(L.lcl,p.dp+1)} ${p.unit}. Limits = X̿ ± A₂R̄ with A₂ = ${k.A2} for n = ${p.n}.`;
+  $('rSub').textContent=`R̄ ${f(L.rbar,p.dp+1)}, UCL ${f(L.rucl,p.dp+1)}, LCL ${f(L.rlcl,p.dp+1)} ${p.unit}. Limits = D₃R̄ and D₄R̄ with D₄ = ${k.D4}. Rule 1 only.`;
+
+  /* charts */
+  const ink=css('--ink'),pen=css('--pen'),act=css('--action'),paper=css('--paper');
+  const labels=p.rows.map(r=>String(r.i+1));
+  const pts=h=>h.map(x=>x.length?act:ink), rad=h=>h.map(x=>x.length?5:2.5);
+  if(!window.Chart)return renderTables(p,L,xh,rh);
+  xChart&&xChart.destroy();rChart&&rChart.destroy();hChart&&hChart.destroy();
+  xChart=new Chart($('xChart'),{type:'line',data:{labels,datasets:[
+      {label:'Mean',data:xs,borderColor:ink,borderWidth:1.5,pointBackgroundColor:pts(xh),pointBorderColor:pts(xh),pointRadius:rad(xh),pointHoverRadius:6,tension:0},
+      lineSet('CL',L.cl,pen),lineSet('UCL',L.ucl,act,[6,4]),lineSet('LCL',L.lcl,act,[6,4])]},
+    options:chartOpts(p.dp+1,p.unit,{split:state.basis==='base',zones:[1,2,-1,-2].map(m=>L.cl+m*L.s)})});
+  rChart=new Chart($('rChart'),{type:'line',data:{labels,datasets:[
+      {label:'Range',data:rs,borderColor:ink,borderWidth:1.5,pointBackgroundColor:pts(rh),pointBorderColor:pts(rh),pointRadius:rad(rh),pointHoverRadius:6,tension:0},
+      lineSet('R̄',L.rbar,pen),lineSet('UCL',L.rucl,act,[6,4])]},
+    options:chartOpts(p.dp+1,p.unit,{split:state.basis==='base'})});
+
+  /* histogram of individuals with spec lines drawn by a small plugin */
+  const lo=Math.min(...allVals,p.lsl??Infinity), hi=Math.max(...allVals,p.usl??-Infinity);
+  const span=Math.max(...allVals)-Math.min(...allVals), bins=14, w=span/bins, b0=Math.min(...allVals);
+  const counts=Array(bins).fill(0);allVals.forEach(v=>counts[Math.min(bins-1,Math.floor((v-b0)/w))]++);
+  const specLines={id:'spec',afterDatasetsDraw(c){const {ctx,chartArea:a,scales:{x}}=c;ctx.save();ctx.strokeStyle=act;ctx.setLineDash([6,4]);ctx.lineWidth=1.5;ctx.fillStyle=act;ctx.font='600 10px "IBM Plex Mono", monospace';
+    [[p.lsl,'LSL'],[p.usl,'USL']].forEach(([v,t])=>{if(v==null)return;const px=x.getPixelForValue(v);if(px<a.left-1||px>a.right+1)return;ctx.beginPath();ctx.moveTo(px,a.top);ctx.lineTo(px,a.bottom);ctx.stroke();ctx.textAlign=px>a.right-40?'right':'left';ctx.fillText(t,px+(px>a.right-40?-5:5),a.top+10)});ctx.restore()}};
+  const pad=(hi-lo)*0.04;
+  hChart=new Chart($('hChart'),{type:'bar',plugins:[specLines],
+    data:{datasets:[{data:counts.map((c,i)=>({x:b0+w*(i+0.5),y:c})),backgroundColor:ink,barPercentage:1,categoryPercentage:1,borderColor:paper,borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:ink,bodyFont:{family:'IBM Plex Mono'},titleFont:{family:'IBM Plex Mono'},
+        callbacks:{title:it=>{const c=it[0].parsed.x;return f(c-w/2,p.dp)+' to '+f(c+w/2,p.dp)+' '+p.unit},label:it=>' '+it.parsed.y+' results'}}},
+      scales:{x:{type:'linear',min:lo-pad,max:hi+pad,offset:false,grid:{display:false},border:{color:ink},ticks:{color:css('--muted'),font:{family:'IBM Plex Mono',size:10},maxTicksLimit:7}},
+        y:{grid:{color:css('--hair')},border:{display:false},ticks:{color:css('--muted'),font:{family:'IBM Plex Mono',size:10},precision:0}}}}});
+
+  renderTables(p,L,xh,rh,capB,capM);
+}
+
+function renderTables(p,L,xh,rh,capB,capM){
+  capB=capB||capability(p.rows.slice(0,BASE),p);capM=capM||capability(p.rows.slice(BASE),p);
+  /* signal log: one row per flagged subgroup */
+  const causeFor=i=>i>=p.cause.from&&i<=p.cause.to?p.cause.text:'No assignable cause found. Common-cause variation; no action, continue monitoring.';
+  const sig=p.rows.map((r,i)=>({i,r,x:xh[i],rr:rh[i]})).filter(s=>s.x.length||s.rr.length);
+  const codes=s=>[...s.x.map(x=>`<span class="code c2" title="${RULE_TEXT[x]}">X-bar R${x}</span>`),...s.rr.map(()=>`<span class="code c2" title="${RULE_TEXT[1]}">R R1</span>`)].join(' ');
+  $('sigWrap').innerHTML=sig.length?`<table class="t"><thead><tr><th>Subgroup</th><th>Date</th><th>Rules violated</th><th class="num">Mean</th><th class="num">Range</th><th>Phase</th><th>Investigation outcome</th></tr></thead><tbody>${
+    sig.map(s=>`<tr><td class="id">SG-${String(s.i+1).padStart(2,'0')}</td><td class="id">${fmtD(DATES[s.i])}</td><td style="white-space:nowrap">${codes(s)}</td><td class="num">${f(s.r.mean,p.dp+1)}</td><td class="num">${f(s.r.range,p.dp+1)}</td><td>${s.i<BASE?'Baseline':'Monitoring'}</td><td>${causeFor(s.i)}</td></tr>`).join('')
+  }</tbody></table><p class="small" style="margin:10px 0 0">${sig.length} subgroup${sig.length===1?'':'s'} flagged. R1 beyond 3σ · R2 nine on one side · R3 six trending · R5 two of three beyond 2σ · R6 four of five beyond 1σ.</p>`:'<p class="none">No rule violations with the current limits and rules.</p>';
+
+  /* capability table */
+  const row=(lbl,a,b)=>`<tr><td>${lbl}</td><td class="num">${a}</td><td class="num">${b}</td></tr>`;
+  $('capTable').innerHTML=`<table class="t"><thead><tr><th>Measure</th><th class="num">Baseline (1 to ${BASE})</th><th class="num">Monitoring (${BASE+1} to ${GROUPS})</th></tr></thead><tbody>
+    ${row('Spec limits',(p.lsl??'none')+' / '+(p.usl??'none'),(p.lsl??'none')+' / '+(p.usl??'none'))}
+    ${row('Process mean',f(capB.mu,p.dp+1),f(capM.mu,p.dp+1))}
+    ${row('σ within (R̄/d₂)',f(capB.s,p.dp+2),f(capM.s,p.dp+2))}
+    ${row('Cp',f(capB.cp,2),f(capM.cp,2))}
+    ${row('Cpk',`<b>${f(capB.cpk,2)}</b>`,`<b>${f(capM.cpk,2)}</b>`)}
+  </tbody></table><p class="small" style="margin:10px 0 0">${p.usl!=null&&p.lsl!=null?'Two-sided spec.':'One-sided spec, so Cp is not defined and Cpk uses the one limit.'} Units: ${p.unit}.</p>`;
+
+  /* data table */
+  $('dataTable').innerHTML=`<table class="t"><thead><tr><th>Subgroup</th><th>Date</th>${p.rows[0].v.map((_,j)=>`<th class="num">Rep ${j+1}</th>`).join('')}<th class="num">Mean</th><th class="num">Range</th><th>Flags</th></tr></thead><tbody>${
+    p.rows.map((r,i)=>{const fl=[...xh[i].map(x=>'X-bar R'+x),...rh[i].map(()=>'R R1')];
+      return `<tr class="${fl.length?'ooc':''} ${i===BASE?'phase':''}"><td class="id">SG-${String(i+1).padStart(2,'0')}</td><td class="id">${fmtD(r.date)}</td>${r.v.map(v=>`<td class="num">${v.toFixed(p.dp)}</td>`).join('')}<td class="num">${f(r.mean,p.dp+1)}</td><td class="num">${f(r.range,p.dp+1)}</td><td class="small">${fl.join(', ')}</td></tr>`}).join('')
+  }</tbody></table>`;
+
+  window.__spc={param:p.id,basis:state.basis,ooc:xh.filter(h=>h.length).length+rh.filter(h=>h.length).length,first:xh.concat().map((h,i)=>h.length||rh[i].length).findIndex(Boolean)+1,cpkB:capB.cpk,cpkM:capM.cpk,signals:sig.length};
+}
+
+/* ---------- events ---------- */
+$('fParam').addEventListener('change',e=>{state.param=e.target.value;render()});
+$('fBasis').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.basis=b.dataset.v;
+  [...$('fBasis').children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+$('fRules').addEventListener('change',e=>{const v=+e.target.value;e.target.checked?state.rules.add(v):state.rules.delete(v);render()});
+$('csv').addEventListener('click',()=>{
+  const p=PARAMS.find(q=>q.id===state.param);
+  const head=['subgroup','date',...p.rows[0].v.map((_,j)=>'rep'+(j+1)),'mean','range'];
+  const lines=[head.join(','),...p.rows.map(r=>[r.i+1,iso(r.date),...r.v.map(v=>v.toFixed(p.dp)),r.mean.toFixed(p.dp+2),r.range.toFixed(p.dp+2)].join(','))];
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));a.download='spc_'+p.id.toLowerCase()+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+});
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render)}catch(e){}
+
+render();
+})();
+</script>
+</body>
+</html>
