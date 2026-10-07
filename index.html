@@ -199,11 +199,12 @@ ol.next li { margin-bottom: 4px; }
       <div class="body">
         <h3>Deviation and CAPA tracker</h3>
         <span class="data">Synthetic data</span>
-        <p>A QA tracker for 167 deviations over 18 months across six areas of a device plant. It ages open records against a 30-day closure target, trends close-out time by month, finds root causes that repeat on the same equipment within 180 days, and checks whether each CAPA actually stopped the problem.</p>
+        <p>A QA tracker for 167 deviations over 18 months across six areas of a device plant. It ages open records against a 30-day closure target, trends close-out time by month, finds root causes that repeat on the same equipment within 180 days, and checks whether each CAPA actually stopped the problem. There's also an Excel version built entirely on formulas, ready to keep adding records to.</p>
         <p class="finding"><span class="lbl">Finding</span>Median days to close jumped from 16 to 36 once QA was short-staffed, and 7 of 13 open deviations are overdue. A line-clearance failure on one packaging line came back 37 days after its CAPA closed; its two CAPAs are the only failures among the 19 that have been checked.</p>
-        <span class="stack">JavaScript, Chart.js, HTML/CSS</span>
+        <span class="stack">JavaScript, Chart.js, Excel (COUNTIFS, array formulas, conditional formatting), Python</span>
         <div class="go">
           <a href="https://therealmenace10040.github.io/projects/deviation-capa-tracker/">Open the tracker</a>
+          <a href="https://therealmenace10040.github.io/projects/deviation-capa-tracker/Deviation_CAPA_Tracker.xlsx">Download the Excel version</a>
           <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/deviation-capa-tracker">Code and write-up</a>
         </div>
       </div>
@@ -215,10 +216,10 @@ ol.next li { margin-bottom: 4px; }
     <table>
       <thead><tr><th>Tool</th><th>Where it's used</th></tr></thead>
       <tbody>
-        <tr><td>Excel / Google Sheets</td><td>P-02, P-03, and daily lab work</td></tr>
+        <tr><td>Excel / Google Sheets</td><td>P-02, P-03, P-06, and daily lab work</td></tr>
         <tr><td>VBA</td><td>P-02, P-03</td></tr>
         <tr><td>SQL</td><td>P-03</td></tr>
-        <tr><td>Python</td><td>P-01, P-02, P-03</td></tr>
+        <tr><td>Python</td><td>P-01, P-02, P-03, P-06</td></tr>
         <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05, P-06</td></tr>
       </tbody>
     </table>
