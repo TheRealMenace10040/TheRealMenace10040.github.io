@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wastewater Virus Tracker, Dennis Nguyen</title>
+<meta name="description" content="Python time-series analysis of CDC wastewater surveillance for COVID-19, influenza A and RSV: does wastewater rise before emergency department visits, how do seasons compare, and can a simple model forecast the next few weeks?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a GMP controlled report. Document control block, numbered sections, ruled tables, square corners, ink on paper. */
+:root{
+  --ground:#e4e7e4; --paper:#ffffff; --tint:#f3f5f3;
+  --ink:#121518; --rule:#121518; --hair:#cfd4d0; --muted:#596166;
+  --pen:#1d3d73; --ed:#a3510f; --band:rgba(29,61,115,.14); --edband:rgba(163,81,15,.14);
+  --up:#b02a20; --down:#2b6e48;
+  --s0:#c9d3df; --s1:#a2b4cc; --s2:#7790b3; --s3:#4c6c99; --s4:#1d3d73;
+  --f-head:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6; --ed:#e7a160; --band:rgba(147,180,230,.18); --edband:rgba(231,161,96,.18);
+  --up:#f07a6e; --down:#6cc392;
+  --s0:#2c3644; --s1:#3c5170; --s2:#557aa8; --s3:#7a9fd2; --s4:#b9d0f0;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6; --ed:#e7a160; --band:rgba(147,180,230,.18); --edband:rgba(231,161,96,.18);
+  --up:#f07a6e; --down:#6cc392;
+  --s0:#2c3644; --s1:#3c5170; --s2:#557aa8; --s3:#7a9fd2; --s4:#b9d0f0;
+  color-scheme:dark;}
+
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;background:var(--ground);color:var(--ink);font:14px/1.5 var(--f-body)}
+[hidden]{display:none!important}
+a{color:var(--pen);text-underline-offset:3px}
+.back{display:inline-block;margin-bottom:12px;font:500 13px var(--f-body)}
+.sheet{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+.doc{background:var(--paper);border:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1fr)}
+.doc > *{min-width:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font:600 10px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--f-head);margin:0;text-wrap:balance}
+h1{font-size:clamp(24px,3.4vw,34px);font-weight:700;line-height:1.05}
+h2{font-size:19px;font-weight:600;display:flex;gap:12px;align-items:baseline}
+h2 .no{font:500 13px var(--f-mono);color:var(--muted)}
+.sub{color:var(--muted);font-size:12.5px;margin:3px 0 0;max-width:86ch}
+section.sec{border-top:1px solid var(--rule);padding:18px 20px;min-width:0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 20px;flex-wrap:wrap;margin-bottom:14px}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+
+/* document control block */
+.ctrl{display:grid;grid-template-columns:minmax(0,1fr) auto}
+.ctrl .title{padding:20px;display:grid;gap:10px;align-content:start}
+.ctrl .title p{margin:0;max-width:70ch;font-size:13.5px}
+.ctrl .meta{display:grid;grid-template-columns:repeat(2,minmax(130px,auto));border-left:1px solid var(--rule)}
+.ctrl .meta div{padding:9px 14px;border-bottom:1px solid var(--hair);border-left:1px solid var(--hair);display:grid;gap:3px}
+.ctrl .meta div:nth-child(odd){border-left:0}
+.ctrl .meta div:nth-last-child(-n+2){border-bottom:0}
+.ctrl .meta b{font:500 13px var(--f-mono);font-variant-numeric:tabular-nums}
+.stamp{justify-self:start;font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--pen);border:1.5px solid var(--pen);padding:3px 8px;transform:rotate(-1.5deg)}
+@media (max-width:760px){.ctrl{grid-template-columns:minmax(0,1fr)}.ctrl .meta{border-left:0;border-top:1px solid var(--rule);grid-template-columns:repeat(2,minmax(0,1fr))}.ctrl .meta b{overflow-wrap:anywhere}}
+
+/* summary strip */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.summary > div{padding:14px 20px;border-left:1px solid var(--hair);display:grid;gap:4px;align-content:start}
+.summary > div:first-child{border-left:0}
+.summary .v{font:500 30px/1.05 var(--f-mono);font-variant-numeric:tabular-nums}
+.summary .v small{font-size:13px;color:var(--muted);margin-left:4px}
+.summary .s{font-size:12px;color:var(--muted)}
+.summary .s b{font-weight:600}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--muted)}
+@media (max-width:820px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.summary > div:nth-child(3){border-left:0}.summary > div:nth-child(n+3){border-top:1px solid var(--hair)}}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-end;padding:14px 20px;background:var(--tint);border-top:1px solid var(--rule)}
+.field{display:grid;gap:5px;min-width:0}
+select{font:13px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:6px 9px;min-width:220px;max-width:100%}
+.seg{display:inline-flex;border:1px solid var(--rule);flex-wrap:wrap}
+.seg button{font:500 12px var(--f-body);color:var(--ink);background:var(--paper);border:0;border-left:1px solid var(--rule);padding:6px 11px;cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.crumb{font-size:12px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+
+/* findings */
+ol.find{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+ol.find li{padding:12px 16px 12px 0;border-bottom:1px solid var(--hair);display:grid;grid-template-columns:34px minmax(0,1fr);gap:0 6px}
+ol.find li:nth-child(even){padding-left:16px;border-left:1px solid var(--hair)}
+ol.find .n{font:500 12px var(--f-mono);color:var(--muted);padding-top:2px}
+ol.find b{font-weight:600}
+@media (max-width:820px){ol.find{grid-template-columns:1fr}ol.find li:nth-child(even){padding-left:0;border-left:0}}
+
+/* paired panels */
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-top:1px solid var(--rule)}
+.pair > section{border-top:0}
+.pair > section + section{border-left:1px solid var(--rule)}
+@media (max-width:980px){.pair{grid-template-columns:minmax(0,1fr)}.pair > section + section{border-left:0;border-top:1px solid var(--rule)}}
+.chartbox{position:relative;height:300px}
+.chartbox.md{height:240px}
+
+/* ruled tables */
+.scroll{overflow-x:auto}
+table.rt{width:100%;border-collapse:collapse;font-size:12.5px}
+.rt th{font:600 10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 8px 6px;border-bottom:1px solid var(--rule);white-space:nowrap}
+.rt th.r,.rt td.r{text-align:right}
+.rt td{padding:6px 8px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rt td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rt td.barcell{width:28%;min-width:120px}
+.rt tr:hover td{background:var(--tint)}
+.bar{position:relative;height:12px;background:var(--tint)}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.bar i.hi{background:var(--pen)}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--muted);margin-top:10px}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;display:inline-block;flex:none}
+.ln{width:18px;border-top:2px solid}
+.ln.d{border-top-style:dashed}
+.note{font-size:11.5px;color:var(--muted);margin:10px 0 0;max-width:90ch}
+
+/* lag histogram */
+.lagh{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));align-items:end;gap:3px;height:120px;border-bottom:1px solid var(--rule)}
+.lagh div{background:var(--hair);min-height:1px;position:relative}
+.lagh div.lead{background:var(--pen)}
+.lagh div.zero{background:var(--muted)}
+.lagh div span{position:absolute;bottom:100%;left:0;right:0;text-align:center;font:500 11px var(--f-mono);color:var(--ink);padding-bottom:2px}
+.lagh-ax{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:3px;font:11px var(--f-mono);color:var(--muted);margin-top:4px;text-align:center}
+
+/* code */
+pre.code{margin:0;background:var(--tint);border:1px solid var(--hair);padding:12px 14px;overflow-x:auto;font:12px/1.55 var(--f-mono);color:var(--ink)}
+pre.code .c{color:var(--muted)}
+pre.code .k{color:var(--pen);font-weight:600}
+details{border-top:1px solid var(--hair);padding:10px 0}
+details:first-of-type{border-top:0;padding-top:0}
+summary{cursor:pointer;font-weight:600;font-size:13.5px;margin-bottom:8px}
+summary span{font:400 12px var(--f-body);color:var(--muted);margin-left:8px}
+
+.notes{font-size:12px;color:var(--muted);line-height:1.65;max-width:95ch;margin:0;padding-left:18px}
+.notes li{margin-bottom:4px}
+.notes b{color:var(--ink)}
+.pagefoot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:11px var(--f-mono);color:var(--muted);padding:10px 20px;border-top:1px solid var(--rule)}
+.loading{padding:40px 20px;color:var(--muted)}
+@media (max-width:540px){.rt th,.rt td{padding-inline:5px}select{width:100%;min-width:0}.field{flex:1 1 100%}section.sec{padding:16px}.summary > div{padding:12px 16px}.summary .v{font-size:24px}}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<a class="back" href="/">Back to portfolio</a>
+<div class="doc">
+
+  <div class="ctrl">
+    <div class="title">
+      <span class="lbl">CDC wastewater surveillance · Independent analysis of public data</span>
+      <h1>Is a Wave Coming? Reading Respiratory Viruses in Wastewater</h1>
+      <p>Hundreds of sewage treatment plants test their wastewater for virus every week, and it doesn't depend on anyone getting tested or going to a doctor. I put every plant on a common scale in Python, then asked three questions for COVID-19, influenza A and RSV: does wastewater move before emergency department visits, how do the seasons compare, and can a simple model see the next few weeks coming?</p>
+      <span class="stamp">Real public data · not an official CDC report</span>
+    </div>
+    <div class="meta">
+      <div><span class="lbl">Document no.</span><b>WW-AR-007</b></div>
+      <div><span class="lbl">Source</span><b><a href="https://www.cdc.gov/nwss/">CDC NWSS</a> + <a href="https://www.cdc.gov/nssp/">NSSP</a></b></div>
+      <div><span class="lbl">Wastewater through</span><b id="mWW">…</b></div>
+      <div><span class="lbl">ED visits through</span><b id="mED">…</b></div>
+      <div><span class="lbl">Sites (COVID / flu / RSV)</span><b id="mSites">…</b></div>
+      <div><span class="lbl">Data pulled</span><b id="mBuilt">…</b></div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="filters">
+    <div class="field"><span class="lbl">Virus</span>
+      <div class="seg" id="fVirus">
+        <button aria-pressed="true" data-v="covid">COVID-19</button>
+        <button aria-pressed="false" data-v="flu">Influenza A</button>
+        <button aria-pressed="false" data-v="rsv">RSV</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="lbl" for="fLoc">Location</label>
+      <select id="fLoc"></select>
+    </div>
+    <span class="crumb" id="crumb"></span>
+  </div>
+
+  <div id="app"><p class="loading">Loading wastewater data…</p></div>
+
+  <div class="pagefoot"><span>WW-AR-007 · Dennis Nguyen</span><span>Sources: CDC National Wastewater Surveillance System (data.cdc.gov); CDC NSSP ED visits via the CDC forecast hubs</span></div>
+</div>
+</div>
+
+<template id="tpl">
+  <section class="sec">
+    <div class="sec-head"><div><h2><span class="no">1</span>Key findings</h2><p class="sub">National results for all three viruses. These don't change with the filters.</p></div></div>
+    <ol class="find" id="findings"></ol>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div><h2><span class="no">2</span>Wastewater against ED visits</h2>
+      <p class="sub" id="trendSub">Weekly wastewater level (left axis) and the share of emergency department visits diagnosed with the virus (right axis). Hover for the week's numbers.</p></div>
+      <div class="field"><span class="lbl">Show</span>
+        <div class="seg" id="fSpan">
+          <button aria-pressed="false" data-s="all">All weeks</button>
+          <button aria-pressed="true" data-s="52">Last 12 months</button>
+        </div>
+      </div>
+    </div>
+    <div class="chartbox"><canvas id="trend" aria-label="Line chart of wastewater level and ED visit share by week"></canvas></div>
+    <div class="key">
+      <span><i class="ln" style="border-color:var(--pen)"></i>Wastewater level</span>
+      <span><i class="ln" style="border-color:var(--ed)"></i>ED visits, % of all</span>
+      <span id="fcKey"><i class="sw" style="background:var(--band)"></i>Forecast with 80% range (national only)</span>
+    </div>
+    <p class="note">Wastewater level: each plant's weekly log concentration, measured in standard deviations above that plant's own quiet baseline, then the median across plants. 0 is a quiet week; 2 or more is a big wave. Method notes are in section 8.</p>
+  </section>
+
+  <div class="pair">
+    <section class="sec">
+      <h2><span class="no">3</span>Does wastewater move first?</h2>
+      <p class="sub">Correlation between this week's change in wastewater and the change in ED visits <i>k</i> weeks later, nationally. The tallest bar is the lag where they line up best. Bars right of 0 mean wastewater moves first.</p>
+      <div class="chartbox md" style="margin-top:12px"><canvas id="xcorr" aria-label="Bar chart of correlation by lag in weeks"></canvas></div>
+    </section>
+    <section class="sec">
+      <h2><span class="no">4</span>State by state</h2>
+      <p class="sub" id="lagSub">The same test run separately in every state with enough sites. Number of states whose best lag was each value.</p>
+      <div class="lagh" id="lagh" style="margin-top:30px"></div>
+      <div class="lagh-ax" id="laghAx"></div>
+      <div class="key"><span><i class="sw" style="background:var(--pen)"></i>Wastewater first</span><span><i class="sw" style="background:var(--muted)"></i>Same week</span><span><i class="sw" style="background:var(--hair)"></i>ED visits first</span></div>
+      <p class="note" id="lagNote"></p>
+    </section>
+  </div>
+
+  <div class="pair">
+    <section class="sec">
+      <h2><span class="no">5</span>How the seasons compare</h2>
+      <p class="sub">National wastewater level through each respiratory season (August to July), one line per season. Darker lines are more recent.</p>
+      <div class="chartbox md" style="margin-top:12px"><canvas id="seasons" aria-label="Line chart of wastewater level by week of season, one line per season"></canvas></div>
+      <div class="key" id="seasonKey"></div>
+    </section>
+    <section class="sec">
+      <h2><span class="no">5a</span>Every wave, peak to peak</h2>
+      <p class="sub">Each national wastewater peak, and the ED visit peak within 8 weeks of it. Positive lead means wastewater peaked first.</p>
+      <div class="scroll"><table class="rt" id="waveTable" style="margin-top:12px">
+        <thead><tr><th>Virus</th><th>Season</th><th>Wastewater peak</th><th class="r">Level</th><th>ED peak</th><th class="r">ED %</th><th class="r">Lead</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head">
+      <div><h2><span class="no">6</span>Can a simple model see it coming?</h2>
+      <p class="sub">Two tests, each scored on a rolling backtest over the last 52 weeks: the model is refit every week using only the data available that week, then checked against what actually happened.</p></div>
+    </div>
+    <div class="pair" style="border-top:0;margin:0 -20px">
+      <section class="sec" style="border-top:0">
+        <h2 style="font-size:16px">6a · Does wastewater improve an ED visit forecast?</h2>
+        <p class="sub">Average error forecasting the national ED visit share 1 to 3 weeks ahead. Same regression both times; the second one also gets the last two weeks of wastewater.</p>
+        <div class="scroll"><table class="rt" id="edTable" style="margin-top:12px">
+          <thead><tr><th>Virus</th><th class="r">Weeks ahead</th><th class="r">ED data only</th><th class="r">+ Wastewater</th><th>Error cut</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </section>
+      <section class="sec" style="border-top:0">
+        <h2 style="font-size:16px">6b · Forecasting the wastewater level itself</h2>
+        <p class="sub">An ARIMA model (order picked by AIC) against the naive forecast "it stays where it is". Mean absolute error in level units.</p>
+        <div class="scroll"><table class="rt" id="wwTable" style="margin-top:12px">
+          <thead><tr><th>Virus</th><th class="r">Weeks ahead</th><th class="r">ARIMA</th><th class="r">Naive</th><th>Error cut</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </section>
+    </div>
+    <p class="note" id="fcNote"></p>
+  </section>
+
+  <section class="sec">
+    <h2><span class="no">7</span>The Python</h2>
+    <p class="sub" style="margin-bottom:12px">The core steps, from <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/wastewater-tracker/src">src/</a>. Full code and write-up on GitHub.</p>
+    <details open><summary>Put every plant on its own scale<span>levels.py</span></summary>
+<pre class="code"><span class="c"># one row per virus, site and MMWR week (ending Saturday)</span>
+w = d.groupby([<span class="k">"virus"</span>, <span class="k">"site"</span>, <span class="k">"state"</span>, <span class="k">"week"</span>], as_index=False).agg(log=(<span class="k">"log"</span>, <span class="k">"mean"</span>))
+w = w[w.groupby([<span class="k">"virus"</span>, <span class="k">"site"</span>])[<span class="k">"week"</span>].transform(<span class="k">"size"</span>) &gt;= 26]
+
+g = w.groupby([<span class="k">"virus"</span>, <span class="k">"site"</span>])[<span class="k">"log"</span>]
+w[<span class="k">"level"</span>] = (w[<span class="k">"log"</span>] - g.transform(<span class="k">lambda</span> s: s.quantile(0.10))) / g.transform(<span class="k">"std"</span>)
+
+<span class="c"># national level = median site, only in weeks with 30+ sites reporting</span>
+nat = w.groupby([<span class="k">"virus"</span>, <span class="k">"week"</span>]).agg(ww_level=(<span class="k">"level"</span>, <span class="k">"median"</span>), n_sites=(<span class="k">"site"</span>, <span class="k">"nunique"</span>))</pre>
+    </details>
+    <details><summary>Lead time from changes, not levels<span>analysis.py</span></summary>
+<pre class="code"><span class="k">def</span> xcorr(x, y, lags=range(-4, 7)):
+    <span class="c">"""corr(dx[t-k], dy[t]). Positive k: wastewater changes come k weeks before ED changes."""</span>
+    dx, dy = x.diff(), np.log(y.clip(lower=ED_FLOOR)).diff()
+    out = []
+    <span class="k">for</span> k <span class="k">in</span> lags:
+        pair = pd.concat([dx.shift(k), dy], axis=1).dropna()
+        out.append((k, pair.iloc[:, 0].corr(pair.iloc[:, 1]), len(pair)))
+    <span class="k">return</span> pd.DataFrame(out, columns=[<span class="k">"lag_weeks"</span>, <span class="k">"corr"</span>, <span class="k">"n_weeks"</span>])</pre>
+    </details>
+    <details><summary>Does wastewater help the forecast?<span>analysis.py</span></summary>
+<pre class="code"><span class="c"># target: change in log ED % over the next h weeks; features known at week t</span>
+X = pd.DataFrame({<span class="k">"dy0"</span>: ly.diff(), <span class="k">"dy1"</span>: ly.diff().shift(1)})
+<span class="k">if</span> with_ww:
+    X[<span class="k">"dx0"</span>], X[<span class="k">"dx1"</span>], X[<span class="k">"x0"</span>] = ww.diff(), ww.diff().shift(1), ww
+target = ly.shift(-h) - ly
+
+<span class="c"># rolling origin: refit each week on data that was already known, predict, score</span>
+<span class="k">for</span> i <span class="k">in</span> range(len(idx) - 52, len(idx)):
+    tr = idx[:i - h + 1]
+    m = sm.OLS(target[tr], X.loc[tr]).fit()
+    errs.append(abs(np.exp(m.predict(X.loc[[idx[i]]]).iloc[0] - target[idx[i]]) - 1))</pre>
+    </details>
+  </section>
+
+  <section class="sec">
+    <h2><span class="no">8</span>Method notes</h2>
+    <ul class="notes" id="notes">
+      <li><b>Wastewater data:</b> CDC National Wastewater Surveillance System sample results for SARS-CoV-2, influenza A and RSV, one row per sample. Flow- and population-normalized concentration where the site reports it. Non-detects get half the site's lowest detected value so the log is defined.</li>
+      <li><b>Site level:</b> (log10 concentration − the site's 10th percentile) ÷ the site's standard deviation, the same idea as CDC's Wastewater Viral Activity Level but computed over each site's whole history. It is not CDC's official WVAL. Sites need 26+ weeks of data.</li>
+      <li><b>National and state levels:</b> median site level per week. National weeks need 30+ sites and state weeks 3+. Trailing weeks with under 60% of the usual site count are dropped because they are still filling in.</li>
+      <li><b>ED visits:</b> CDC's National Syndromic Surveillance Program share of emergency department visits diagnosed with each virus, by state and nationally, as published in CDC's COVID-19, FluSight and RSV forecast hubs (latest version of each week). ED visits stand in for cases, since case reporting largely stopped after 2023.</li>
+      <li><b>Lead time:</b> correlation of week-over-week changes, which removes the shared seasonal trend that would make any two respiratory series look related. Weekly data can only show lead in whole weeks.</li>
+      <li><b>Waves:</b> a wastewater peak is the highest 3-week average within ±10 weeks and at least 1.0 level above the low before it. Peaks in the last 3 weeks aren't counted yet.</li>
+      <li><b>Forecasts:</b> rolling-origin backtests over the last 52 weeks, refit each week with only the data available then. CDC revises recent weeks, so live forecasts would be a little worse than the backtest, which uses the final numbers.</li>
+      <li>This is my own analysis of public data, not a CDC product, and not medical advice.</li>
+    </ul>
+  </section>
+</template>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const V = {covid:'COVID-19', flu:'Influenza A', rsv:'RSV'};
+const STATES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',PR:'Puerto Rico',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
+const S = {virus:'covid', loc:'US', span:'52'};
+let D, charts = {};
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = s => document.querySelector(s);
+const fmtD = s => new Date(s + 'T00:00:00').toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric'});
+const fmtShort = s => new Date(s + 'T00:00:00').toLocaleDateString('en-US', {month:'short', year:'2-digit'});
+const n1 = x => x == null ? '–' : x.toFixed(1);
+const n2 = x => x == null ? '–' : x.toFixed(2);
+const pct = (x, d=0) => x == null ? '–' : x.toFixed(d) + '%';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const weeks = k => k === 1 ? '1 week' : k + ' weeks';
+
+(async function init(){
+  try {
+    D = await (await fetch('data/dashboard.json')).json();
+  } catch (e) {
+    $('#app').innerHTML = '<p class="loading">Could not load data/dashboard.json. Open this page through a web server.</p>';
+    return;
+  }
+  $('#app').replaceChildren($('#tpl').content.cloneNode(true));
+  const M = D.meta;
+  $('#mWW').textContent = fmtD(M.ww_through);
+  $('#mED').textContent = fmtD(M.ed_through);
+  $('#mSites').textContent = ['covid','flu','rsv'].map(v => M.sites[v].toLocaleString()).join(' / ');
+  $('#mBuilt').textContent = fmtD(M.built);
+
+  const locs = Object.keys(D.states.series.covid || {}).filter(s => STATES[s]).sort((a,b) => STATES[a].localeCompare(STATES[b]));
+  $('#fLoc').innerHTML = '<option value="US">United States (national)</option>' + locs.map(s => `<option value="${s}">${STATES[s]}</option>`).join('');
+
+  $('#fVirus').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.virus = b.dataset.v; press('#fVirus', b); render(); });
+  $('#fSpan').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.span = b.dataset.s; press('#fSpan', b); drawTrend(); });
+  $('#fLoc').addEventListener('change', e => { S.loc = e.target.value; render(); });
+
+  Chart.defaults.font.family = css('--f-mono').split(',')[0].replace(/"/g,'');
+  Chart.defaults.font.size = 11;
+  summary(); findings(); waves(); fcTables();
+  render();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { summary(); render(); });
+})();
+
+function press(sel, b){ document.querySelectorAll(sel + ' button').forEach(x => x.setAttribute('aria-pressed', x === b)); }
+
+function render(){
+  const where = S.loc === 'US' ? 'United States' : STATES[S.loc];
+  $('#crumb').innerHTML = `Showing <b>${V[S.virus]}</b> in <b>${esc(where)}</b>`;
+  drawTrend(); drawXcorr(); drawLagHist(); drawSeasons();
+}
+
+function trendDir(c){ return c > 0.15 ? ['up','rising'] : c < -0.15 ? ['down','falling'] : ['flat','about level']; }
+
+function summary(){
+  const K = D.meta.kpi, L = D.meta.lag;
+  const cells = ['covid','flu','rsv'].map(v => {
+    const k = K[v], [cls, word] = trendDir(k.change_2wk);
+    return `<div><span class="lbl">${V[v]} wastewater</span>
+      <span class="v">${n1(k.ww_level)}<small>level</small></span>
+      <span class="s"><b class="${cls}">${word}</b> (${k.change_2wk > 0 ? '+' : ''}${n2(k.change_2wk)} in 2 weeks). Higher than ${k.pctile}% of weeks since Oct 2022. ${k.n_sites} sites, week of ${fmtD(k.week)}.</span></div>`;
+  });
+  const best = ['covid','flu','rsv'].map(v => [v, L[v].states_ww_first / Math.max(1, L[v].states)]).sort((a,b) => b[1]-a[1])[0][0];
+  const lb = L[best];
+  cells.push(`<div><span class="lbl">States where wastewater moved first</span>
+    <span class="v">${lb.states_ww_first}<small>of ${lb.states}</small></span>
+    <span class="s">${V[best]}: the best-matching lag put wastewater ahead of ED visits. Nationally the best lag is ${weeks(L[best].best_lag_weeks)}.</span></div>`);
+  $('#summary').innerHTML = cells.join('');
+}
+
+function findings(){
+  const items = D.findings || autoFindings();
+  $('#findings').innerHTML = items.map((t, i) => `<li><span class="n">${String(i+1).padStart(2,'0')}</span><span>${t}</span></li>`).join('');
+}
+
+function autoFindings(){
+  const L = D.meta.lag, out = [];
+  for (const v of ['covid','flu','rsv']){
+    const l = L[v];
+    out.push(`<b>${V[v]}:</b> week-to-week changes line up best at a lag of ${weeks(l.best_lag_weeks)} (r = ${n2(l.best_corr)}, against ${n2(l.corr_lag0)} in the same week). Wastewater moved first in ${l.states_ww_first} of ${l.states} states.`);
+  }
+  const ed = D.ed_backtest.filter(r => r.horizon_weeks === 1);
+  out.push(`<b>Wastewater makes the ED forecast better.</b> One week ahead, adding it cut the forecast error by ${ed.map(r => `${pct(r.improvement_pct)} for ${V[r.virus]}`).join(', ')}.`);
+  return out;
+}
+
+function series(){
+  if (S.loc === 'US'){
+    const rows = D.national.filter(r => r.virus === S.virus);
+    return {dates: rows.map(r => r.date), ww: rows.map(r => r.ww_level), ed: rows.map(r => r.ed_pct), n: rows.map(r => r.n_sites)};
+  }
+  const s = D.states.series[S.virus]?.[S.loc];
+  if (!s) return {dates: [], ww: [], ed: [], n: []};
+  return {dates: D.states.dates, ww: s.ww, ed: s.ed, n: []};
+}
+
+function drawTrend(){
+  let {dates, ww, ed, n} = series();
+  // trim leading weeks with no data at all
+  let start = dates.findIndex((d, i) => ww[i] != null || ed[i] != null);
+  if (start < 0) start = dates.length;
+  if (S.span === '52') start = Math.max(start, dates.length - 52);
+  dates = dates.slice(start); ww = ww.slice(start); ed = ed.slice(start); n = n.slice(start);
+
+  const nat = S.loc === 'US';
+  const fw = nat ? D.ww_forecast.filter(r => r.virus === S.virus) : [];
+  const fe = nat ? D.ed_forecast.filter(r => r.virus === S.virus) : [];
+  const fdates = [...new Set([...fw.map(r => r.date), ...fe.map(r => r.date)])].filter(d => d > dates[dates.length-1]).sort();
+  const labels = dates.concat(fdates);
+  const pad = a => a.concat(fdates.map(() => null));
+  const at = (rows, key) => labels.map(d => { const r = rows.find(x => x.date === d); return r ? r[key] : null; });
+  // connect forecast lines to the last actual point
+  const lastIdx = (arr) => { for (let i = arr.length - 1; i >= 0; i--) if (arr[i] != null) return i; return -1; };
+  const wwF = at(fw, 'ww_level'), edF = at(fe, 'ed_pct');
+  const li = lastIdx(ww), le = lastIdx(ed);
+  if (fw.length && li >= 0) wwF[li] = ww[li];
+  if (fe.length && le >= 0) edF[le] = ed[le];
+  const wlo = at(fw, 'lo80'), whi = at(fw, 'hi80'), elo = at(fe, 'lo80'), ehi = at(fe, 'hi80');
+  if (fw.length && li >= 0) { wlo[li] = whi[li] = ww[li]; }
+  if (fe.length && le >= 0) { elo[le] = ehi[le] = ed[le]; }
+  $('#fcKey').hidden = !nat;
+
+  const pen = css('--pen'), edc = css('--ed'), muted = css('--muted'), hair = css('--hair');
+  charts.trend?.destroy();
+  charts.trend = new Chart($('#trend'), {
+    type: 'line',
+    data: {labels, datasets: [
+      {label:'Wastewater level', data: pad(ww), borderColor: pen, backgroundColor: pen, borderWidth: 2, pointRadius: 0, yAxisID: 'y', spanGaps: 2*7*864e5, tension: .2},
+      {label:'ED visits %', data: pad(ed), borderColor: edc, backgroundColor: edc, borderWidth: 2, pointRadius: 0, yAxisID: 'y2', tension: .2},
+      {label:'Wastewater forecast', data: wwF, borderColor: pen, borderDash: [5,4], borderWidth: 1.5, pointRadius: 0, yAxisID: 'y'},
+      {label:'ww lo', data: wlo, borderWidth: 0, pointRadius: 0, yAxisID: 'y'},
+      {label:'ww hi', data: whi, borderWidth: 0, pointRadius: 0, yAxisID: 'y', fill: '-1', backgroundColor: css('--band')},
+      {label:'ED forecast', data: edF, borderColor: edc, borderDash: [5,4], borderWidth: 1.5, pointRadius: 0, yAxisID: 'y2'},
+      {label:'ed lo', data: elo, borderWidth: 0, pointRadius: 0, yAxisID: 'y2'},
+      {label:'ed hi', data: ehi, borderWidth: 0, pointRadius: 0, yAxisID: 'y2', fill: '-1', backgroundColor: css('--edband')},
+    ]},
+    options: {
+      maintainAspectRatio: false, animation: false, interaction: {mode: 'index', intersect: false},
+      plugins: {legend: {display: false}, tooltip: {
+        filter: i => !/ lo| hi/.test(i.dataset.label) && i.raw != null,
+        callbacks: {
+          title: it => 'Week ending ' + fmtD(it[0].label),
+          label: i => /ED/.test(i.dataset.label) ? `${i.dataset.label}: ${i.raw.toFixed(2)}%` : `${i.dataset.label}: ${i.raw.toFixed(2)}`,
+          afterBody: it => { const k = it[0].dataIndex; const c = n[k]; return c ? `${c} sites reporting` : ''; },
+        }}},
+      scales: {
+        x: {ticks: {color: muted, maxRotation: 0, autoSkip: true, maxTicksLimit: 9, callback(v){ return fmtShort(this.getLabelForValue(v)); }}, grid: {display: false}},
+        y: {position: 'left', title: {display: true, text: 'Wastewater level', color: pen}, ticks: {color: pen}, grid: {color: hair}},
+        y2: {position: 'right', beginAtZero: true, title: {display: true, text: 'ED visits, %', color: edc}, ticks: {color: edc, callback: v => v + '%'}, grid: {display: false}},
+      },
+    },
+  });
+  const noData = !ww.some(x => x != null);
+  $('#trendSub').textContent = noData
+    ? `${STATES[S.loc] || S.loc} doesn't have enough wastewater sites for ${V[S.virus]} (3+ per week), so only ED visits are shown.`
+    : 'Weekly wastewater level (left axis) and the share of emergency department visits diagnosed with the virus (right axis). Hover for the week\'s numbers.';
+}
+
+function drawXcorr(){
+  const rows = D.lag_national.filter(r => r.virus === S.virus);
+  const best = rows.reduce((a, b) => (b.corr > a.corr ? b : a), rows[0]);
+  charts.xcorr?.destroy();
+  charts.xcorr = new Chart($('#xcorr'), {
+    type: 'bar',
+    data: {labels: rows.map(r => r.lag_weeks), datasets: [{data: rows.map(r => r.corr),
+      backgroundColor: rows.map(r => r === best ? css('--pen') : css('--hair')), borderWidth: 0, barPercentage: .9, categoryPercentage: .9}]},
+    options: {maintainAspectRatio: false, animation: false,
+      plugins: {legend: {display: false}, tooltip: {callbacks: {
+        title: it => { const k = +it[0].label; return k > 0 ? `Wastewater ${weeks(k)} earlier` : k < 0 ? `ED visits ${weeks(-k)} earlier` : 'Same week'; },
+        label: i => `r = ${i.raw.toFixed(2)} over ${rows[i.dataIndex].n_weeks} weeks`}}},
+      scales: {x: {title: {display: true, text: 'Lag k, weeks (positive = wastewater first)', color: css('--muted')}, ticks: {color: css('--muted')}, grid: {display: false}},
+               y: {suggestedMin: 0, suggestedMax: 1, title: {display: true, text: 'Correlation of changes', color: css('--muted')}, ticks: {color: css('--muted')}, grid: {color: css('--hair')}}}},
+  });
+}
+
+function drawLagHist(){
+  const rows = D.lag_states.filter(r => r.virus === S.virus);
+  const ks = Array.from({length: 11}, (_, i) => i - 4);
+  const cnt = ks.map(k => rows.filter(r => r.best_lag_weeks === k).length);
+  const mx = Math.max(1, ...cnt);
+  $('#lagh').innerHTML = ks.map((k, i) => `<div class="${k > 0 ? 'lead' : k === 0 ? 'zero' : ''}" style="height:${cnt[i] / mx * 100}%" title="${cnt[i]} states, best lag ${k} weeks">${cnt[i] ? `<span>${cnt[i]}</span>` : ''}</div>`).join('');
+  $('#laghAx').innerHTML = ks.map(k => `<span>${k > 0 ? '+' + k : k}</span>`).join('');
+  const l = D.meta.lag[S.virus];
+  const sel = S.loc !== 'US' ? rows.find(r => r.state === S.loc) : null;
+  let note = `${V[S.virus]}: wastewater moved first in <b>${l.states_ww_first}</b> of ${l.states} states, the same week in ${l.states_same_week}. Median best lag ${l.states_median_lag > 0 ? '+' : ''}${l.states_median_lag} weeks. States need 52+ weeks with 3+ sites.`;
+  if (sel) note += ` ${STATES[S.loc]}: best lag ${sel.best_lag_weeks > 0 ? '+' : ''}${sel.best_lag_weeks} weeks (r = ${n2(sel.corr)}).`;
+  else if (S.loc !== 'US') note += ` ${STATES[S.loc]} doesn't have enough wastewater data for this test.`;
+  $('#lagNote').innerHTML = note;
+}
+
+function seasonOf(d){ const y = +d.slice(0,4), m = +d.slice(5,7); const s = m >= 8 ? y : y - 1; return `${s}-${String(s+1).slice(2)}`; }
+
+function drawSeasons(){
+  const rows = D.national.filter(r => r.virus === S.virus && r.ww_level != null);
+  const by = {};
+  for (const r of rows){
+    const s = seasonOf(r.date), y0 = +s.slice(0,4);
+    const wk = Math.round((new Date(r.date + 'T00:00:00') - new Date(y0, 7, 1)) / 6048e5);
+    (by[s] ||= []).push({x: wk, y: r.ww_level});
+  }
+  const seasons = Object.keys(by).sort().filter(s => by[s].length >= 8);
+  const tones = ['--s0','--s1','--s2','--s3','--s4'].map(css);
+  const col = i => tones[Math.max(0, tones.length - seasons.length + i)];
+  charts.seasons?.destroy();
+  charts.seasons = new Chart($('#seasons'), {
+    type: 'line',
+    data: {datasets: seasons.map((s, i) => ({label: s, data: by[s], borderColor: col(i), backgroundColor: col(i),
+      borderWidth: i === seasons.length - 1 ? 2.5 : 1.5, pointRadius: 0, tension: .2}))},
+    options: {maintainAspectRatio: false, animation: false, parsing: false, interaction: {mode: 'nearest', intersect: false},
+      plugins: {legend: {display: false}, tooltip: {callbacks: {title: it => `${it[0].dataset.label}, week ${it[0].raw.x + 1} of the season`, label: i => `Level ${i.raw.y.toFixed(2)}`}}},
+      scales: {x: {type: 'linear', min: 0, max: 52, ticks: {color: css('--muted'), stepSize: 4.35, callback: v => ['Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul'][Math.round(v / 4.35)] ?? ''}, grid: {display: false}},
+               y: {title: {display: true, text: 'Wastewater level', color: css('--muted')}, ticks: {color: css('--muted')}, grid: {color: css('--hair')}}}},
+  });
+  $('#seasonKey').innerHTML = seasons.map((s, i) => `<span><i class="ln" style="border-color:${col(i)}"></i>${s}${i === seasons.length - 1 ? ' (current)' : ''}</span>`).join('');
+}
+
+function waves(){
+  const rows = D.waves.slice().sort((a, b) => a.virus.localeCompare(b.virus) || a.ww_peak.localeCompare(b.ww_peak));
+  $('#waveTable tbody').innerHTML = rows.map(r => `<tr>
+    <td>${V[r.virus]}</td><td class="n">${r.season}</td><td class="n">${fmtD(r.ww_peak)}</td><td class="n r">${n1(r.ww_peak_level)}</td>
+    <td class="n">${r.ed_peak ? fmtD(r.ed_peak) : '–'}</td><td class="n r">${r.ed_peak_pct != null ? r.ed_peak_pct.toFixed(2) + '%' : '–'}</td>
+    <td class="n r">${r.lead_days != null ? (r.lead_days > 0 ? '+' : '') + r.lead_days + ' d' : '–'}</td></tr>`).join('');
+}
+
+function cutBar(p){
+  const w = Math.max(0, Math.min(100, p));
+  return `<td class="barcell"><div style="display:flex;gap:8px;align-items:center"><div class="bar" style="flex:1"><i class="hi" style="width:${w}%"></i></div><span class="mono" style="font-size:11.5px;min-width:38px;text-align:right">${p > 0 ? '−' : '+'}${Math.abs(p).toFixed(0)}%</span></div></td>`;
+}
+
+function fcTables(){
+  $('#edTable tbody').innerHTML = D.ed_backtest.map(r => `<tr><td>${V[r.virus]}</td><td class="n r">${r.horizon_weeks}</td>
+    <td class="n r">${pct(r.mape_ed_only, 1)}</td><td class="n r">${pct(r.mape_with_ww, 1)}</td>${cutBar(r.improvement_pct)}</tr>`).join('');
+  $('#wwTable tbody').innerHTML = D.ww_backtest.map(r => `<tr><td>${V[r.virus]}</td><td class="n r">${r.horizon_weeks}</td>
+    <td class="n r">${n2(r.mae_arima)}</td><td class="n r">${n2(r.mae_naive)}</td>${cutBar((1 - r.mae_arima / r.mae_naive) * 100)}</tr>`).join('');
+  const o = D.meta.arima_orders;
+  $('#fcNote').textContent = `ED error is the mean absolute percentage error of the forecast ED share. ARIMA orders (p, d, q) chosen by AIC on the last 3 years: COVID ${o.covid.join(',')}, flu ${o.flu.join(',')}, RSV ${o.rsv.join(',')}. The dashed lines in section 2 are the live forecasts from these models.`;
+}
+</script>
+</body>
+</html>
