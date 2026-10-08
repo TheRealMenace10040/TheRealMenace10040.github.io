@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dennis Nguyen, Data Analyst Portfolio</title>
-<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report and an interactive cleanroom EM dashboard.">
+<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report, an interactive cleanroom EM dashboard, SPC control charts for lab test results and a deviation and CAPA tracker.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -182,6 +182,37 @@ ol.next li { margin-bottom: 4px; }
     <article class="proj">
       <div class="id">P-05</div>
       <div class="body">
+        <h3>SPC control charts for QC lab test results</h3>
+        <span class="data">Synthetic data, illustrative spec limits</span>
+        <p>X-bar and R charts for three routine lab tests: growth promotion of media lots, WFI conductivity and autoclave load temperature. Limits are set on a 20-subgroup baseline and then used for monitoring. Five Nelson rules flag out-of-control points, every signal goes into a log with its investigation outcome, and Cp/Cpk is compared before and after.</p>
+        <p class="finding"><span class="lbl">Finding</span>Each problem was flagged before any result failed spec. An upward drift in WFI conductivity was flagged the day after it began, and no reading ever went above 0.81 µS/cm against a 1.3 limit. An autoclave cold spot didn't show on the X-bar chart at all; only the R chart caught it, and Cpk dropped from 1.37 to 0.76.</p>
+        <span class="stack">JavaScript, Chart.js, statistical process control</span>
+        <div class="go">
+          <a href="https://therealmenace10040.github.io/projects/spc-control-charts/">Open the dashboard</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/spc-control-charts">Code and write-up</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="proj">
+      <div class="id">P-06</div>
+      <div class="body">
+        <h3>Deviation and CAPA tracker</h3>
+        <span class="data">Synthetic data</span>
+        <p>A QA tracker for 167 deviations over 18 months across six areas of a device plant. It ages open records against a 30-day closure target, trends close-out time by month, finds root causes that repeat on the same equipment within 180 days, and checks whether each CAPA actually stopped the problem. There's also an Excel version built entirely on formulas, ready to keep adding records to.</p>
+        <p class="finding"><span class="lbl">Finding</span>Median days to close jumped from 16 to 36 once QA was short-staffed, and 7 of 13 open deviations are overdue. A line-clearance failure on one packaging line came back 37 days after its CAPA closed; its two CAPAs are the only failures among the 19 that have been checked.</p>
+        <span class="stack">JavaScript, Chart.js, Excel (COUNTIFS, array formulas, conditional formatting), Python</span>
+        <div class="go">
+          <a href="https://therealmenace10040.github.io/projects/deviation-capa-tracker/">Open the tracker</a>
+          <a href="https://therealmenace10040.github.io/projects/deviation-capa-tracker/Deviation_CAPA_Tracker.xlsx">Download the Excel version</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/deviation-capa-tracker">Code and write-up</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="proj">
+      <div class="id">P-07</div>
+      <div class="body">
         <h3>MicroQC Insight: LIMS data cleaning and QC dashboard</h3>
         <span class="data">Simulated LabWare-style LIMS data</span>
         <p>I built a QC micro data model in Power BI, pulled the raw tables back out of the .pbix file, and cleaned 4,706 EM and product release results in Python. The work covered profiling, de-duplication, decoding LIMS codes and rebuilding every OOS, alert and turnaround flag, which matched the Power BI model on every row. The rebuilt dashboard has a separate data integrity view.</p>
@@ -200,22 +231,20 @@ ol.next li { margin-bottom: 4px; }
     <table>
       <thead><tr><th>Tool</th><th>Where it's used</th></tr></thead>
       <tbody>
-        <tr><td>Excel / Google Sheets</td><td>P-02, P-03, and daily lab work</td></tr>
+        <tr><td>Excel / Google Sheets</td><td>P-02, P-03, P-06, and daily lab work</td></tr>
         <tr><td>VBA</td><td>P-02, P-03</td></tr>
         <tr><td>SQL</td><td>P-03</td></tr>
-        <tr><td>Python</td><td>P-01, P-02, P-03, P-05</td></tr>
-        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05</td></tr>
-        <tr><td>Power BI</td><td>P-05</td></tr>
+        <tr><td>Python</td><td>P-01, P-02, P-03, P-06, P-07</td></tr>
+        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05, P-06, P-07</td></tr>
+        <tr><td>Power BI</td><td>P-07</td></tr>
       </tbody>
     </table>
-    <p class="methods"><b>Methods:</b> statistical process control, root cause analysis, Pareto analysis, CAPA trending, EM alert and action limit trending, data cleaning and data integrity review (ALCOA+).</p>
+    <p class="methods"><b>Methods:</b> statistical process control (X-bar/R, Nelson rules, Cp/Cpk), root cause analysis, Pareto analysis, deviation aging, CAPA trending and effectiveness checks, EM alert and action limit trending, data cleaning and data integrity review (ALCOA+).</p>
   </section>
 
   <section>
     <h2><span class="no">3</span>Next up</h2>
     <ol class="next">
-      <li>Deviation and CAPA tracker: aging, repeat root causes, close-out trends</li>
-      <li>SPC charts for lab test results: X-bar/R with out-of-control flags</li>
       <li>Out-of-specification (OOS) investigation tracker</li>
     </ol>
   </section>
