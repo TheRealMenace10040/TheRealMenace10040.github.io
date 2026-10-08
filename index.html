@@ -209,6 +209,21 @@ ol.next li { margin-bottom: 4px; }
         </div>
       </div>
     </article>
+
+    <article class="proj">
+      <div class="id">P-07</div>
+      <div class="body">
+        <h3>MicroQC Insight: LIMS data cleaning and QC dashboard</h3>
+        <span class="data">Simulated LabWare-style LIMS data</span>
+        <p>I built a QC micro data model in Power BI, pulled the raw tables back out of the .pbix file, and cleaned 4,706 EM and product release results in Python. The work covered profiling, de-duplication, decoding LIMS codes and rebuilding every OOS, alert and turnaround flag, which matched the Power BI model on every row. The rebuilt dashboard has a separate data integrity view.</p>
+        <p class="finding"><span class="lbl">Finding</span>16.6% of results were reviewed by the analyst who entered them, and 41 audit-trail corrections fixed an impossible negative count. Two Power BI measures always showed 0% because they were built on empty columns.</p>
+        <span class="stack">Power BI, Python (pandas), JavaScript, Chart.js</span>
+        <div class="go">
+          <a href="https://therealmenace10040.github.io/projects/microqc-insight/">Open the dashboard</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/microqc-insight">Code and write-up</a>
+        </div>
+      </div>
+    </article>
   </section>
 
   <section>
@@ -219,11 +234,12 @@ ol.next li { margin-bottom: 4px; }
         <tr><td>Excel / Google Sheets</td><td>P-02, P-03, P-06, and daily lab work</td></tr>
         <tr><td>VBA</td><td>P-02, P-03</td></tr>
         <tr><td>SQL</td><td>P-03</td></tr>
-        <tr><td>Python</td><td>P-01, P-02, P-03, P-06</td></tr>
-        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05, P-06</td></tr>
+        <tr><td>Python</td><td>P-01, P-02, P-03, P-06, P-07</td></tr>
+        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05, P-06, P-07</td></tr>
+        <tr><td>Power BI</td><td>P-07</td></tr>
       </tbody>
     </table>
-    <p class="methods"><b>Methods:</b> statistical process control (X-bar/R, Nelson rules, Cp/Cpk), root cause analysis, Pareto analysis, deviation aging, CAPA trending and effectiveness checks, EM alert and action limit trending. <b>Also:</b> Power BI.</p>
+    <p class="methods"><b>Methods:</b> statistical process control (X-bar/R, Nelson rules, Cp/Cpk), root cause analysis, Pareto analysis, deviation aging, CAPA trending and effectiveness checks, EM alert and action limit trending, data cleaning and data integrity review (ALCOA+).</p>
   </section>
 
   <section>
