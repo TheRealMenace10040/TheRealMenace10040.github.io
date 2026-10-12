@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-commerce Customer Retention, Dennis Nguyen</title>
+<meta name="description" content="SQL case study on 96,000 real orders from Olist, a Brazilian e-commerce marketplace: cohort retention, late deliveries vs. reviews, what predicts a second order, and RFM customer segments.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same report language as P-04 to P-06. Navy for the measure being discussed, grey for context, red only for late / negative. */
+:root{
+  --ground:#e4e7e4; --paper:#ffffff; --tint:#f3f5f3;
+  --ink:#121518; --rule:#121518; --hair:#cfd4d0; --muted:#596166;
+  --pen:#1d3d73; --ctx:#8a9398;
+  --action:#b02a20; --action-bg:#f6dedb;
+  --heat0:#f3f5f3; --heat1:#1d3d73;
+  --f-head:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6; --ctx:#5d676d;
+  --action:#f07a6e; --action-bg:#361a17;
+  --heat0:#1b1f23; --heat1:#93b4e6; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#0c0e10; --paper:#15181b; --tint:#1b1f23;
+  --ink:#e4e7e5; --rule:#8d959a; --hair:#2b3136; --muted:#99a2a7;
+  --pen:#93b4e6; --ctx:#5d676d;
+  --action:#f07a6e; --action-bg:#361a17;
+  --heat0:#1b1f23; --heat1:#93b4e6; color-scheme:dark;}
+
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;background:var(--ground);color:var(--ink);font:14px/1.5 var(--f-body)}
+a{color:var(--pen);text-underline-offset:3px}
+.back{display:inline-block;margin-bottom:12px;font:500 13px var(--f-body)}
+.sheet{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+.doc{background:var(--paper);border:1px solid var(--rule);display:grid}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font:600 10px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--f-head);margin:0;text-wrap:balance}
+h1{font-size:clamp(24px,3.4vw,34px);font-weight:700;line-height:1.05}
+h2{font-size:19px;font-weight:600;display:flex;gap:12px;align-items:baseline}
+h2 .no{font:500 13px var(--f-mono);color:var(--muted)}
+.sub{color:var(--muted);font-size:12.5px;margin:3px 0 0;max-width:85ch}
+section.sec{border-top:1px solid var(--rule);padding:18px 20px;min-width:0}
+.sec-head{margin-bottom:12px}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+p{margin:0}
+
+/* document control block */
+.ctrl{display:grid;grid-template-columns:minmax(0,1fr) auto}
+.ctrl .title{padding:20px;display:grid;gap:10px;align-content:start}
+.ctrl .title p{max-width:70ch}
+.ctrl .meta{display:grid;grid-template-columns:repeat(2,minmax(130px,auto));border-left:1px solid var(--rule)}
+.ctrl .meta div{padding:9px 14px;border-bottom:1px solid var(--hair);border-left:1px solid var(--hair);display:grid;gap:3px}
+.ctrl .meta div:nth-child(odd){border-left:0}
+.ctrl .meta div:nth-last-child(-n+2){border-bottom:0}
+.ctrl .meta b{font:500 13px var(--f-mono);font-variant-numeric:tabular-nums}
+.stamp{justify-self:start;font:600 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--pen);border:1.5px solid var(--pen);padding:3px 8px;transform:rotate(-1.5deg)}
+@media (max-width:760px){.ctrl{grid-template-columns:1fr}.ctrl .meta{border-left:0;border-top:1px solid var(--rule)}}
+
+/* summary strip */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.summary > div{padding:14px 20px;border-left:1px solid var(--hair);display:grid;gap:4px;align-content:start}
+.summary > div:first-child{border-left:0}
+.summary .v{font:500 30px/1.05 var(--f-mono);font-variant-numeric:tabular-nums}
+.summary .v small{font-size:13px;color:var(--muted);margin-left:4px}
+.summary .s{font-size:12px;color:var(--muted)}
+.is-action{color:var(--action)}
+@media (max-width:820px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.summary > div:nth-child(3){border-left:0}.summary > div:nth-child(n+3){border-top:1px solid var(--hair)}}
+
+/* bottom line */
+.verdict{border-top:1px solid var(--rule);padding:18px 20px;background:var(--tint);display:grid;gap:10px}
+.verdict ol{margin:0;padding-left:20px;display:grid;gap:6px;max-width:100ch}
+
+/* two-up */
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-top:1px solid var(--rule)}
+.pair > section{border-top:0}
+.pair > section + section{border-left:1px solid var(--rule)}
+@media (max-width:980px){.pair{grid-template-columns:1fr}.pair > section + section{border-left:0;border-top:1px solid var(--rule)}}
+
+.chartbox{position:relative;height:280px}
+.key{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:12px;color:var(--muted)}
+.key .mk{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.key .ln{display:inline-block;width:16px;border-top:2px solid;margin-right:6px;vertical-align:3px}
+.finding{border-left:2px solid var(--ink);padding:2px 0 2px 12px;margin-top:12px;font-size:13.5px;max-width:95ch}
+.finding .lbl{display:block;margin-bottom:3px}
+
+/* tables */
+.scroll{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:13px}
+table.t th{font:600 10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 10px 6px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+table.t td{padding:6px 10px 6px 0;border-bottom:1px solid var(--hair);vertical-align:middle}
+table.t .num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.t tr:last-child td{border-bottom:0}
+#rfm td:first-child{white-space:nowrap}
+.bar{display:block;height:10px;background:var(--pen);min-width:1px}
+.bar.ctx{background:var(--ctx)}
+.bar.act{background:var(--action)}
+.barcell{width:34%;min-width:120px}
+.sig{font:500 11px var(--f-mono);padding:1px 5px;border:1px solid var(--hair);white-space:nowrap}
+.sig.yes{border-color:var(--pen);color:var(--pen)}
+
+/* cohort heatmap */
+table.heat{border-collapse:separate;border-spacing:2px;font:12px var(--f-mono);font-variant-numeric:tabular-nums}
+table.heat th{font:600 10px var(--f-mono);color:var(--muted);padding:2px 6px;text-align:right;white-space:nowrap}
+table.heat td{min-width:44px;height:26px;text-align:right;padding:2px 6px;color:var(--ink)}
+table.heat td.dark{color:var(--paper)}
+table.heat td.na{background:transparent}
+
+/* tooltip for HTML bars */
+.tip{position:fixed;pointer-events:none;background:var(--paper);border:1px solid var(--rule);padding:6px 9px;font:12px var(--f-body);z-index:10;max-width:260px}
+.tip[hidden]{display:none}
+.loading{padding:20px;color:var(--muted)}
+
+.notes{display:grid;gap:8px;font-size:13px;max-width:100ch}
+.notes ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.dl{display:flex;flex-wrap:wrap;gap:4px 18px;font:12px var(--f-mono)}
+.foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font:11.5px var(--f-mono);color:var(--muted);padding:10px 20px;border-top:1px solid var(--rule)}
+</style>
+</head>
+<body>
+<div class="sheet">
+<a class="back" href="/">Back to portfolio</a>
+<div class="doc" id="app"><p class="loading">Loading data...</p></div>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = n => n.toLocaleString('en-US');
+const pct = (x, d = 1) => (x * 100).toFixed(d) + '%';
+const brl = n => 'R$' + (n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : n.toFixed(0));
+const mon = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+const monShort = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+const CAT_NAMES = { fashion_bags_accessories: 'bags and accessories', bed_bath_table: 'bed and bath', sports_leisure: 'sports and leisure', furniture_decor: 'furniture and decor', cool_stuff: 'cool stuff (gadgets and gifts)', health_beauty: 'health and beauty', watches_gifts: 'watches and gifts', computers_accessories: 'computer accessories', garden_tools: 'garden tools', pet_shop: 'pet shop', unknown: 'no category' };
+const catName = c => (CAT_NAMES[c] || c.replace(/_/g, ' ')).replace(/^./, m => m.toUpperCase());
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+let D;
+
+(async function () {
+  try {
+    D = await (await fetch('data/dashboard.json')).json();
+  } catch (e) {
+    $('#app').innerHTML = '<p class="loading">Could not load data/dashboard.json. If you opened this file directly, run a local server (python -m http.server) from this folder.</p>';
+    return;
+  }
+  render();
+  if (window.Chart) charts();
+  bindTips();
+})();
+
+function render() {
+  const K = D.kpis;
+  const lvr = D.late_vs_review;
+  const onTime = lvr[0], late4 = lvr.filter(r => r.bucket_order >= 2);
+  const late4Neg = late4.reduce((a, r) => a + r.negative_share * r.orders, 0) / late4.reduce((a, r) => a + r.orders, 0);
+  const route = Object.fromEntries(D.late_by_route.map(r => [r.route, r]));
+  const t = Object.fromEntries(D.tests.map(x => [x.factor, x]));
+  const cats = D.repeat_by_category;
+  const topCat = cats[0], botCat = cats[cats.length - 1];
+  const gap = D.return_gap, gapTotal = gap.reduce((a, r) => a + r.buyers, 0);
+  const within90 = gap.filter(r => r.bucket_order <= 3).reduce((a, r) => a + r.buyers, 0) / gapTotal;
+  const months = D.monthly;
+  const last12 = months.slice(-12);
+  const newBuyers12 = last12.reduce((a, r) => a + r.first_orders, 0);
+  const gmv12 = last12.reduce((a, r) => a + r.gmv, 0);
+  const prize = newBuyers12 * 0.01 * K.avg_order_value;
+  const lateMax = months.reduce((a, r) => r.late_rate > a.late_rate ? r : a);
+  const nov = months.find(r => r.month.startsWith('2017-11'));
+  const rfm = D.rfm;
+  const hv = rfm.filter(r => r.segment.includes('high value'));
+  const hvBuyers = hv.reduce((a, r) => a + r.buyer_share, 0), hvGmv = hv.reduce((a, r) => a + r.gmv_share, 0);
+  const cooling = rfm.find(r => r.segment === 'One-time, high value, cooling');
+  const states = D.late_by_state.filter(r => r.orders >= 300);
+  const worst = states[0], sp = states.find(r => r.state === 'SP');
+  const cohortAvg = k => { const v = D.cohort.filter(r => r.month_offset === k); return v.reduce((a, r) => a + r.retention, 0) / v.length; };
+  const nTests = D.tests.length, alpha = 0.05 / nTests;
+  const sig = p => p < alpha;
+
+  $('#app').innerHTML = `
+  <div class="ctrl">
+    <div class="title">
+      <span class="lbl">Olist marketplace, Brazil · E-commerce analytics</span>
+      <h1>Why Olist's customers don't come back</h1>
+      <span class="stamp">Real public data · ${fmt(K.orders)} orders</span>
+      <p class="sub">A SQL case study on Olist, a Brazilian marketplace that lists small shops' products on big retail sites. The question: is the business keeping its customers, and if not, is it the delivery experience that drives them away?</p>
+    </div>
+    <div class="meta">
+      <div><span class="lbl">Document no.</span><b>EC-RET-007</b></div>
+      <div><span class="lbl">Revision</span><b>A</b></div>
+      <div><span class="lbl">Period</span><b>${mon(K.data_start)} to ${mon(K.data_end)}</b></div>
+      <div><span class="lbl">Source</span><b><a href="https://github.com/olist/work-at-olist-data">Olist (MIT)</a></b></div>
+      <div><span class="lbl">Delivered orders</span><b>${fmt(K.orders)}</b></div>
+      <div><span class="lbl">Unique buyers</span><b>${fmt(K.buyers)}</b></div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div><span class="lbl">Came back within 180 days</span><span class="v">${pct(K.repeat_180_rate)}</span><span class="s">${fmt(K.returned_180)} of ${fmt(K.eligible_buyers)} first-time buyers</span></div>
+    <div><span class="lbl">Revenue from first orders</span><span class="v">${pct(K.first_order_gmv_share)}</span><span class="s">of ${brl(K.gmv)} in delivered order value</span></div>
+    <div><span class="lbl">Delivered late</span><span class="v">${pct(K.late_rate)}</span><span class="s">after the date promised at checkout</span></div>
+    <div><span class="lbl">Bad reviews, 4+ days late</span><span class="v is-action">${pct(late4Neg, 0)}</span><span class="s">1 or 2 stars, vs ${pct(onTime.negative_share, 0)} when on time</span></div>
+  </div>
+
+  <div class="verdict">
+    <span class="lbl">Bottom line</span>
+    <ol>
+      <li><b>Olist is a one-purchase business.</b> Only ${pct(K.repeat_180_rate)} of first-time buyers order again within 180 days, and ${pct(K.first_order_gmv_share)} of revenue comes from first orders. A naive count says ${pct(K.naive_repeat_rate)} repeat, but ${pct(1 - K.any_return_rate / K.naive_repeat_rate, 0)} of those "repeats" are one basket split into two checkouts on the same day.</li>
+      <li><b>Late deliveries wreck reviews, but they don't explain the churn.</b> Late first orders get a 1 or 2 star review most of the time, yet those buyers come back at ${pct(D.repeat_by_first.find(r => r.level === 'Late').repeat_rate)} vs ${pct(D.repeat_by_first.find(r => r.level === 'On time').repeat_rate)} for on-time orders, a gap that isn't statistically significant (p = ${t.Delivery.p.toFixed(2)}). Almost nobody comes back, happy or not.</li>
+      <li><b>What you buy first matters more than how it went.</b> First orders in ${catName(topCat.category).toLowerCase()} lead to a second order ${(topCat.repeat_rate / botCat.repeat_rate).toFixed(1)}x as often as ${catName(botCat.category).toLowerCase()} (${pct(topCat.repeat_rate)} vs ${pct(botCat.repeat_rate)}, p &lt; 0.001), and ${pct(within90, 0)} of returns happen within 90 days.</li>
+    </ol>
+    <p><b>Recommendation:</b> fix delivery for the sake of ratings, and run retention as its own program. Pad promised dates on interstate routes and in peak months. Separately, send a second-order offer in the first 30 to 90 days, starting with repeat-prone categories and the ${fmt(cooling.buyers)} high-value one-time buyers who are still recent enough to win back. Each point of 180-day return rate is worth about ${brl(prize)} a year at current volume.</p>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2><span class="no">1.0</span>Orders by month: first-time vs. returning buyers</h2>
+      <p class="sub">Delivered orders by purchase month. A returning order is any order after the buyer's first (including same-day ones).</p>
+    </div>
+    <div class="chartbox"><canvas id="cMonthly" aria-label="Monthly orders split into first-time and returning buyers"></canvas></div>
+    <div class="key"><span><i class="mk" style="background:var(--ctx)"></i>First-time buyer</span><span><i class="mk" style="background:var(--pen)"></i>Returning buyer</span></div>
+    <p class="finding"><span class="lbl">Finding</span>Monthly orders grew from under 2,000 in early 2017 to over 6,000 a month in 2018, but returning buyers never made up more than ${pct(Math.max(...months.map(r => r.repeat_orders / r.orders)))} of a month's orders. Growth came entirely from new customers.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2><span class="no">2.0</span>Cohort retention</h2>
+      <p class="sub">Each row is the buyers whose first order was in that month. Cells show the share who ordered again 1, 2, 3 ... months later. Darker is higher. Blank cells are months after the data ends.</p>
+    </div>
+    <div class="scroll" id="heat"></div>
+    <p class="finding"><span class="lbl">Finding</span>The average cohort keeps ${pct(cohortAvg(1), 2)} of its buyers in month 1 and ${pct(cohortAvg(3), 2)} by month 3. No cell in the whole table reaches 1%. The shading is stretched to make these tiny differences visible, so read the numbers, not the colour.</p>
+  </section>
+
+  <div class="pair">
+    <section class="sec">
+      <div class="sec-head">
+        <h2><span class="no">3.0</span>Late deliveries vs. reviews</h2>
+        <p class="sub">Share of reviews that are 1 or 2 stars, by how late the order arrived against the promised date.</p>
+      </div>
+      <div class="chartbox"><canvas id="cReview" aria-label="Share of negative reviews by days late"></canvas></div>
+      <p class="finding"><span class="lbl">Finding</span>Even 1 to 3 days late more than triples the bad-review rate (${pct(lvr[1].negative_share, 0)} vs ${pct(onTime.negative_share, 0)}). Past a week late, about 4 in 5 reviews are negative, and the average score falls from ${onTime.avg_review} to under 2.</p>
+    </section>
+    <section class="sec">
+      <div class="sec-head">
+        <h2><span class="no">3.1</span>Late delivery rate by month</h2>
+        <p class="sub">Share of delivered orders that arrived after the promised date, by purchase month.</p>
+      </div>
+      <div class="chartbox"><canvas id="cLate" aria-label="Monthly late delivery rate"></canvas></div>
+      <p class="finding"><span class="lbl">Finding</span>Lateness comes in waves. It jumped to ${pct(nov.late_rate)} in Nov 2017 (Black Friday) and peaked at ${pct(lateMax.late_rate)} in ${mon(lateMax.month)}, even though order volume then was no higher than in January. The average review score hit its lowest points in those same months.</p>
+    </section>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2><span class="no">4.0</span>Where deliveries run late</h2>
+      <p class="sub">Customer states with at least 300 orders. Interstate means the seller of the order's main item is in a different state from the buyer.</p>
+    </div>
+    <div class="scroll"><table class="t" id="states"></table></div>
+    <p class="finding"><span class="lbl">Finding</span>Interstate orders are late ${pct(route.Interstate.late_rate)} of the time vs ${pct(route['Same state'].late_rate)} within a state, and take a median ${route.Interstate.median_days_to_deliver} days vs ${route['Same state'].median_days_to_deliver}. Most sellers are in São Paulo, so northeastern states like ${worst.state} (${pct(worst.late_rate)} late) and Rio get the worst of it while SP buyers see ${pct(sp.late_rate)}. The far north is the exception: Amazonas orders take a median ${D.late_by_state.find(r => r.state === 'AM').median_days_to_deliver} days but are rarely late, because the promised dates there are already long. That shows the fix for lateness can be an honest promise, not just faster trucks.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2><span class="no">5.0</span>What predicts a second order?</h2>
+      <p class="sub">180-day return rate for first-time buyers with at least 180 days of follow-up (n = ${fmt(K.eligible_buyers)}). Each comparison is a two-proportion z-test. With ${nTests} tests, a result needs p &lt; ${alpha.toFixed(2)} to count (Bonferroni).</p>
+    </div>
+    <div class="scroll"><table class="t" id="factors"></table></div>
+    <p class="finding"><span class="lbl">Finding</span>Delivery, review score, route and order value each move the return rate by less than half a point, and none of them clears the bar. Category is the one factor with a real effect.</p>
+  </section>
+
+  <div class="pair">
+    <section class="sec">
+      <div class="sec-head">
+        <h2><span class="no">5.1</span>Return rate by first-order category</h2>
+        <p class="sub">Categories with at least 800 eligible first-time buyers. Hover for how many returners bought the same category again.</p>
+      </div>
+      <div class="chartbox" style="height:440px"><canvas id="cCat" aria-label="180-day return rate by category of first order"></canvas></div>
+      <p class="finding"><span class="lbl">Finding</span>Things people use up or collect (bags and accessories, pet supplies, bedding, sports gear) bring buyers back. One-off purchases (gadgets, auto parts, computer accessories) don't. ${pct(topCat.same_category_share, 0)} of returning ${catName(topCat.category).toLowerCase()} buyers bought from the same category again.</p>
+    </section>
+    <section class="sec">
+      <div class="sec-head">
+        <h2><span class="no">6.0</span>When returning buyers come back</h2>
+        <p class="sub">Days from first order to the next order on a later day, all ${fmt(gapTotal)} buyers who returned.</p>
+      </div>
+      <div class="scroll"><table class="t" id="gap"></table></div>
+      <p class="finding"><span class="lbl">Finding</span>${pct(gap[0].buyers / gapTotal, 0)} come back within a month and ${pct(within90, 0)} within 90 days. A second-order offer has to land early: after 3 months the odds of a return fall off.</p>
+    </section>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2><span class="no">7.0</span>Customer segments (RFM)</h2>
+      <p class="sub">Recency, frequency and spend as of ${mon(K.data_end)}. With so few repeat buyers, standard 1 to 5 RFM scores collapse, so segments use simple cut-offs: returned or not, last order within 90 / 270 days, and lifetime spend in the top 20%.</p>
+    </div>
+    <div class="scroll"><table class="t" id="rfm"></table></div>
+    <p class="finding"><span class="lbl">Finding</span>High-value one-time buyers are ${pct(hvBuyers, 0)} of customers but ${pct(hvGmv, 0)} of revenue. The ${fmt(cooling.buyers)} in the "cooling" group last ordered 3 to 9 months ago and spent ${brl(cooling.avg_spend)} on average, making them the best win-back target.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2><span class="no">8.0</span>Recommendations</h2>
+    </div>
+    <div class="notes">
+      <ul>
+        <li><b>Promise dates honestly on long routes.</b> Orders to the northeast and Rio run late 2 to 5 times as often as São Paulo. The far north already gets long promised dates and is rarely late. Doing the same for the northeast, and adding buffer in Nov to Mar peaks, turns "late" into "on time" without moving a truck, which protects review scores.</li>
+        <li><b>Treat retention as a separate program, not a side effect of good service.</b> Even perfect deliveries only bring back about 2% of buyers.</li>
+        <li><b>Time the second-order push for days 1 to 90</b>, and lead with repeat-prone categories (bags and accessories, pet, bed and bath, sports) where the next purchase is usually the same kind of product.</li>
+        <li><b>Win back high-value cooling buyers first.</b> ${fmt(cooling.buyers)} people, ${brl(cooling.gmv)} in past spend, still recent enough to respond.</li>
+        <li><b>Size the prize honestly.</b> ${fmt(newBuyers12)} new buyers in the last 12 months. Moving the 180-day return rate up by 1 point is about ${fmt(Math.round(newBuyers12 * 0.01))} extra orders, or ${brl(prize)} a year (${pct(prize / gmv12)} of revenue). Worth doing, but acquisition will still drive growth.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2><span class="no">9.0</span>Method and data</h2>
+    </div>
+    <div class="notes">
+      <ul>
+        <li><b>Data:</b> Olist's public e-commerce dataset (8 linked tables: orders, customers, items, payments, reviews, products, sellers, category names), downloaded from <a href="https://github.com/olist/work-at-olist-data">Olist's GitHub</a>. Delivered orders bought ${mon(K.data_start)} to ${mon(K.data_end)}. Values are in Brazilian reais (item price plus freight).</li>
+        <li><b>Buyer identity:</b> <span class="mono">customer_id</span> is new on every order; the person is <span class="mono">customer_unique_id</span>. Counting by the wrong one makes repeat rate exactly 0%.</li>
+        <li><b>Return:</b> an order on a later calendar day than the first. Same-day second orders are excluded because most are split baskets. Only buyers whose first order was at least 180 days before the data ends are counted, so recent buyers aren't scored as lost.</li>
+        <li><b>Late:</b> delivered after the estimated delivery date shown at checkout. Orders with several reviews keep the latest one.</li>
+        <li><b>Tools:</b> DuckDB SQL (CTEs, window functions, <span class="mono">QUALIFY</span>), Python for the pipeline and z-tests, Chart.js for this page.</li>
+      </ul>
+      <div class="dl">
+        <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/olist-customer-retention">Code and write-up</a>
+        <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/blob/main/projects/olist-customer-retention/sql/01_model.sql">01_model.sql</a>
+        <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/blob/main/projects/olist-customer-retention/sql/02_analysis.sql">02_analysis.sql</a>
+        ${['monthly', 'cohort', 'late_by_state', 'repeat_by_first', 'repeat_by_category', 'rfm'].map(f => `<a href="data/${f}.csv" download>${f}.csv</a>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot"><span>Dennis Nguyen · EC-RET-007 rev A</span><span>Data: Olist, MIT licence</span></footer>`;
+
+  // cohort heatmap
+  const cohorts = [...new Set(D.cohort.map(r => r.cohort_month))];
+  const sizes = Object.fromEntries(D.cohort.map(r => [r.cohort_month, r.buyers]));
+  const cell = {}; D.cohort.forEach(r => cell[r.cohort_month + '|' + r.month_offset] = r);
+  const maxR = Math.max(...D.cohort.map(r => r.retention));
+  const end = new Date(K.data_end + 'T00:00:00');
+  const monthsAvail = c => { const d = new Date(c + 'T00:00:00'); return (end.getFullYear() - d.getFullYear()) * 12 + end.getMonth() - d.getMonth(); };
+  const mix = a => `color-mix(in oklab, var(--heat1) ${Math.round(a * 100)}%, var(--heat0))`;
+  let h = '<table class="heat"><thead><tr><th style="text-align:left">Cohort</th><th>Buyers</th>' +
+    Array.from({ length: 12 }, (_, i) => `<th>M${i + 1}</th>`).join('') + '</tr></thead><tbody>';
+  cohorts.forEach(c => {
+    h += `<tr><th style="text-align:left">${monShort(c)}</th><th>${fmt(sizes[c])}</th>`;
+    for (let k = 1; k <= 12; k++) {
+      if (k > monthsAvail(c)) { h += '<td class="na"></td>'; continue; }
+      const r = cell[c + '|' + k], v = r ? r.retention : 0, a = Math.sqrt(v / maxR);
+      h += `<td class="${a > .55 ? 'dark' : ''}" style="background:${mix(a)}" data-tip="${esc(monShort(c))} cohort, month ${k}: ${r ? r.active_buyers : 0} of ${fmt(sizes[c])} buyers ordered (${pct(v, 2)})">${(v * 100).toFixed(1)}</td>`;
+    }
+    h += '</tr>';
+  });
+  $('#heat').innerHTML = h + '</tbody></table><p class="sub" style="margin-top:6px">Values are percentages. Shading uses a square-root scale so small differences stay visible.</p>';
+
+  // states table
+  const maxLate = Math.max(...states.map(r => r.late_rate));
+  $('#states').innerHTML = `<thead><tr><th>State</th><th class="num">Orders</th><th class="num">Late</th><th class="barcell"></th><th class="num">Median days</th><th class="num">Interstate</th><th class="num">Avg review</th></tr></thead><tbody>` +
+    states.map(r => `<tr><td><b>${r.state}</b></td><td class="num">${fmt(r.orders)}</td><td class="num">${pct(r.late_rate)}</td>
+      <td class="barcell"><span class="bar ${r.late_rate >= 0.1 ? 'act' : 'ctx'}" style="width:${r.late_rate / maxLate * 100}%" data-tip="${r.state}: ${pct(r.late_rate)} of ${fmt(r.orders)} orders late"></span></td>
+      <td class="num">${r.median_days_to_deliver}</td><td class="num">${pct(r.interstate_share, 0)}</td><td class="num">${r.avg_review.toFixed(2)}</td></tr>`).join('') + '</tbody>';
+
+  // factors table
+  const rbf = D.repeat_by_first, maxRep = Math.max(...rbf.map(r => r.repeat_rate), topCat.repeat_rate);
+  const testFor = f => D.tests.find(x => x.factor === f);
+  let ft = `<thead><tr><th>Factor</th><th>First order</th><th class="num">Buyers</th><th class="num">Returned</th><th class="num">Rate</th><th class="barcell"></th><th>Test</th></tr></thead><tbody>`;
+  const groups = [...new Set(rbf.map(r => r.factor))];
+  const rowsFor = f => rbf.filter(r => r.factor === f);
+  const rowHtml = (factor, level, buyers, returned, rate, test, first, n) =>
+    `<tr><td>${first ? `<b>${factor}</b>` : ''}</td><td>${esc(level)}</td><td class="num">${fmt(buyers)}</td><td class="num">${fmt(returned)}</td><td class="num">${pct(rate, 2)}</td>
+     <td class="barcell"><span class="bar" style="width:${rate / maxRep * 100}%" data-tip="${esc(factor)}, ${esc(level)}: ${fmt(returned)} of ${fmt(buyers)} returned"></span></td>
+     <td>${first && test ? `<span class="sig ${sig(test.p) ? 'yes' : ''}">${esc(factor === 'Category' ? 'Highest vs lowest' : test.a + ' vs ' + test.b)}: ${test.diff_points > 0 ? '+' : ''}${test.diff_points.toFixed(2)} pts, p ${test.p < 0.001 ? '&lt; 0.001' : '= ' + test.p.toFixed(3)}${sig(test.p) ? ', significant' : ''}</span>` : ''}</td></tr>`;
+  groups.forEach(f => rowsFor(f).forEach((r, i) => ft += rowHtml(f, r.level, r.buyers, r.returned, r.repeat_rate, testFor(f), i === 0)));
+  ft += rowHtml('Category', catName(topCat.category) + ' (highest)', topCat.buyers, topCat.returned, topCat.repeat_rate, testFor('Category'), true);
+  ft += rowHtml('Category', catName(botCat.category) + ' (lowest)', botCat.buyers, botCat.returned, botCat.repeat_rate, null, false);
+  $('#factors').innerHTML = ft + '</tbody>';
+
+  // return gap
+  const maxGap = Math.max(...gap.map(r => r.buyers));
+  $('#gap').innerHTML = `<thead><tr><th>Time to next order</th><th class="num">Buyers</th><th class="num">Share</th><th class="barcell"></th></tr></thead><tbody>` +
+    gap.map(r => `<tr><td>${r.gap}</td><td class="num">${fmt(r.buyers)}</td><td class="num">${pct(r.buyers / gapTotal, 0)}</td><td class="barcell"><span class="bar ${r.bucket_order <= 3 ? '' : 'ctx'}" style="width:${r.buyers / maxGap * 100}%" data-tip="${r.gap}: ${fmt(r.buyers)} buyers"></span></td></tr>`).join('') + '</tbody>';
+
+  // rfm
+  $('#rfm').innerHTML = `<thead><tr><th>Segment</th><th class="num">Buyers</th><th class="num">Share of buyers</th><th class="barcell"></th><th class="num">Share of revenue</th><th class="barcell"></th><th class="num">Avg spend</th><th class="num">Days since last order</th></tr></thead><tbody>` +
+    rfm.map(r => `<tr><td><b>${r.segment}</b></td><td class="num">${fmt(r.buyers)}</td><td class="num">${pct(r.buyer_share)}</td>
+      <td class="barcell"><span class="bar ctx" style="width:${r.buyer_share / 0.35 * 100}%" data-tip="${r.segment}: ${pct(r.buyer_share)} of buyers"></span></td>
+      <td class="num">${pct(r.gmv_share)}</td>
+      <td class="barcell"><span class="bar" style="width:${r.gmv_share / 0.35 * 100}%" data-tip="${r.segment}: ${pct(r.gmv_share)} of revenue (${brl(r.gmv)})"></span></td>
+      <td class="num">R$${Math.round(r.avg_spend)}</td><td class="num">${r.avg_recency_days}</td></tr>`).join('') + '</tbody>';
+}
+
+function charts() {
+  const ink = css('--ink'), muted = css('--muted'), hair = css('--hair'), pen = css('--pen'), ctx = css('--ctx'), act = css('--action'), paper = css('--paper');
+  Chart.defaults.font.family = css('--f-body');
+  Chart.defaults.font.size = 12;
+  Chart.defaults.color = muted;
+  const tooltip = { backgroundColor: paper, titleColor: ink, bodyColor: ink, borderColor: ink, borderWidth: 1, cornerRadius: 0, padding: 8, displayColors: true, boxPadding: 4 };
+  const grid = { color: hair, drawTicks: false };
+  const axis = { border: { display: false }, grid: { display: false } };
+
+  const M = D.monthly;
+  new Chart($('#cMonthly'), {
+    type: 'bar',
+    data: {
+      labels: M.map(r => monShort(r.month)),
+      datasets: [
+        { label: 'First-time buyer', data: M.map(r => r.first_orders), backgroundColor: ctx, borderColor: paper, borderWidth: { top: 2 }, borderSkipped: false },
+        { label: 'Returning buyer', data: M.map(r => r.repeat_orders), backgroundColor: pen, borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: false }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { ...tooltip, callbacks: { footer: it => { const r = M[it[0].dataIndex]; return `Returning share: ${pct(r.repeat_orders / r.orders)}`; } } } },
+      scales: { x: { stacked: true, ...axis }, y: { stacked: true, border: { display: false }, grid, ticks: { callback: v => fmt(v) } } }
+    }
+  });
+
+  const L = D.late_vs_review;
+  new Chart($('#cReview'), {
+    type: 'bar',
+    data: { labels: L.map(r => r.bucket), datasets: [{ label: '1 or 2 star reviews', data: L.map(r => r.negative_share * 100), backgroundColor: L.map(r => r.bucket_order === 0 ? ctx : act), borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: false, maxBarThickness: 56 }] },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltip, displayColors: false, callbacks: { label: it => `${it.raw.toFixed(1)}% negative`, afterLabel: it => { const r = L[it.dataIndex]; return [`Avg score ${r.avg_review}`, `${fmt(r.orders)} reviewed orders`]; } } } },
+      scales: { x: axis, y: { border: { display: false }, grid, max: 100, ticks: { callback: v => v + '%' } } }
+    }
+  });
+
+  new Chart($('#cLate'), {
+    type: 'line',
+    data: { labels: M.map(r => monShort(r.month)), datasets: [{ label: 'Late delivery rate', data: M.map(r => r.late_rate * 100), borderColor: act, backgroundColor: act, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, pointHoverBorderColor: paper, pointHoverBorderWidth: 2, tension: 0 }] },
+    options: {
+      maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { ...tooltip, displayColors: false, callbacks: { label: it => `${it.raw.toFixed(1)}% late`, afterLabel: it => `Avg review ${M[it.dataIndex].avg_review}` } } },
+      scales: { x: axis, y: { border: { display: false }, grid, beginAtZero: true, ticks: { callback: v => v + '%' } } }
+    }
+  });
+
+  const C = D.repeat_by_category;
+  new Chart($('#cCat'), {
+    type: 'bar',
+    data: { labels: C.map(r => catName(r.category)), datasets: [{ label: '180-day return rate', data: C.map(r => r.repeat_rate * 100), backgroundColor: C.map((r, i) => i < 4 ? pen : ctx), borderRadius: { topRight: 4, bottomRight: 4 }, borderSkipped: false, barPercentage: .75 }] },
+    options: {
+      indexAxis: 'y', maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltip, displayColors: false, callbacks: { label: it => `${it.raw.toFixed(2)}% returned within 180 days`, afterLabel: it => { const r = C[it.dataIndex]; return [`${fmt(r.returned)} of ${fmt(r.buyers)} buyers`, `${pct(r.same_category_share, 0)} of returners bought the same category`]; } } } },
+      scales: { y: { ...axis, ticks: { color: ink } }, x: { border: { display: false }, grid, beginAtZero: true, ticks: { callback: v => v + '%' } } }
+    }
+  });
+}
+
+function bindTips() {
+  const tip = $('#tip');
+  document.addEventListener('mousemove', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el) { tip.hidden = true; return; }
+    tip.textContent = el.dataset.tip; tip.hidden = false;
+    const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + 'px'; tip.style.top = (e.clientY + 14) + 'px';
+  });
+}
+</script>
+</body>
+</html>

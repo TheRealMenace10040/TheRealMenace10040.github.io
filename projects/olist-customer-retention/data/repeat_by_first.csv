@@ -1,0 +1,13 @@
+factor,level_order,level,buyers,returned,repeat_rate
+Delivery,1,Late,3775,61,0.01616
+Delivery,1,On time,51872,1040,0.02005
+Review,2,1 or 2 stars,7314,122,0.01668
+Review,2,3 stars,4829,95,0.01967
+Review,2,4 or 5 stars,43091,879,0.0204
+Route,3,Interstate,37031,699,0.01888
+Route,3,Same state,18616,402,0.02159
+First order value,4,Quintile 1,11130,234,0.02102
+First order value,4,Quintile 2,11130,201,0.01806
+First order value,4,Quintile 3,11129,225,0.02022
+First order value,4,Quintile 4,11129,206,0.01851
+First order value,4,Quintile 5,11129,235,0.02112

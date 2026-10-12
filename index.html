@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dennis Nguyen, Data Analyst Portfolio</title>
-<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report, an interactive cleanroom EM dashboard, SPC control charts for lab test results and a deviation and CAPA tracker.">
+<meta name="description" content="Quality and lab data projects by Dennis Nguyen: openFDA recall analysis, an Excel vendor tracker, an environmental monitoring trend report, an interactive cleanroom EM dashboard, SPC control charts for lab test results, a deviation and CAPA tracker, and an e-commerce customer retention case study.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -209,6 +209,20 @@ ol.next li { margin-bottom: 4px; }
         </div>
       </div>
     </article>
+    <article class="proj">
+      <div class="id">P-07</div>
+      <div class="body">
+        <h3>E-commerce customer retention</h3>
+        <span class="data">Real public data: 96,203 Olist marketplace orders, 2017 to 2018</span>
+        <p>A SQL case study on whether a Brazilian online marketplace keeps its customers. I modelled 7 linked tables in DuckDB, built monthly cohorts and RFM segments, and tested whether late deliveries, bad reviews or order value predict a second purchase.</p>
+        <p class="finding"><span class="lbl">Finding</span>Only 2.0% of first-time buyers order again within 180 days. Late deliveries push bad reviews from about 10% to 66%, but late buyers come back almost as often as on-time ones (1.6% vs 2.0%, not significant). The first order's category matters more: 3.2% of bags and accessories buyers return, against 1.0% for gadgets.</p>
+        <span class="stack">SQL (DuckDB: CTEs, window functions, cohorts), Python, hypothesis testing, Chart.js</span>
+        <div class="go">
+          <a href="https://therealmenace10040.github.io/projects/olist-customer-retention/">Open the dashboard</a>
+          <a href="https://github.com/TheRealMenace10040/TheRealMenace10040.github.io/tree/main/projects/olist-customer-retention">Code and write-up</a>
+        </div>
+      </div>
+    </article>
   </section>
 
   <section>
@@ -218,12 +232,12 @@ ol.next li { margin-bottom: 4px; }
       <tbody>
         <tr><td>Excel / Google Sheets</td><td>P-02, P-03, P-06, and daily lab work</td></tr>
         <tr><td>VBA</td><td>P-02, P-03</td></tr>
-        <tr><td>SQL</td><td>P-03</td></tr>
-        <tr><td>Python</td><td>P-01, P-02, P-03, P-06</td></tr>
-        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05, P-06</td></tr>
+        <tr><td>SQL</td><td>P-03, P-07</td></tr>
+        <tr><td>Python</td><td>P-01, P-02, P-03, P-06, P-07</td></tr>
+        <tr><td>JavaScript / Chart.js</td><td>P-01, P-04, P-05, P-06, P-07</td></tr>
       </tbody>
     </table>
-    <p class="methods"><b>Methods:</b> statistical process control (X-bar/R, Nelson rules, Cp/Cpk), root cause analysis, Pareto analysis, deviation aging, CAPA trending and effectiveness checks, EM alert and action limit trending. <b>Also:</b> Power BI.</p>
+    <p class="methods"><b>Methods:</b> statistical process control (X-bar/R, Nelson rules, Cp/Cpk), root cause analysis, Pareto analysis, deviation aging, CAPA trending and effectiveness checks, EM alert and action limit trending, cohort retention, RFM segmentation, two-proportion z-tests. <b>Also:</b> Power BI.</p>
   </section>
 
   <section>
