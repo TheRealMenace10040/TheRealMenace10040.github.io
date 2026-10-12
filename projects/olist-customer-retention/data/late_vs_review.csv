@@ -1,0 +1,6 @@
+bucket_order,bucket,orders,avg_review,negative_share,five_star_share
+0,On time or early,89182,4.29,0.0925,0.6228
+1,1 to 3 days late,1851,3.29,0.3214,0.3317
+2,4 to 7 days late,1748,2.1,0.6768,0.1407
+3,8 to 14 days late,1446,1.67,0.8015,0.0685
+4,15+ days late,1333,1.72,0.7832,0.072
