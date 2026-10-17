@@ -1,0 +1,3 @@
+route,orders,late_rate,median_days_to_deliver,avg_review
+Interstate,61599,0.0807,13.0,4.1
+Same state,34604,0.0451,6.0,4.26

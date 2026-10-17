@@ -1,0 +1,2 @@
+orders,buyers,gmv,avg_order_value,late_rate,avg_review,naive_repeat_rate,any_return_rate,eligible_buyers,returned_180,repeat_180_rate,first_order_gmv_share,data_start,data_end
+96203,93096,15376430.99,159.83,0.0679,4.16,0.03,0.0215,55647,1101,0.0198,0.9705,2017-01-05,2018-08-29
